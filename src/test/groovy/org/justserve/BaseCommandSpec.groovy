@@ -18,7 +18,14 @@ class BaseCommandSpec extends JustServeSpec {
             props.load(stream)
         }
         def ansi = "\\u001B\\[[;\\d]*m"
-        cliVersion = Pattern.compile("^${ansi}" + props.getProperty('justserveCliVersion') + "${ansi}\\s*\$")
+        def staticText = """     _           _    ____
+    | |         | |  / ___|
+    | |_   _ ___| |_| (___   ___ _ ____   _____
+    | | | | / __| __|\\___ \\ / _ \\ '__\\ \\ / / _ \\
+ ___| | |_| \\__ \\ |_ ____) |  __/ |   \\ V /  __/
+|____/ \\__,_|___/\\__|_____/ \\___|_|    \\_/ \\___|""";
+        cliVersion = Pattern.compile("^${ansi}${Pattern.quote(staticText)}${ansi}\\s*${ansi}" +
+                Pattern.quote(props.getProperty('justserveCliVersion')) + "${ansi}\\s*\$")
         blankRegex = Pattern.compile "^\\s*\$"
         successRegex = Pattern.compile("^${ansi}\\w+${ansi}\\s*\$")
         errorRegex = Pattern.compile("(?is)^${ansi}received an unexpected response from JustServe:${ansi}.*\\d+ \\(.*?\\)${ansi}\\s*\$")
