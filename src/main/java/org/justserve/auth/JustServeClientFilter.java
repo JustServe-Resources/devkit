@@ -1,4 +1,4 @@
-package org.justserve;
+package org.justserve.auth;
 
 import io.micronaut.context.annotation.Property;
 import io.micronaut.context.annotation.Requires;
