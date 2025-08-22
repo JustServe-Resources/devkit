@@ -14,13 +14,13 @@ import static org.fusesource.jansi.Ansi.ansi;
 public final class JustServePrinter {
 
     private final static Ansi blue = ansi().fgRgb(0, 158, 185);
-    private final static Ansi orange = ansi().fgRgb(239, 94, 57);
+    private final static Ansi orange = ansi().fgRgb(255, 140, 0); // OG color is 239, 94, 57
     private final static Ansi red = ansi().fgRgb(233, 59, 84); // I definitely eyeballed this one
     private final static Ansi yellow = ansi().fgRgb(225, 188, 33);
 
     private final static Ansi normalStyle = ansi().reset();
     private final static Ansi titleStyle = blue.bold();
-    private final static Ansi emphasisStyle = orange;
+    private final static Ansi emphasisStyle = orange.bold();
     private final static Ansi warningStyle = yellow;
     private final static Ansi errorTitleStyle = red.bold();
     private final static Ansi errorInfoStyle = ansi().reset();
@@ -71,12 +71,12 @@ public final class JustServePrinter {
     }
 
     /**
-     * Returns a String stylized in Blue.
+     * Returns a String stylized in the designated emphasis style.
      *
      * @param message The message to print.
      */
-    public static String styleOrange(String message) {
-        return applyStyle(message, orange);
+    public static String styleEmphasis(String message) {
+        return applyStyle(message, emphasisStyle);
     }
 
     /**
