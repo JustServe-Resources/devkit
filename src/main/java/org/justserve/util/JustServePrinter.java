@@ -1,7 +1,8 @@
-package org.justserve;
+package org.justserve.util;
 
 import org.fusesource.jansi.Ansi;
 
+import static java.lang.System.lineSeparator;
 import static java.util.Arrays.stream;
 import static org.fusesource.jansi.Ansi.ansi;
 
@@ -18,7 +19,7 @@ public final class JustServePrinter {
     private final static Ansi yellow = ansi().fgRgb(225, 188, 33);
 
     private final static Ansi normalStyle = ansi().reset();
-    private final static Ansi titleStyle = blue;
+    private final static Ansi titleStyle = blue.bold();
     private final static Ansi emphasisStyle = orange;
     private final static Ansi warningStyle = yellow;
     private final static Ansi errorTitleStyle = red.bold();
@@ -32,14 +33,23 @@ public final class JustServePrinter {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
     }
 
-    private static void jsPrint(String message, Ansi... style) {
+    private static String applyStyle(String message, Ansi... style) {
         Ansi styledMessage = stream(style).reduce(ansi(), Ansi::a, Ansi::a);
-        System.out.println(styledMessage.a(message).reset());
+        String[] lines = message.split(lineSeparator());
+        StringBuilder sb = new StringBuilder();
+        for (String line : lines) {
+            sb.append(styledMessage.a(line).reset());
+        }
+        return sb.toString();
     }
 
+    private static void jsPrint(String message, Ansi... style) {
+        System.out.println(applyStyle(message, style));
+    }
+
+
     private static void jsPrintErr(String message, Ansi... style) {
-        Ansi styledMessage = stream(style).reduce(ansi(), Ansi::a, Ansi::a);
-        System.err.println(styledMessage.a(message).reset());
+        System.err.println(applyStyle(message, style));
     }
 
     /**
@@ -49,6 +59,24 @@ public final class JustServePrinter {
      */
     public static void printNormal(String message) {
         jsPrint(message, normalStyle);
+    }
+
+    /**
+     * Returns a String stylized in Orange.
+     *
+     * @param message The message to print.
+     */
+    public static String styleTitle(String message) {
+       return applyStyle(message, titleStyle);
+    }
+
+    /**
+     * Returns a String stylized in Blue.
+     *
+     * @param message The message to print.
+     */
+    public static String styleOrange(String message) {
+        return applyStyle(message, orange);
     }
 
     /**
