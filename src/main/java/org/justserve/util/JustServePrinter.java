@@ -2,7 +2,6 @@ package org.justserve.util;
 
 import org.fusesource.jansi.Ansi;
 
-import static java.lang.System.lineSeparator;
 import static java.util.Arrays.stream;
 import static org.fusesource.jansi.Ansi.ansi;
 
@@ -35,12 +34,7 @@ public final class JustServePrinter {
 
     private static String applyStyle(String message, Ansi... style) {
         Ansi styledMessage = stream(style).reduce(ansi(), Ansi::a, Ansi::a);
-        String[] lines = message.split(lineSeparator());
-        StringBuilder sb = new StringBuilder();
-        for (String line : lines) {
-            sb.append(styledMessage.a(line).reset());
-        }
-        return sb.toString();
+        return styledMessage.a(message).reset().toString();
     }
 
     private static void jsPrint(String message, Ansi... style) {
