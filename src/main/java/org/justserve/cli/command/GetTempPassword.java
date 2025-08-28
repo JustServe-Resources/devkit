@@ -8,7 +8,6 @@ import jakarta.inject.Inject;
 import jakarta.inject.Provider;
 import org.justserve.client.UserClient;
 import org.justserve.model.UserHashRequestByEmail;
-import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -36,10 +35,9 @@ public class GetTempPassword extends BaseCommand implements Callable<Integer> {
      * Computes a result, or throws an exception if unable to do so.
      *
      * @return computed result
-     * @throws Exception if unable to compute a result
      */
     @Override
-    public Integer call() throws Exception {
+    public Integer call() {
         HttpResponse<String> response;
         if ("i-need-to-be-defined".equals(token) || null == token) {
             printError(("NO AUTHENTICATION PROVIDED" + System.lineSeparator() +

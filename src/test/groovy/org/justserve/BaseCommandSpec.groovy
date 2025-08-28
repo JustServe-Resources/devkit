@@ -24,7 +24,7 @@ class BaseCommandSpec extends JustServeSpec {
     | |_   _ ___| |_| (___   ___ _ ____   _____
     | | | | / __| __|\\___ \\ / _ \\ '__\\ \\ / / _ \\
  ___| | |_| \\__ \\ |_ ____) |  __/ |   \\ V /  __/
-|____/ \\__,_|___/\\__|_____/ \\___|_|    \\_/ \\___|""";
+|____/ \\__,_|___/\\__|_____/ \\___|_|    \\_/ \\___|"""
         cliVersion = Pattern.compile("^${ansi}${Pattern.quote(staticText)}${ansi}\\s*${ansi}" +
                 Pattern.quote(props.getProperty('justserveCliVersion')) + "${ansi}\\s*\$")
         blankRegex = Pattern.compile "^\\s*\$"

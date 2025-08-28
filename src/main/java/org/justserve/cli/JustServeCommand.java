@@ -1,29 +1,15 @@
 package org.justserve.cli;
 
-import io.micronaut.configuration.picocli.PicocliRunner;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.BeanContext;
-import io.micronaut.context.annotation.Value;
-import io.micronaut.http.HttpResponse;
-import io.micronaut.http.client.exceptions.HttpClientResponseException;
-import jakarta.inject.Inject;
-import jakarta.inject.Provider;
 import org.justserve.cli.command.BaseCommand;
 import org.justserve.cli.util.JustServeVersionProvider;
-import org.justserve.client.UserClient;
-import org.justserve.model.UserHashRequestByEmail;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
 import picocli.CommandLine.ParameterException;
-import picocli.jansi.graalvm.AnsiConsole;
 
-import java.awt.datatransfer.StringSelection;
 import java.util.concurrent.Callable;
 import java.util.function.BiFunction;
-
-import static java.awt.Toolkit.getDefaultToolkit;
-import static org.justserve.cli.util.JustServePrinter.printError;
 
 @Command(name = "justserve", versionProvider = JustServeVersionProvider.class,
         description = "justserve-cli is a terminal tool to help specialists and admin using JustServe")
@@ -81,10 +67,9 @@ public class JustServeCommand extends BaseCommand implements Callable<Integer> {
      * Computes a result, or throws an exception if unable to do so.
      *
      * @return computed result
-     * @throws Exception if unable to compute a result
      */
     @Override
-    public Integer call() throws Exception {
+    public Integer call() {
         throw new ParameterException(spec.commandLine(), "No command specified");
     }
 }
