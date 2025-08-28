@@ -1,51 +1,51 @@
-package org.justserve;
+package org.justserve.cli.command;
 
-import io.micronaut.configuration.picocli.PicocliRunner;
 import io.micronaut.context.annotation.Value;
+import io.micronaut.core.annotation.ReflectiveAccess;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import jakarta.inject.Inject;
 import jakarta.inject.Provider;
 import org.justserve.client.UserClient;
 import org.justserve.model.UserHashRequestByEmail;
-import org.justserve.util.VersionProvider;
+import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
-import picocli.jansi.graalvm.AnsiConsole;
 
-import static org.justserve.util.JustServePrinter.printError;
-import static org.justserve.util.JustServePrinter.printNormal;
+import java.awt.datatransfer.StringSelection;
+import java.util.concurrent.Callable;
 
-@Command(name = "justserve", versionProvider = VersionProvider.class,
-        description = "justserve-cli is a terminal tool to help specialists and admin using JustServe")
-public class BaseCommand implements Runnable {
+import static java.awt.Toolkit.getDefaultToolkit;
+import static org.justserve.cli.util.JustServePrinter.printError;
 
+@Command(name = "getTempPassword", description = "get a temporary password for a user")
+public class GetTempPassword extends BaseCommand implements Callable<Integer> {
+
+    @ReflectiveAccess
     @Option(names = {"-e", "--email"}, description = "email for the user whose temporary password will be generated")
     String email;
-
-    @Option(names = {"version", "--version", "-v"}, versionHelp = true, description = "print version info and exit")
-    boolean version = false;
-
+    
     @Inject
+    @ReflectiveAccess
     Provider<UserClient> userClientProvider;
 
     @Value("${justserve.token}")
     String token;
 
-    public static void main(String[] args) {
-        try (AnsiConsole ignored = AnsiConsole.windowsInstall()) {
-            PicocliRunner.run(BaseCommand.class, args);
-        }
-
-    }
-
-    public void run() {
+    /**
+     * Computes a result, or throws an exception if unable to do so.
+     *
+     * @return computed result
+     * @throws Exception if unable to compute a result
+     */
+    @Override
+    public Integer call() throws Exception {
         HttpResponse<String> response;
         if ("i-need-to-be-defined".equals(token) || null == token) {
             printError(("NO AUTHENTICATION PROVIDED" + System.lineSeparator() +
                     "The Authentication token is not assigned as an environment variable." + System.lineSeparator() +
                     "Please define the environment variable \"JUSTSERVE_TOKEN\" and try again."));
-            return;
+            return 1;
         }
         try {
             UserClient userClient = userClientProvider.get();
@@ -54,12 +54,15 @@ public class BaseCommand implements Runnable {
             String errorMessage = "Received an unexpected response from JustServe:" +
                     String.format("%n%d (%s)", e.getResponse().status().getCode(), e.reason());
             printError(errorMessage);
-            return;
+            return 1;
         }
         if (response != null) {
-            printNormal(response.body().replace("\"", "").trim());
+            getDefaultToolkit().getSystemClipboard().setContents(
+                    new StringSelection(response.body().replace("\"", "").trim()), null);
+            return 0;
         } else {
             printError("An unexpected error occurred. Response from JustServe was null.");
+            return 1;
         }
     }
 }

@@ -2,6 +2,7 @@ package org.justserve
 
 import io.micronaut.configuration.picocli.PicocliRunner
 import io.micronaut.context.ApplicationContext
+import org.justserve.cli.JustServeCommand
 import spock.lang.Shared
 import spock.lang.Unroll
 
@@ -89,7 +90,7 @@ class BaseCommandSpec extends JustServeSpec {
         OutputStream err = new ByteArrayOutputStream()
         System.setOut(new PrintStream(out))
         System.setErr(new PrintStream(err))
-        PicocliRunner.run(BaseCommand.class, ctx, args)
+        PicocliRunner.run(JustServeCommand.class, ctx, args)
         return new String[]{out.toString(), err.toString()}
     }
 

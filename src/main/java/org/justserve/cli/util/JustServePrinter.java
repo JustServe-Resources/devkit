@@ -1,4 +1,4 @@
-package org.justserve.util;
+package org.justserve.cli.util;
 
 import org.fusesource.jansi.Ansi;
 
