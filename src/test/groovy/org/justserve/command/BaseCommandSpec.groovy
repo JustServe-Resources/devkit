@@ -1,7 +1,8 @@
-package org.justserve
+package org.justserve.command
 
 import io.micronaut.configuration.picocli.PicocliRunner
 import io.micronaut.context.ApplicationContext
+import org.justserve.JustServeSpec
 import org.justserve.cli.JustServeCommand
 import spock.lang.Shared
 import spock.lang.Unroll
@@ -11,7 +12,7 @@ import java.util.regex.Pattern
 class BaseCommandSpec extends JustServeSpec {
 
     @Shared
-    Pattern cliVersion, ansiRegex, blankRegex, successRegex, errorRegex, tokenNotSetRegex
+    Pattern cliVersion, blankRegex, successRegex, errorRegex, tokenNotSetRegex
 
     def setupSpec() {
         def props = new Properties()
@@ -35,31 +36,6 @@ class BaseCommandSpec extends JustServeSpec {
                 "${ansi}Please define the environment variable \"JUSTSERVE_TOKEN\" and try again\\.${ansi}\\s*\$")
     }
 
-    @Unroll("command with args: calling 'justserve #flag #email' works as expected")
-    def "commands to query temporary password should behave as expected with or without authentication"() {
-        when:
-        def (outputStream, errorStream) = executeCommand(context as ApplicationContext, [flag, email] as String[])
-
-        then:
-        if (context == noAuthCtx) {
-            verifyAll {
-                outputStream.matches(blankRegex)
-                errorStream.matches(tokenNotSetRegex)
-            }
-        } else if (userEmail.equalsIgnoreCase(email as String)) {
-            verifyAll {
-                outputStream.matches(successRegex)
-                errorStream.matches(blankRegex)
-            }
-        } else {
-            verifyAll {
-                outputStream.matches(blankRegex)
-                errorStream.matches(errorRegex)
-            }
-        }
-        where:
-        [flag, email, context] << [['-e', '--email'], [userEmail, "notanemail@mail.moc"], [noAuthCtx, ctx]].combinations()
-    }
 
     @Unroll
     def "querying version returns current version, with or without authentication"() {
@@ -73,7 +49,7 @@ class BaseCommandSpec extends JustServeSpec {
         }
 
         where:
-        [args, context] << [[['-v'], ['--version'], ['version']], [noAuthCtx, ctx]].combinations()
+        [args, context] << [[['-V'], ['--version']], [noAuthCtx, ctx]].combinations()
     }
 
     /**
@@ -92,10 +68,6 @@ class BaseCommandSpec extends JustServeSpec {
         System.setErr(new PrintStream(err))
         PicocliRunner.run(JustServeCommand.class, ctx, args)
         return new String[]{out.toString(), err.toString()}
-    }
-
-    String stripColor(String string) {
-        return ansiRegex.matcher(string).replaceAll("")
     }
 
 }

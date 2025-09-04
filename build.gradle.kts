@@ -38,7 +38,7 @@ dependencies {
 
 
 application {
-    mainClass = "org.justserve.BaseCommand"
+    mainClass = "org.justserve.cli.JustServeCommand"
 }
 
 java {

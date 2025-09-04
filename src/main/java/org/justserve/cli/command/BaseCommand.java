@@ -2,23 +2,21 @@ package org.justserve.cli.command;
 
 import io.micronaut.core.annotation.NonNull;
 import io.micronaut.core.annotation.ReflectiveAccess;
-import picocli.CommandLine;
+import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
+import picocli.CommandLine.Spec;
 
 import java.io.PrintWriter;
 import java.util.Optional;
 
 import static picocli.CommandLine.Help.Ansi.AUTO;
 
+@Command
 public class BaseCommand implements ConsoleOutput{
 
-    @CommandLine.Spec
+    @Spec
     @ReflectiveAccess
     protected CommandSpec spec;
-
-    @CommandLine.Mixin
-    @ReflectiveAccess
-    protected CommonOptionsMixin commonOptions = new CommonOptionsMixin();
 
 
     @Override
