@@ -19,7 +19,7 @@ class UserClientSpec extends JustServeSpec {
         userClient = ctx.getBean(UserClient)
     }
 
-    def "get tempPassword for #email and "() {
+    def "get tempPassword for #email"() {
         when:
         HttpResponse<String> response = null
         def caughtException = null

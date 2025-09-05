@@ -26,6 +26,8 @@ dependencies {
     implementation("info.picocli:picocli")
     implementation("info.picocli:picocli-jansi-graalvm:1.2.0")
     implementation("org.fusesource.jansi:jansi:2.4.2")
+    implementation("info.picocli:picocli-shell-jline3:4.7.6")
+    implementation("org.jline:jline:3.30.5")
     implementation("io.micronaut:micronaut-http-client")
     implementation("io.micronaut.picocli:micronaut-picocli")
     implementation("io.micronaut.serde:micronaut-serde-jackson")
@@ -36,7 +38,7 @@ dependencies {
 
 
 application {
-    mainClass = "org.justserve.BaseCommand"
+    mainClass = "org.justserve.cli.JustServeCommand"
 }
 
 java {
