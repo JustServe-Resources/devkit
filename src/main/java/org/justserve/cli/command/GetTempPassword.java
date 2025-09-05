@@ -1,44 +1,34 @@
-package org.justserve;
+package org.justserve.cli.command;
 
-import io.micronaut.configuration.picocli.PicocliRunner;
 import io.micronaut.context.annotation.Value;
+import io.micronaut.core.annotation.ReflectiveAccess;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import jakarta.inject.Inject;
 import jakarta.inject.Provider;
 import org.justserve.client.UserClient;
 import org.justserve.model.UserHashRequestByEmail;
-import org.justserve.util.VersionProvider;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
-import picocli.jansi.graalvm.AnsiConsole;
 
-import static org.justserve.util.JustServePrinter.printError;
-import static org.justserve.util.JustServePrinter.printNormal;
+import static org.justserve.cli.util.JustServePrinter.printError;
+import static org.justserve.cli.util.JustServePrinter.printNormal;
 
-@Command(name = "justserve", versionProvider = VersionProvider.class,
-        description = "justserve-cli is a terminal tool to help specialists and admin using JustServe")
-public class BaseCommand implements Runnable {
+@Command(name = "getTempPassword", description = "get a temporary password for a user")
+public class GetTempPassword extends BaseCommand implements Runnable {
 
+    @ReflectiveAccess
     @Option(names = {"-e", "--email"}, description = "email for the user whose temporary password will be generated")
     String email;
 
-    @Option(names = {"version", "--version", "-v"}, versionHelp = true, description = "print version info and exit")
-    boolean version = false;
-
     @Inject
+    @ReflectiveAccess
     Provider<UserClient> userClientProvider;
 
     @Value("${justserve.token}")
     String token;
 
-    public static void main(String[] args) {
-        try (AnsiConsole ignored = AnsiConsole.windowsInstall()) {
-            PicocliRunner.run(BaseCommand.class, args);
-        }
-
-    }
-
+    @Override
     public void run() {
         HttpResponse<String> response;
         if ("i-need-to-be-defined".equals(token) || null == token) {

@@ -1,12 +1,12 @@
-package org.justserve.util;
+package org.justserve.cli.util;
 
 import io.micronaut.context.annotation.Value;
 import picocli.CommandLine;
 
-import static org.justserve.util.JustServePrinter.styleEmphasis;
-import static org.justserve.util.JustServePrinter.styleTitle;
+import static org.justserve.cli.util.JustServePrinter.styleEmphasis;
+import static org.justserve.cli.util.JustServePrinter.styleTitle;
 
-public class VersionProvider implements CommandLine.IVersionProvider {
+public class JustServeVersionProvider implements CommandLine.IVersionProvider {
 
     @Value("${micronaut.application.version}")
     String justserveCliVersion;

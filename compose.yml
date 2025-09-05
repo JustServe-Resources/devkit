@@ -1,0 +1,26 @@
+services:
+  linux-shell:
+    image: ghcr.io/graalvm/native-image-community:21-muslib
+    container_name: justserve-linux-shell
+    working_dir: /app
+    volumes: 
+    - .:/app
+    env_file: .env
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - "mkdir -p /temp_app && cp -r . /temp_app/ && cd /temp_app && microdnf install -y findutils && sed -i 's/\r$//' ./gradlew && if [ -t 0 ]; then /bin/bash; else tail -f /dev/null; fi"
+    stdin_open: true
+    tty: true
+
+  linux-test:
+    image: ghcr.io/graalvm/native-image-community:21-muslib
+    container_name: justserve-linux-test
+    working_dir: /app
+    volumes: 
+    - .:/app
+    env_file: .env
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - "mkdir -p /temp_app && cp -r . /temp_app/ && cd /temp_app && microdnf install -y findutils && sed -i 's/\r$//' ./gradlew && ./gradlew test"
