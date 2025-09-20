@@ -17,8 +17,8 @@ import picocli.CommandLine.Option;
  * }
  * </pre>
  *
- * @author Remko Popma
- * @version 1.0
+ * @author Jonathan Zollinger
+ * @version 0.0.1
  */
 @Command(mixinStandardHelpOptions = true, versionProvider = JustServeVersionProvider.class)
 @SuppressWarnings("checkstyle:VisibilityModifier")
