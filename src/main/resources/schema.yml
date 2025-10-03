@@ -36,11 +36,44 @@ paths:
               schema: { $ref: '#/components/schemas/UserSlimSearchResults' }
         '400':
           description: Bad Request
+          content: { application/json: { schema: { $ref: '#/components/schemas/ProblemDetails' } } }
         '500':
           description: Internal Server Error
+          content: { application/json: { schema: { $ref: '#/components/schemas/ProblemDetails' } } }
+
+  /api/v1/routing/{url}:
+    get:
+      operationId: getOrgIdFromSlug
+      tags:
+        - DynamicRouting
+      parameters: [ { name: url, in: path, required: true, schema: { type: string } } ]
+      responses:
+        '200':
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/DynamicRoutingDataResponse' } } }
+        '404':
+          description: Not Found
+          content: { application/json: { schema: { $ref: '#/components/schemas/ProblemDetails' } } }
 
 components:
   schemas:
+    DynamicRoutingDataResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          nullable: true
+        dynamicRouteType:
+          description: "The type of entity the route points to."
+          type: integer
+          format: int32
+          enum:
+            - 0
+            - 1
+          x-enum-varnames:
+            - Organization
+            - DisasterRelief
+      additionalProperties: false
     UserHashRequest:
       description: |
         A request containing either the email or the userid for a user.
@@ -364,3 +397,18 @@ components:
         "globalLeadAdmin",
         "developer"
       ]
+    ProblemDetails:
+      type: object
+      properties:
+        type:
+          type: string
+          format: uri
+          nullable: true
+        title:
+          type: string
+          nullable: true
+        status:
+          type: integer
+          format: int32
+          nullable: true
+        traceId: { type: string, nullable: true }
