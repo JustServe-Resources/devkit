@@ -21,6 +21,26 @@ paths:
           description: Bad Request
         '500':
           description: Internal Server Error
+  /api/v1/users/securitycontext/bearer:
+    get:
+      description: "Retrieves the admin context for a given user (ie org ID's, church unit id's, role levels, etc). if no user is provided, it will return the context for the currently authenticated user"
+      operationId: getAdminContext
+      tags:
+        - User
+      parameters:
+        - name: userId
+          in: query
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/SecurityContext' } } }
+        '401': # No failures for unfound endpoints. querying ID "this is a bad ID" returns the current user's bearer context.
+          description: Unauthorized
+          content: { application/json: { schema: { $ref: '#/components/schemas/ProblemDetails' } } }
+
   /api/v1/users/slimSearch:
     post:
       operationId: userSearchSlim
@@ -57,6 +77,33 @@ paths:
 
 components:
   schemas:
+    ChurchCivicGeographyUserRole:
+      type: object
+      properties:
+        churchGeographyId:
+          type: string
+          format: uuid
+        unitId:
+          type: string
+          nullable: true
+        civicGeographyId:
+          type: string
+          format: uuid
+        role:
+          $ref: '#/components/schemas/Role'
+      additionalProperties: false
+    ChurchGeographyUserRole:
+      type: object
+      properties:
+        churchGeographyId:
+          type: string
+          format: uuid
+        unitId:
+          type: string
+          nullable: true
+        role:
+          $ref: '#/components/schemas/Role'
+      additionalProperties: false
     DynamicRoutingDataResponse:
       type: object
       properties:
@@ -73,6 +120,15 @@ components:
           x-enum-varnames:
             - Organization
             - DisasterRelief
+      additionalProperties: false
+    OrganizationUserRole:
+      type: object
+      properties:
+        organizationId:
+          type: string
+          format: uuid
+        role:
+          $ref: '#/components/schemas/Role'
       additionalProperties: false
     UserHashRequest:
       description: |
@@ -358,6 +414,18 @@ components:
         deletedOn: { type: string, format: date-time, nullable: true }
         deletedBy: { type: string, format: uuid, nullable: true }
       additionalProperties: false
+    OrganizationCivicGeographyUserRole:
+      type: object
+      properties:
+        organizationId:
+          type: string
+          format: uuid
+        role:
+          $ref: '#/components/schemas/Role'
+        civicGeographyId:
+          type: string
+          format: uuid
+      additionalProperties: false
     Location:
       type: object
       properties: { latitude: { type: number, format: double },
@@ -412,3 +480,36 @@ components:
           format: int32
           nullable: true
         traceId: { type: string, nullable: true }
+    SecurityContext:
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+        userRepresentativeForOrganizations:
+          type: array
+          items:
+            type: string
+            format: uuid
+          nullable: true
+        churchGeographies:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/ChurchGeographyUserRole'
+          nullable: true
+        civicGeographies:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/ChurchCivicGeographyUserRole'
+          nullable: true
+        organizationRoles:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/OrganizationUserRole'
+          nullable: true
+        organizationCivicGeographyUserRoles:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrganizationCivicGeographyUserRole'
+          nullable: true
+      additionalProperties: false
