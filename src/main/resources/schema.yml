@@ -4,8 +4,24 @@ info:
   description: API for automating tasks within JustServe
   contact:
     name: Jonathan Zollinger
-  version: v0.0.1
+  version: v0.0.5
+  tags:
+    - User
+    - DynamicRouting
 paths:
+  /api/v1/boundaries/update:
+    put:
+      tags:
+        - BoundaryPermission
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BoundaryUpdateDeleteViewModel'
+      responses:
+        '200':
+          description: OK
+
   /api/v1/users/hash:
     post:
       operationId: getTempPassword
@@ -77,6 +93,39 @@ paths:
 
 components:
   schemas:
+    BoundaryUpdateDeleteViewModel:
+      type: object
+      properties:
+        id:
+          description: "when reassigning to a specialist, this is the specialist's church geography ID."
+          type: string
+          nullable: true
+        boundaryType:
+          $ref: '#/components/schemas/BoundaryType'
+        updateInfo:
+          type: array
+          items:
+            $ref: '#/components/schemas/BoundaryUserInfo'
+          nullable: true
+      additionalProperties: false
+    BoundaryUserInfo:
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+        add:
+          type: boolean
+      additionalProperties: false
+    BoundaryType:
+      type: integer
+      format: int32
+      enum:
+        - 0
+        - 1
+      x-enum-varnames:
+        - LdsGeography
+        - Organization
     ChurchCivicGeographyUserRole:
       type: object
       properties:
