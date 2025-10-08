@@ -6,8 +6,10 @@ info:
     name: Jonathan Zollinger
   version: v0.0.5
   tags:
-    - User
+    - BoundaryPermission
     - DynamicRouting
+    - User
+    - Organization
 paths:
   /api/v1/boundaries/update:
     put:
@@ -21,7 +23,18 @@ paths:
       responses:
         '200':
           description: OK
-
+  /api/v1/organizations/search:
+    post:
+      description: "Search for an organization near a given location."
+      operationId: searchByLocation
+      tags:
+        - Organization
+      requestBody:
+        content: { application/json: { schema: { $ref: '#/components/schemas/OrganizationSearch' } } }
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/OrganizationSearchResponse' } } }
   /api/v1/users/hash:
     post:
       operationId: getTempPassword
@@ -153,6 +166,12 @@ components:
         role:
           $ref: '#/components/schemas/Role'
       additionalProperties: false
+    DistanceType:
+      type: string
+      enum:
+        - None
+        - Miles
+        - Kilometers
     DynamicRoutingDataResponse:
       type: object
       properties:
@@ -178,6 +197,22 @@ components:
           format: uuid
         role:
           $ref: '#/components/schemas/Role'
+      additionalProperties: false
+    OrganizationSearchResponse:
+      type: object
+      properties:
+        count:
+          type: integer
+          format: int32
+        organizations:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrganizationSlimResponse"
+          nullable: true
+        location:
+          $ref: "#/components/schemas/Location"
+        isLocationSupported:
+          type: boolean
       additionalProperties: false
     UserHashRequest:
       description: |
@@ -404,6 +439,44 @@ components:
           items: { $ref: '#/components/schemas/OrganizationSlimResponse' }
           nullable: true
         additionalProperties: false
+    OrganizationSearch:
+      type: object
+      properties:
+        latitude: { type: number, format: double, nullable: true }
+        longitude: { type: number, format: double, nullable: true }
+        keywords: { type: string, nullable: true }
+        location:
+          description: |
+            The full or partial geographic name for the organization search. 
+            This can be a full street address, including street, city, state, and 
+            country, or a specific location name (e.g., 'Far West, UT'). 
+            For best results, provide the most specific, full address 
+            available, including Zip codes. Partial queries perform best
+            when matching a whole location name (e.g., 'Zionsv' for 'Zionsville') 
+            rather than a partial street name.
+            
+            @author jonathan zollinger
+            @since 0.0.5
+          type: string
+          nullable: true
+        radius: { default: 75, type: integer, format: int32 }
+        radiusType:
+          $ref: "#/components/schemas/DistanceType"
+        sortBy: { type: string, nullable: true }
+        page: { default: 75, type: integer, format: int32 }
+        size: { default: 0, type: integer, format: int32 }
+        organizationType:
+          $ref: "#/components/schemas/OrganizationType"
+        lang: { type: string, nullable: true }
+      additionalProperties: false
+    OrganizationStatus:
+      type: string
+      enum:
+        - None
+        - Active
+        - Inactive
+        - Pending
+        - Rejected
     OrganizationSlimResponse:
       type: object
       properties:
@@ -427,14 +500,6 @@ components:
         - Organization
         - VolunteerCenter
         - DisasterRelief
-    OrganizationStatus:
-      type: string
-      enum:
-        - None
-        - Active
-        - Inactive
-        - Pending
-        - Rejected
     Endorsement:
       type: object
       properties:
@@ -480,6 +545,115 @@ components:
       properties: { latitude: { type: number, format: double },
                     longitude: { type: number, format: double } }
       additionalProperties: false
+    LocationWithRadius: {
+      "type": "object",
+      "properties": {
+        "mapId": {
+          "type": "string",
+          "nullable": true
+        },
+        "fullDisplayAddress": {
+          "type": "string",
+          "nullable": true
+        },
+        "address": {
+          "type": "string",
+          "nullable": true
+        },
+        "suite": {
+          "type": "string",
+          "nullable": true
+        },
+        "city": {
+          "type": "string",
+          "nullable": true
+        },
+        "civicCityId": {
+          "type": "string",
+          "format": "uuid",
+          "nullable": true
+        },
+        "neighborhood": {
+          "type": "string",
+          "nullable": true
+        },
+        "county": {
+          "type": "string",
+          "nullable": true
+        },
+        "state": {
+          "type": "string",
+          "nullable": true
+        },
+        "postal": {
+          "type": "string",
+          "nullable": true
+        },
+        "country": {
+          "type": "string",
+          "nullable": true
+        },
+        "countryCode": {
+          "type": "string",
+          "nullable": true
+        },
+        "missionId": {
+          "type": "string",
+          "nullable": true
+        },
+        "ccId": {
+          "type": "string",
+          "nullable": true
+        },
+        "stakeId": {
+          "type": "string",
+          "nullable": true
+        },
+        "areaId": {
+          "type": "string",
+          "nullable": true
+        },
+        "latitude": {
+          "type": "number",
+          "format": "double"
+        },
+        "longitude": {
+          "type": "number",
+          "format": "double"
+        },
+        "maxLatitude": {
+          "type": "number",
+          "format": "double"
+        },
+        "minLatitude": {
+          "type": "number",
+          "format": "double"
+        },
+        "maxLongitude": {
+          "type": "number",
+          "format": "double"
+        },
+        "minLongitude": {
+          "type": "number",
+          "format": "double"
+        },
+        "geoCodeOverride": {
+          "type": "boolean"
+        },
+        "timezone": {
+          "type": "string",
+          "nullable": true
+        },
+        "radiusType": {
+          "$ref": "#/components/schemas/JustServe.Contracts.Enums.DistanceType"
+        },
+        "countryCode2Char": {
+          "type": "string",
+          "nullable": true
+        }
+      },
+      "additionalProperties": false
+    }
     VolunteerCenterInfo:
       type: object
       properties:
