@@ -1,0 +1,5 @@
+micronaut:
+  http:
+    services:
+      justserve:
+        url: https://stage.justserve.org
