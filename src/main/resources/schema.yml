@@ -15,22 +15,24 @@ paths:
     put:
       tags:
         - BoundaryPermission
+      operationId: updateBoundary
+      description: Modify a user's boundaries
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BoundaryUpdateDeleteViewModel'
+              $ref: '#/components/schemas/BoundaryUpdateRequest '
       responses:
         '200':
           description: OK
   /api/v1/organizations/search:
     post:
-      description: "Search for an organization near a given location."
+      description: Search for an organization near a given location.
       operationId: searchByLocation
       tags:
         - Organization
       requestBody:
-        content: { application/json: { schema: { $ref: '#/components/schemas/OrganizationSearch' } } }
+        content: { application/json: { schema: { $ref: '#/components/schemas/OrganizationSearchRequest' } } }
       responses:
         200:
           description: OK
@@ -106,11 +108,11 @@ paths:
 
 components:
   schemas:
-    BoundaryUpdateDeleteViewModel:
+    BoundaryUpdateRequest :
       type: object
       properties:
         id:
-          description: "when reassigning to a specialist, this is the specialist's church geography ID."
+          description: when reassigning to a specialist, this is the specialist's church geography ID.
           type: string
           nullable: true
         boundaryType:
@@ -125,8 +127,7 @@ components:
       type: object
       properties:
         userId: { type: string, format: uuid }
-        add:
-          type: boolean
+        add: { type: boolean }
       additionalProperties: false
     BoundaryType:
       type: integer
@@ -429,11 +430,9 @@ components:
           items: { $ref: '#/components/schemas/OrganizationSlimResponse' }
           nullable: true
         additionalProperties: false
-    OrganizationSearch:
+    OrganizationSearchRequest:
       type: object
       properties:
-        latitude: { type: number, format: double, nullable: true }
-        longitude: { type: number, format: double, nullable: true }
         keywords: { type: string, nullable: true }
         location:
           description: |
@@ -450,14 +449,14 @@ components:
           type: string
           nullable: true
         radius: { default: 75, type: integer, format: int32 }
-        radiusType:
-          $ref: "#/components/schemas/DistanceType"
+#        radiusType:
+#          $ref: "#/components/schemas/DistanceType"
         sortBy: { type: string, nullable: true }
-        page: { default: 75, type: integer, format: int32 }
-        size: { default: 0, type: integer, format: int32 }
-        organizationType:
-          $ref: "#/components/schemas/OrganizationType"
-        lang: { type: string, nullable: true }
+        page: { default: 0, type: integer, format: int32 }
+        size: { default: 5, type: integer, format: int32 }
+#        organizationType:
+#          $ref: "#/components/schemas/OrganizationType"
+#        lang: { type: string, nullable: true }
       additionalProperties: false
     OrganizationStatus:
       type: string
@@ -484,8 +483,14 @@ components:
         isIndividualProject: { type: boolean }
         status: { $ref: '#/components/schemas/OrganizationStatus' }
     OrganizationType:
-      type: string
+      type: integer
+      format: int32
       enum:
+        - 0
+        - 1
+        - 2
+        - 3
+      x-enum-varnames:
         - None
         - Organization
         - VolunteerCenter
