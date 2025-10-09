@@ -449,14 +449,9 @@ components:
           type: string
           nullable: true
         radius: { default: 75, type: integer, format: int32 }
-#        radiusType:
-#          $ref: "#/components/schemas/DistanceType"
         sortBy: { type: string, nullable: true }
         page: { default: 0, type: integer, format: int32 }
         size: { default: 5, type: integer, format: int32 }
-#        organizationType:
-#          $ref: "#/components/schemas/OrganizationType"
-#        lang: { type: string, nullable: true }
       additionalProperties: false
     OrganizationStatus:
       type: string
