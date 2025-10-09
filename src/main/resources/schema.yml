@@ -37,6 +37,306 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/OrganizationSearchResponse' } } }
+  "/api/v1/users": {
+    "post": {
+      "tags": [
+        "User"
+      ],
+      "parameters": [
+        {
+          "name": "FirstName",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "maxLength": 50,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        {
+          "name": "LastName",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "maxLength": 50,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        {
+          "name": "Email",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}$",
+            "type": "string"
+          }
+        },
+        {
+          "name": "Password",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "maxLength": 100,
+            "minLength": 8,
+            "type": "string",
+            "format": "password"
+          }
+        },
+        {
+          "name": "Postal",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "City",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "Language",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "ClientId",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "ClientSecret",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "Latitude",
+          "in": "query",
+          "schema": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        {
+          "name": "Longitude",
+          "in": "query",
+          "schema": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        {
+          "name": "Country",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "CountryCode",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "AppleToken",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "AppleAuthCode",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "GoogleToken",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "FacebookToken",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "UserName",
+          "in": "query",
+          "schema": {
+            "type": "string",
+            "deprecated": true
+          }
+        },
+        {
+          "name": "CountryCodeAlpha3",
+          "in": "query",
+          "schema": {
+            "type": "string",
+            "deprecated": true
+          }
+        },
+        {
+          "name": "State",
+          "in": "query",
+          "schema": {
+            "type": "string",
+            "deprecated": true
+          }
+        },
+        {
+          "name": "Address",
+          "in": "query",
+          "schema": {
+            "type": "string",
+            "deprecated": true
+          }
+        },
+        {
+          "name": "DistanceUnits",
+          "in": "query",
+          "schema": {
+            "type": "string",
+            "deprecated": true
+          }
+        },
+        {
+          "name": "Clock",
+          "in": "query",
+          "schema": {
+            "type": "string",
+            "deprecated": true
+          }
+        },
+        {
+          "name": "Skills",
+          "in": "query",
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "deprecated": true
+          }
+        },
+        {
+          "name": "Interests",
+          "in": "query",
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "deprecated": true
+          }
+        },
+        {
+          "name": "Tools",
+          "in": "query",
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "deprecated": true
+          }
+        },
+        {
+          "name": "DaysAvailable",
+          "in": "query",
+          "schema": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/System.DayOfWeek"
+            },
+            "deprecated": true
+          }
+        },
+        {
+          "name": "TimesAvailable",
+          "in": "query",
+          "schema": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/JustServe.Contracts.Enums.TimeOfDay"
+            },
+            "deprecated": true
+          }
+        },
+        {
+          "name": "DisasterReliefRegistrationSeen",
+          "in": "query",
+          "schema": {
+            "type": "boolean",
+            "deprecated": true
+          }
+        },
+        {
+          "name": "DonateToDisasterReliefChecked",
+          "in": "query",
+          "schema": {
+            "type": "boolean",
+            "deprecated": true
+          }
+        },
+        {
+          "name": "VolunteerForDisasterReliefChecked",
+          "in": "query",
+          "schema": {
+            "type": "boolean",
+            "deprecated": true
+          }
+        },
+        {
+          "name": "DisasterReliefAvailabilityDate",
+          "in": "query",
+          "schema": {
+            "type": "string",
+            "format": "date-time",
+            "deprecated": true
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "OK",
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
   /api/v1/users/hash:
     post:
       operationId: getTempPassword
