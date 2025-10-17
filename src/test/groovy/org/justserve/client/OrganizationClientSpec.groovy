@@ -1,5 +1,6 @@
 package org.justserve.client
 
+
 import io.micronaut.http.HttpStatus
 import org.justserve.JustServeSpec
 import org.justserve.model.OrganizationSearchRequest
@@ -28,6 +29,25 @@ class OrganizationClientSpec extends JustServeSpec {
             response.body() != null
             response.body().organizations.size() > 0
         }
+
+        where:
+        expectedStatus | client       | title
+        HttpStatus.OK  | authClient   | "auth client"
+        HttpStatus.OK  | noAuthClient | "no auth client"
+    }
+
+    def "get admins for a given org"() {
+        given:
+        def search = new OrganizationSearchRequest()
+                .setLocation("Elk Grove, CA 95758, USA")
+                .setSortBy("az")
+        UUID orgID = client.searchByLocation(search).body().organizations.first.id
+
+        when:
+        def response = client.getOrgOwners(orgID)
+
+        then:
+        noExceptionThrown()
 
         where:
         expectedStatus | client       | title

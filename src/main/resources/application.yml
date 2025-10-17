@@ -13,3 +13,6 @@ justserve:
 jackson:
   deserialization:
     ACCEPT_EMPTY_STRING_AS_NULL_OBJECT: true
+logger:
+  levels:
+#    org.justserve.auth.JustServeClientFilter: DEBUG
