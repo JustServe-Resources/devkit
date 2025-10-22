@@ -1,6 +1,6 @@
 openapi: 3.0.1
 info:
-  title: JustServe Fulcrum HttpClient
+  title: JustServe HttpClient
   description: API for automating tasks within JustServe
   contact:
     name: Jonathan Zollinger
@@ -43,6 +43,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ImageUploadResponse'
+  /api/v1/organizations:
+    post:
+      tags: [ Organization ]
+      description: Create a new organization
+      operationId: createOrganization
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrganizationCreateRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: null
   /api/v1/organizations/search:
     post:
       description: Search for an organization near a given location.
@@ -193,7 +210,6 @@ paths:
         '401': # No failures for unfound endpoints. querying ID "this is a bad ID" returns the current user's bearer context.
           description: Unauthorized
           content: { application/json: { schema: { $ref: '#/components/schemas/ProblemDetails' } } }
-
   /api/v1/users/slimSearch:
     post:
       operationId: userSearchSlim
@@ -213,7 +229,6 @@ paths:
         '500':
           description: Internal Server Error
           content: { application/json: { schema: { $ref: '#/components/schemas/ProblemDetails' } } }
-
   /api/v1/routing/{url}:
     get:
       operationId: getOrgIdFromSlug
@@ -339,6 +354,21 @@ components:
         full: { type: string }
         displayFileName: { type: string }
         thumb: { type: string }
+    OrganizationCreateRequest:
+      type: object
+      properties:
+        banner: { type: string, nullable: true }
+        logo: { type: string, nullable: true }
+        contactEmail: { type: string }
+        contactPhone: { type: string }
+        description: { type: string }
+        locationString: { type: string }
+        name: { type: string }
+        public: { type: boolean }
+        url:
+          type: string
+          description: The vanity URL slug for the organization's public page ('my-cool-org' not 'https.../orgs/my-cool-org'
+        volunteerCenterInfo: { type: string, nullable: true }
     OrganizationUserRole:
       type: object
       properties:

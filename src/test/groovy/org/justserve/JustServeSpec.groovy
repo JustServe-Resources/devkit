@@ -4,6 +4,7 @@ import io.micronaut.context.ApplicationContext
 import io.micronaut.context.env.Environment
 import io.micronaut.test.extensions.spock.annotation.MicronautTest
 import net.datafaker.Faker
+import org.justserve.client.ImageClient
 import org.justserve.client.UserClient
 import spock.lang.Shared
 import spock.lang.Specification
@@ -14,7 +15,11 @@ class JustServeSpec extends Specification {
     @Shared
     Faker faker
 
-    @Shared noAuthUserClient
+    @Shared
+    UserClient noAuthUserClient
+
+    @Shared
+    ImageClient authImageClient
 
     @Shared
     ApplicationContext ctx, noAuthCtx
@@ -43,6 +48,7 @@ class JustServeSpec extends Specification {
                 .start()
         noAuthUserClient = noAuthCtx.getBean(UserClient)
         users = new TestUser[]{new TestUser(new Faker(Locale.of("en-us")))}
+        authImageClient = ctx.getBean(ImageClient)
     }
 
     void cleanupSpec() {

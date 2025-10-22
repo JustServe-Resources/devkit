@@ -9,11 +9,11 @@ import spock.lang.Shared
 class ImageClientSpec extends JustServeSpec {
 
     @Shared
-    ImageClient noAuthImageClient, authImageClient
+    ImageClient noAuthImageClient
 
     def setupSpec() {
         noAuthImageClient = noAuthCtx.getBean(ImageClient)
-        authImageClient = ctx.getBean(ImageClient)
+        //authImageClient created in JustServeSpec
     }
 
     void "can upload an image with #title with no errors"() {
