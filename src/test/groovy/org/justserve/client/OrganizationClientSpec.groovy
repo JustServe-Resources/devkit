@@ -20,7 +20,7 @@ class OrganizationClientSpec extends JustServeSpec {
         when:
         def response = null
         def caughtException = null
-        def exceptionStatusCode=null
+        def exceptionStatusCode = null
         def orgRequest = new OrganizationCreateRequest()
                 .setContactEmail(faker.internet().emailAddress())
                 .setContactName(faker.zelda().character())
@@ -31,19 +31,19 @@ class OrganizationClientSpec extends JustServeSpec {
                 .setName(faker.zelda().character())
                 .set_public(null)
                 .setUrl(faker.zelda().character())
-                .setVolunteerCenter(null)
+                .setVolunteerCenterInfo(null)
                 .setWebsite(faker.internet().url())
         try {
             response = client.createOrganization(orgRequest)
         } catch (HttpClientResponseException e) {
             //in case we want to test we recieved a response in the correct schema
 //            caughtException = e.class
-            exceptionStatusCode=e.status
+            exceptionStatusCode = e.status
         }
 
 
         then:
-        exceptionStatusCode==expectedStatus || response.status() == expectedStatus
+        exceptionStatusCode == expectedStatus || response.status() == expectedStatus
 
 
         where:
