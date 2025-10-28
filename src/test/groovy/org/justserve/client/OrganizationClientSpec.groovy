@@ -2,6 +2,7 @@ package org.justserve.client
 
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
+import io.micronaut.http.client.exceptions.HttpClientResponseException
 import org.justserve.JustServeSpec
 import org.justserve.model.ImageUploadRequest
 import org.justserve.model.ImageUploadResponse
@@ -96,6 +97,45 @@ class OrganizationClientSpec extends JustServeSpec {
 
         then:
         noExceptionThrown()
+    }
 
+    def "create an org with with #title and expected results"() {
+        given:
+        def profileImage = authImageClient.uploadImage(
+                new ImageUploadRequest(faker.image().base64JPG().split(",")[1], 256, 256, false, 0, 0)
+        )
+        String urlSlug = null
+        while (null == urlSlug) {
+            def potentialSlug = faker.word().noun()
+            def slugQueryResponse = dynamicRoutingClient.getOrgIdFromSlug(potentialSlug)
+            if (slugQueryResponse.status() == HttpStatus.NOT_FOUND) {
+                urlSlug = potentialSlug
+            }
+
+        }
+        def orgCreationRequest = new OrganizationCreateRequest()
+                .setLogo(profileImage.body().displayFileName)
+                .setContactEmail(faker.internet().emailAddress())
+                .setDescription(faker.chuckNorris().fact())
+                .setLocationString(knownWorkingLocation)
+                .setName(faker.company().name())
+                .set_public(true)
+                .setUrl(urlSlug)
+
+        when:
+        def response = client.createOrganization(orgCreationRequest)
+
+        then:
+        if (expectedStatus == HttpStatus.CREATED) {
+            null == response
+            return
+        }
+        def exception = thrown(HttpClientResponseException)
+        exception.status == expectedStatus
+
+        where:
+        expectedStatus     | client       | title
+        HttpStatus.CREATED | authClient   | "auth client"
+        HttpStatus.CREATED | noAuthClient | "no auth client"
     }
 }
