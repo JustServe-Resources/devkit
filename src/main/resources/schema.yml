@@ -423,9 +423,6 @@ components:
     UserHashRequest:
       description: |
         A request containing either the email or the userid for a user.
-        
-        @author jonathan zollinger
-        @since 0.0.1
       type: object
       oneOf:
         - $ref: '#/components/schemas/UserHashRequestByEmail'
@@ -450,9 +447,6 @@ components:
     UserSearchRequest:
       description: |
         search query used in a few different endpoints
-        
-        since 0.0.1
-        @author jonathan zollinger
       required: [ value, page, size ]
       type: object
       properties:
@@ -472,9 +466,6 @@ components:
     UserSlimSearchResults:
       description: |
         Return object for the user slim search endpoint
-        
-        @author jonathanzollinger
-        @since 0.0.1
       type: object
       properties:
         count: { type: integer, format: int32 }
@@ -487,9 +478,6 @@ components:
       deprecated: true
       description: |
         Return object for the user search endpoint
-        
-        @since 0.0.1
-        @author jonathan zollinger
       type: object
       properties:
         count: { type: integer, format: int32 }
@@ -571,9 +559,6 @@ components:
     UserSlimSearchResult:
       description: |
         high level information for a given user
-        
-        @author jonathan zollinger
-        @since 0.0.1
       type: object
       properties:
         id: { type: string }
@@ -658,9 +643,6 @@ components:
             available, including Zip codes. Partial queries perform best
             when matching a whole location name (e.g., 'Zionsv' for 'Zionsville') 
             rather than a partial street name.
-            
-            @author jonathan zollinger
-            @since 0.0.5
           type: string
           nullable: true
         radius: { default: 75, type: integer, format: int32 }
