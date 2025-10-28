@@ -385,6 +385,7 @@ components:
         banner: { type: string, nullable: true }
         logo: { type: string, nullable: true }
         contactEmail: { type: string }
+        contactName: { type: string }
         contactPhone: { type: string }
         description: { type: string }
         locationString: { type: string }
@@ -394,6 +395,8 @@ components:
           type: string
           description: The vanity URL slug for the organization's public page ('my-cool-org' not 'https.../orgs/my-cool-org'
         volunteerCenterInfo: { type: string, nullable: true }
+        website: { type: string, nullable: true }
+      additionalProperties: false
     OrganizationUserRole:
       type: object
       properties:
