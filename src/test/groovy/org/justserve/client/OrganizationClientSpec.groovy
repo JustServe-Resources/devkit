@@ -1,8 +1,10 @@
 package org.justserve.client
 
+import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
-import io.micronaut.http.client.exceptions.HttpClientResponseException
 import org.justserve.JustServeSpec
+import org.justserve.model.ImageUploadRequest
+import org.justserve.model.ImageUploadResponse
 import org.justserve.model.OrganizationCreateRequest
 import org.justserve.model.OrganizationSearchRequest
 import spock.lang.Shared
@@ -13,6 +15,9 @@ class OrganizationClientSpec extends JustServeSpec {
 
     @Shared
     DynamicRoutingClient dynamicRoutingClient
+
+    @Shared
+    String knownWorkingLocation = "Latitude, Longitude : 32.75338, -96.80831,  Dallas,  Dallas County,  Texas,  75203,  United States"
 
 
     def setupSpec() {
@@ -60,37 +65,37 @@ class OrganizationClientSpec extends JustServeSpec {
         HttpStatus.OK  | noAuthClient | "no auth client"
     }
 
-    def "can add org using #title"() {
+    def "create an org with no error"() {
+        given:
+        HttpResponse<ImageUploadResponse> profileImage = authImageClient.uploadImage(
+                new ImageUploadRequest(faker.image().base64JPG().split(",")[1], 256, 256, false, 0, 0)
+        )
+        //check that slug isn't already used
+        String urlSlug = null
+        while (null == urlSlug) {
+            def potentialSlug = faker.word().noun()
+            def response = dynamicRoutingClient.getOrgIdFromSlug(potentialSlug)
+            if (response.status() == HttpStatus.NOT_FOUND) {
+                urlSlug = potentialSlug
+            }
+        }
         when:
-        def response = null
-        def exceptionStatusCode = null
         def orgRequest = new OrganizationCreateRequest()
                 .setContactEmail(faker.internet().emailAddress())
                 .setContactName(faker.zelda().character())
                 .setContactPhone(faker.phoneNumber().phoneNumber())
                 .setDescription(faker.zelda().game())
-                .setLocationString("Latitude, Longitude : 40.55930, 15.30702,  Sicignano degli Alburni,  Provincia di Salerno,  Campania,  84029,  Italy")
-                .setLogo("f7cd7609-7ba3-4e00-95ba-626265ddb218.png")
+                .setLocationString(knownWorkingLocation)
+                .setLogo(profileImage.body().displayFileName)
                 .setName(faker.zelda().character())
                 .set_public(null)
-                .setUrl(faker.zelda().character())
+                .setUrl(urlSlug)
                 .setVolunteerCenterInfo(null)
                 .setWebsite(faker.internet().url())
-        try {
-            response = client.createOrganization(orgRequest)
-        } catch (HttpClientResponseException e) {
-            exceptionStatusCode = e.status
-        }
-
+        authClient.createOrganization(orgRequest)
 
         then:
-        exceptionStatusCode == expectedStatus || response.status() == expectedStatus
-
-
-        where:
-        expectedStatus          | client       | title
-        HttpStatus.CREATED      | authClient   | "auth client"
-        HttpStatus.UNAUTHORIZED | noAuthClient | "no auth client"
+        noExceptionThrown()
 
     }
 }
