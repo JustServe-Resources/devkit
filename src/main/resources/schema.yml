@@ -12,6 +12,27 @@ info:
     - User
     - Organization
 paths:
+  /api/v1/boundaries/rep/{userId}/org/{orgId}:
+    put:
+      tags: [ BoundaryPermission ]
+      operationId: MakeAdminForOrg
+      description: Make User an admin to a given organization
+      parameters:
+        - name: orgId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: userId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: null
   /api/v1/boundaries/update:
     put:
       tags:
@@ -22,10 +43,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BoundaryUpdateRequest '
+              $ref: '#/components/schemas/BoundaryUpdateRequest'
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: null
   /api/v1/images:
     post:
       tags: [ Image ]
