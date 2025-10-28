@@ -41,6 +41,25 @@ class OrganizationClientSpec extends JustServeSpec {
         HttpStatus.OK  | noAuthClient | "no auth client"
     }
 
+    def "get admins for a given org with no error"() {
+        given:
+        def search = new OrganizationSearchRequest()
+                .setLocation("Elk Grove, CA 95758, USA")
+                .setSortBy("az")
+        UUID orgID = client.searchByLocation(search).body().organizations.first.id
+
+        when:
+        client.getOrgOwners(orgID)
+
+        then:
+        noExceptionThrown()
+
+        where:
+        expectedStatus | client       | title
+        HttpStatus.OK  | authClient   | "auth client"
+        HttpStatus.OK  | noAuthClient | "no auth client"
+    }
+
     def "can add org using #title"() {
         when:
         def response = null
