@@ -19,7 +19,6 @@ class OrganizationClientSpec extends JustServeSpec {
     def "can add org using #title"() {
         when:
         def response = null
-        def caughtException = null
         def exceptionStatusCode = null
         def orgRequest = new OrganizationCreateRequest()
                 .setContactEmail(faker.internet().emailAddress())
@@ -36,8 +35,6 @@ class OrganizationClientSpec extends JustServeSpec {
         try {
             response = client.createOrganization(orgRequest)
         } catch (HttpClientResponseException e) {
-            //in case we want to test we recieved a response in the correct schema
-//            caughtException = e.class
             exceptionStatusCode = e.status
         }
 
