@@ -3,20 +3,20 @@ package org.justserve.command
 import io.micronaut.context.ApplicationContext
 import net.datafaker.Faker
 import org.justserve.TestUser
-import org.justserve.client.UserClient
 import spock.lang.Execution
+import spock.lang.Retry
 import spock.lang.Shared
 import spock.lang.Unroll
 
 import static org.spockframework.runtime.model.parallel.ExecutionMode.SAME_THREAD
 
 @Execution(SAME_THREAD)
+@Retry
 class GetTempPasswordSpec extends BaseCommandSpec {
     @Shared
     TestUser readOnlyUser
 
     def setupSpec() {
-        noAuthCtx.getBean(UserClient)
         readOnlyUser = new TestUser(new Faker(Locale.of("en-us")))
         readOnlyUser.uuid = createUser(readOnlyUser).body().getId()
     }

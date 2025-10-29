@@ -56,12 +56,21 @@ public final class JustServePrinter {
     }
 
     /**
+     * Prints a standard message using the primary brand color (JustServe Blue).
+     *
+     * @param message The message to print.
+     */
+    public static void printNormal(String message, Object... args) {
+        jsPrint(String.format(message, args), normalStyle);
+    }
+
+    /**
      * Returns a String stylized in Orange.
      *
      * @param message The message to print.
      */
     public static String styleTitle(String message) {
-       return applyStyle(message, titleStyle);
+        return applyStyle(message, titleStyle);
     }
 
     /**

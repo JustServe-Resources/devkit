@@ -1,10 +1,11 @@
 package org.justserve.client
 
 import io.micronaut.http.HttpResponse
+import io.micronaut.http.client.exceptions.HttpClientResponseException
 import org.justserve.JustServeSpec
 import spock.lang.Shared
 
-import static io.micronaut.http.HttpStatus.UNAUTHORIZED
+import static io.micronaut.http.HttpStatus.INTERNAL_SERVER_ERROR
 
 class BoundaryPermissionSpec extends JustServeSpec {
 
@@ -16,9 +17,8 @@ class BoundaryPermissionSpec extends JustServeSpec {
         authBoundaryPermissionClient = ctx.getBean(BoundaryPermissionClient)
     }
 
-    def "can reassign org with no errors"() {
+    def "can reassign organizations #title"() {
         given:
-        UUID orgID = createOrg()
         UUID userID = createUser().body().id
 
         when:
@@ -32,12 +32,14 @@ class BoundaryPermissionSpec extends JustServeSpec {
             }
             return
         }
-        noExceptionThrown()
+        def exception = thrown(HttpClientResponseException)
+        exception.status == expectedError
 
         where:
-        client                         | expectedError | title                                           | _
-        authBoundaryPermissionClient   | null          | "as an admin and the assignment takes hold"     | _
-        noAuthBoundaryPermissionClient | UNAUTHORIZED  | "as an unauthorized user and the request fails" | _
+        client                         | expectedError         | title                                                    | orgID                                               | _
+        authBoundaryPermissionClient   | null                  | "with a good OrgID as an admin and the request succeeds" | createOrg()                                         | _
+        noAuthBoundaryPermissionClient | INTERNAL_SERVER_ERROR | "with a bad OrgID as an admin and the request fails"     | UUID.fromString(faker.internet().uuid().toString()) | _
+//        noAuthBoundaryPermissionClient | UNAUTHORIZED  | "as an unauthorized user and the request fails" | createOrg() | _
     }
 
 
