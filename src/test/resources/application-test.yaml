@@ -3,6 +3,6 @@ micronaut:
     services:
       justserve:
         url: https://stage.justserve.org
-logger:
-  levels:
-    io.micronaut.http.client: TRACE
+#logger:
+#  levels:
+#    io.micronaut.http.client: TRACE

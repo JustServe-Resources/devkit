@@ -35,11 +35,11 @@ class GetTempPasswordSpec extends BaseCommandSpec {
         flag      | email                 | context   | expectedOutput | expectedError    | expectation                                           | _
         '-e'      | 'notanemail@mail.moc' | ctx       | blankRegex     | errorRegex       | "should provide error from api call in printout"      | _
         '-e'      | 'notanemail@mail.moc' | noAuthCtx | blankRegex     | tokenNotSetRegex | "should provide error that user is not authenticated" | _
-        '-e'      | user.email            | ctx       | successRegex   | blankRegex       | "should print out the temp password"                  | _
-        '-e'      | user.email            | noAuthCtx | blankRegex     | tokenNotSetRegex | "should provide error that user is not authenticated" | _
+        '-e'      | readOnlyUser.email    | ctx       | successRegex   | blankRegex       | "should print out the temp password"                  | _
+        '-e'      | readOnlyUser.email    | noAuthCtx | blankRegex     | tokenNotSetRegex | "should provide error that user is not authenticated" | _
         '--email' | 'notanemail@mail.moc' | ctx       | blankRegex     | errorRegex       | "should provide error from api call in printout"      | _
         '--email' | 'notanemail@mail.moc' | noAuthCtx | blankRegex     | tokenNotSetRegex | "should provide error that user is not authenticated" | _
-        '--email' | user.email            | ctx       | successRegex   | blankRegex       | "should print out the temp password"                  | _
-        '--email' | user.email            | noAuthCtx | blankRegex     | tokenNotSetRegex | "should provide error that user is not authenticated" | _
+        '--email' | readOnlyUser.email    | ctx       | successRegex   | blankRegex       | "should print out the temp password"                  | _
+        '--email' | readOnlyUser.email    | noAuthCtx | blankRegex     | tokenNotSetRegex | "should provide error that user is not authenticated" | _
     }
 }
