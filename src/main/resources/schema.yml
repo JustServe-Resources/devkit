@@ -16,7 +16,7 @@ paths:
     put:
       tags: [ BoundaryPermission ]
       operationId: MakeAdminForOrg
-      description: Make User an admin to a given organization
+      description: Make User an admin to a given organization. returns a null response.
       parameters:
         - name: orgId
           in: path
@@ -178,8 +178,7 @@ paths:
                     type: number
                   refresh_token:
                     type: string
-                  id:
-                    type: string
+                  id: { type: string, format: uuid }
                   email:
                     type: string
                   remaining_attempts:
@@ -274,7 +273,10 @@ components:
       type: object
       properties:
         id:
-          description: when reassigning to a specialist, this is the specialist's church geography ID.
+          description: |
+            When reassigning to a specialist, this is the specialist's church geography ID.
+            Sometimes the security context endpoint will include this information, otherwise you can look up the church ID with 
+            api/v1/locations/lds/{CDOL-id}.
           type: string
           nullable: true
         boundaryType:
@@ -288,8 +290,16 @@ components:
     BoundaryUserInfo:
       type: object
       properties:
+        addCivicGeographyIds:
+          type: array
+          items: { type: string, format: uuid }
+        removeCivicGeographyIds:
+          type: array
+          items: { type: string, format: uuid }
+          nullable: true
+        role: { $ref: '#/components/schemas/Role' }
         userId: { type: string, format: uuid }
-        add: { type: boolean }
+        add: { type: boolean, nullable: true }
       additionalProperties: false
     BoundaryType:
       type: integer
@@ -351,9 +361,7 @@ components:
     DynamicRoutingDataResponse:
       type: object
       properties:
-        id:
-          type: string
-          nullable: true
+        id: { type: string, format: uuid }
         dynamicRouteType:
           description: "The type of entity the route points to."
           type: integer
@@ -561,7 +569,7 @@ components:
         high level information for a given user
       type: object
       properties:
-        id: { type: string }
+        id: { type: string, format: uuid }
         firstName: { type: string, nullable: true }
         lastName: { type: string, nullable: true }
         userName: { type: string, nullable: true }

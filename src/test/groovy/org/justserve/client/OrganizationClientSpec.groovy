@@ -1,29 +1,22 @@
 package org.justserve.client
 
-import io.micronaut.http.HttpResponse
+
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import org.justserve.JustServeSpec
-import org.justserve.model.ImageUploadRequest
-import org.justserve.model.ImageUploadResponse
 import org.justserve.model.OrganizationCreateRequest
-import org.justserve.model.OrganizationSearchRequest
 import spock.lang.Shared
 
 class OrganizationClientSpec extends JustServeSpec {
     @Shared
-    OrganizationClient noAuthClient, authClient
+    OrganizationClient noAuthClient
 
     @Shared
     DynamicRoutingClient dynamicRoutingClient
 
-    @Shared
-    String knownWorkingLocation = "Latitude, Longitude : 32.75338, -96.80831,  Dallas,  Dallas County,  Texas,  75203,  United States"
-
 
     def setupSpec() {
         noAuthClient = noAuthCtx.getBean(OrganizationClient)
-        authClient = ctx.getBean(OrganizationClient)
         dynamicRoutingClient = ctx.getBean(DynamicRoutingClient)
     }
 
@@ -40,9 +33,9 @@ class OrganizationClientSpec extends JustServeSpec {
         }
 
         where:
-        expectedStatus | client       | title
-        HttpStatus.OK  | authClient   | "auth client"
-        HttpStatus.OK  | noAuthClient | "no auth client"
+        expectedStatus | client        | title
+        HttpStatus.OK  | authOrgClient | "auth client"
+        HttpStatus.OK  | noAuthClient  | "no auth client"
     }
 
     def "get admins for a given org with no error"() {
@@ -57,9 +50,9 @@ class OrganizationClientSpec extends JustServeSpec {
         noExceptionThrown()
 
         where:
-        expectedStatus | client       | title
-        HttpStatus.OK  | authClient   | "auth client"
-        HttpStatus.OK  | noAuthClient | "no auth client"
+        expectedStatus | client        | title
+        HttpStatus.OK  | authOrgClient | "auth client"
+        HttpStatus.OK  | noAuthClient  | "no auth client"
     }
 
     def "create an org with no error"() {
@@ -77,7 +70,7 @@ class OrganizationClientSpec extends JustServeSpec {
                 .setVolunteerCenterInfo(null)
                 .setWebsite(faker.internet().url())
         when:
-        authClient.createOrganization(orgRequest)
+        authOrgClient.createOrganization(orgRequest)
 
         then:
         noExceptionThrown()
@@ -106,45 +99,9 @@ class OrganizationClientSpec extends JustServeSpec {
         exception.status == expectedStatus
 
         where:
-        expectedStatus     | client       | title
-        HttpStatus.CREATED | authClient   | "auth client"
-        HttpStatus.CREATED | noAuthClient | "no auth client"
+        expectedStatus     | client        | title
+        HttpStatus.CREATED | authOrgClient | "auth client"
+        HttpStatus.CREATED | noAuthClient  | "no auth client"
     }
 
-    /**
-     * Creates a default organization search request for testing.
-     * @return A pre-configured {@link OrganizationSearchRequest}.
-     */
-    private static OrganizationSearchRequest createSearchRequestForElkGrove() {
-        return new OrganizationSearchRequest()
-                .setLocation("Elk Grove, CA 95758, USA")
-                .setSortBy("az")
-    }
-
-    /**
-     * Uploads a fake JPG image and returns the display file name.
-     * @return The file name of the uploaded image.
-     */
-    private String getUploadedImageFileName() {
-        HttpResponse<ImageUploadResponse> profileImage = authImageClient.uploadImage(
-                new ImageUploadRequest(faker.image().base64JPG().split(",")[1], 256, 256, false, 0, 0)
-        )
-        return profileImage.body().displayFileName
-    }
-
-    /**
-     * Generates a unique URL slug for an organization by checking for its existence.
-     * @return A unique string to be used as a URL slug.
-     */
-    private String getUniqueSlug() {
-        String urlSlug = null
-        while (null == urlSlug) {
-            def potentialSlug = faker.word().noun()
-            def response = dynamicRoutingClient.getOrgIdFromSlug(potentialSlug)
-            if (response.status() == HttpStatus.NOT_FOUND) {
-                urlSlug = potentialSlug
-            }
-        }
-        return urlSlug
-    }
 }

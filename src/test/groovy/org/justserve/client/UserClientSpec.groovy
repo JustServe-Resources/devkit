@@ -21,7 +21,7 @@ class UserClientSpec extends JustServeSpec {
     def setupSpec() {
         userClient = ctx.getBean(UserClient)
         readOnlyUser = new TestUser(new Faker(Locale.of("en-us")))
-        readOnlyUser.uuid = UUID.fromString(createUser(readOnlyUser).body().getId())
+        readOnlyUser.uuid = createUser(readOnlyUser).body().getId()
     }
 
     def "create user #{user.firstname} #{user.lastname} #{user.email} #{user.password} #{user.postal} #{user.locale} #{user.country} #{user.countryCode}"() {

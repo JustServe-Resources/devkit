@@ -18,7 +18,7 @@ class GetTempPasswordSpec extends BaseCommandSpec {
     def setupSpec() {
         noAuthCtx.getBean(UserClient)
         readOnlyUser = new TestUser(new Faker(Locale.of("en-us")))
-        readOnlyUser.uuid = UUID.fromString(createUser(readOnlyUser).body().getId())
+        readOnlyUser.uuid = createUser(readOnlyUser).body().getId()
     }
 
     @Unroll("getting temp password with '#flag' and '#email' returns ")
