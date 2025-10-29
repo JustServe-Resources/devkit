@@ -4,9 +4,13 @@ import io.micronaut.context.ApplicationContext
 import net.datafaker.Faker
 import org.justserve.TestUser
 import org.justserve.client.UserClient
+import spock.lang.Execution
 import spock.lang.Shared
 import spock.lang.Unroll
 
+import static org.spockframework.runtime.model.parallel.ExecutionMode.SAME_THREAD
+
+@Execution(SAME_THREAD)
 class GetTempPasswordSpec extends BaseCommandSpec {
     @Shared
     TestUser readOnlyUser
