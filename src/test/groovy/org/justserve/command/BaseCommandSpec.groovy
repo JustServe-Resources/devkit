@@ -4,11 +4,14 @@ import io.micronaut.configuration.picocli.PicocliRunner
 import io.micronaut.context.ApplicationContext
 import org.justserve.JustServeSpec
 import org.justserve.cli.JustServeCommand
+import spock.lang.Execution
 import spock.lang.Shared
-import spock.lang.Unroll
 
 import java.util.regex.Pattern
 
+import static org.spockframework.runtime.model.parallel.ExecutionMode.SAME_THREAD
+
+@Execution(SAME_THREAD)
 class BaseCommandSpec extends JustServeSpec {
 
     @Shared
@@ -37,7 +40,7 @@ class BaseCommandSpec extends JustServeSpec {
     }
 
 
-    @Unroll
+
     def "querying version returns current version, with or without authentication"() {
         when:
         def (outputStream, errorStream) = executeCommand(context as ApplicationContext, args as String[])

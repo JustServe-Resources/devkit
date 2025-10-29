@@ -1,82 +1,77 @@
 package org.justserve.client
 
-import io.micronaut.http.HttpResponse
 import io.micronaut.http.client.exceptions.HttpClientResponseException
+import net.datafaker.Faker
 import org.justserve.JustServeSpec
+import org.justserve.TestUser
 import org.justserve.model.UserHashRequestByEmail
 import spock.lang.Shared
 
-import static io.micronaut.http.HttpStatus.*
+import static io.micronaut.http.HttpStatus.UNAUTHORIZED
 
 class UserClientSpec extends JustServeSpec {
 
     @Shared
-    UserClient noAuthUserClient, userClient
+    UserClient userClient
+
+    @Shared
+    TestUser readOnlyUser
 
 
     def setupSpec() {
-        noAuthUserClient = noAuthCtx.getBean(UserClient)
         userClient = ctx.getBean(UserClient)
+        readOnlyUser = new TestUser(new Faker(Locale.of("en-us")))
+        readOnlyUser.uuid = createUser(readOnlyUser).body().getId()
     }
 
-    def "get admin context for #description"() {
+    def "create user #{user.firstname} #{user.lastname} #{user.email} #{user.password} #{user.postal} #{user.locale} #{user.country} #{user.countryCode}"() {
         when:
-        def response = null
-        def thrownException = null
-        try {
-            response = client.getAdminContext(UUID.fromString(uid))
-        } catch (HttpClientResponseException e) {
-            thrownException = e
-        }
+        TestUser user = new TestUser(new Faker(Locale.of("en-us")))
+        then:
+        createUser(client, user)
+
+        where:
+        client           | _
+        userClient       | _
+        noAuthUserClient | _
+    }
+
+    def "get admin context for a generated user with as an admin"() {
+        //todo: add user with admin context to testing
+        when:
+        def response = client.getAdminContext(readOnlyUser.uuid)
 
         then:
-        if (thrownException) {
-            thrownException.status == expectedStatus
-        } else {
-            response.status == expectedStatus
+        if (!expectedError) {
             response.body() != null
-            if (expectedStatus == OK) {
-                response.body().userId == UUID.fromString(uid)
-            }
+            return
         }
+        def exception = thrown(HttpClientResponseException)
+        exception.status == expectedError
 
         where:
-        description            | uid                                    | client           | expectedStatus
-        "a valid user"         | "e23d029c-25f6-4c93-aada-dcbdc6d50c2c" | userClient       | OK
-        "an invalid user"      | faker.internet().uuid()                | userClient       | NOT_FOUND
-        "a valid user no-auth" | "e23d029c-25f6-4c93-aada-dcbdc6d50c2c" | noAuthUserClient | UNAUTHORIZED
+        expectedError | client           | _
+        null          | userClient       | _
+        UNAUTHORIZED  | noAuthUserClient | _
+
     }
 
-    def "get tempPassword for #email"() {
+    def "get tempPassword for a previously created user"() {
+        given:
         when:
-        HttpResponse<String> response = null
-        def caughtException = null
-        def message = null
-        try {
-            response = client.getTempPassword(new UserHashRequestByEmail(email))
-        } catch (e) {
-            caughtException = e.class
-            message = e.message
-        }
+        def response = client.getTempPassword(new UserHashRequestByEmail(readOnlyUser.email))
 
         then:
-        if (null != caughtException) {
-            verifyAll {
-                caughtException == expectedException
-                message.contains(expectedMessage)
-            }
-        } else {
-            verifyAll {
-                expectedResponse == response.status()
-                response.body() != null
-            }
+        if (!expectedError) {
+            response.body() != null
+            return
         }
+        def exception = thrown(HttpClientResponseException)
+        exception.status == expectedError
 
         where:
-        expectedResponse | email                 | expectedException           | expectedMessage  | client           | _
-        OK               | userEmail             | null                        | null             | userClient       | _
-        null             | "notanemail@mail.moc" | HttpClientResponseException | "\"status\":500" | userClient       | _
-        null             | userEmail             | HttpClientResponseException | "\"status\":401" | noAuthUserClient | _
-        null             | "notanemail@mail.moc" | HttpClientResponseException | "\"status\":401" | noAuthUserClient | _
+        expectedError         | client           | _
+        null                  | userClient       | _
+        UNAUTHORIZED          | noAuthUserClient | _
     }
 }

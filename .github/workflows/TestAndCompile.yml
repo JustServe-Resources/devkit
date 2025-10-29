@@ -3,10 +3,11 @@ on: [pull_request, workflow_dispatch]
 jobs:
   build:
     name: test and compile on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
+    runs-on: self-hosted
+#    runs-on: ${{ matrix.os }}
+#    strategy:
+#      matrix:
+#        os: [macos-latest, windows-latest, ubuntu-latest]
     env:
       TEST_TOKEN: ${{ secrets.MICRONAUT_HTTP_SERVICES_JUSTSERVE_TOKEN }}
     steps:
@@ -22,5 +23,6 @@ jobs:
       - name: upload binary
         uses: actions/upload-artifact@v4
         with:
-          name: justserve-${{ matrix.os }}
+#          name: justserve-${{ matrix.os }}
+          name: justserve
           path: build/native/nativeCompile/justserve*

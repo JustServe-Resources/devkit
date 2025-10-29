@@ -39,6 +39,11 @@ public class JustServeClientFilter {
      */
     @RequestFilter
     public void doFilter(MutableHttpRequest<?> request) {
+        if (request.getUri().getPath().endsWith("/api/v1/organizations/search")) {
+            log.debug("Skipping bearer token for login request ({})", request.getMethod() + " " + request.getUri());
+            return;
+        }
+
         log.debug("adding bearer token to request ({})", request.getMethod() + " " + request.getUri());
         request.bearerAuth(token);
     }

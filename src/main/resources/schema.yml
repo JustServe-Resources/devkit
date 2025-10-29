@@ -1,11 +1,205 @@
 openapi: 3.0.1
 info:
-  title: JustServe Fulcrum HttpClient
+  title: JustServe HttpClient
   description: API for automating tasks within JustServe
   contact:
     name: Jonathan Zollinger
-  version: v0.0.1
+  version: v0.0.5
+  tags:
+    - BoundaryPermission
+    - DynamicRouting
+    - Image
+    - User
+    - Organization
 paths:
+  /api/v1/boundaries/rep/{userId}/org/{orgId}:
+    put:
+      tags: [ BoundaryPermission ]
+      operationId: MakeAdminForOrg
+      description: Make User an admin to a given organization. returns a null response.
+      parameters:
+        - name: orgId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: userId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: null
+  /api/v1/boundaries/update:
+    put:
+      tags:
+        - BoundaryPermission
+      operationId: updateBoundary
+      description: Modify a user's boundaries
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BoundaryUpdateRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: null
+  /api/v1/images:
+    post:
+      tags: [ Image ]
+      description: Upload an image
+      operationId: uploadImage
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImageUploadRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImageUploadResponse'
+  /api/v1/organizations:
+    post:
+      tags: [ Organization ]
+      description: Create a new organization
+      operationId: createOrganization
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrganizationCreateRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: null
+  /api/v1/organizations/search:
+    post:
+      description: Search for an organization near a given location.
+      operationId: searchByLocation
+      tags: [ Organization ]
+      requestBody:
+        content: { application/json: { schema: { $ref: '#/components/schemas/OrganizationSearchRequest' } } }
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/OrganizationSearchResponse' } } }
+  /api/v1/organizations/{organizationId}/owners:
+    get:
+      tags: [ Organization ]
+      description: get the owners for a given organization
+      operationId: getOrgOwners
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        200:
+          description: OK
+          content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/UserSlimSearchResult' } } } }
+  /api/v1/users:
+    post:
+      description: Register a new user on JustServe
+      operationId: createUser
+      tags:
+        - User
+      parameters:
+        - name: FirstName
+          in: query
+          required: true
+          schema:
+            maxLength: 50
+            minLength: 1
+            type: string
+        - name: LastName
+          in: query
+          required: true
+          schema:
+            maxLength: 50
+            minLength: 1
+            type: string
+        - name: Email
+          in: query
+          required: true
+          schema:
+            pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}$"
+            type: string
+        - name: Password
+          in: query
+          required: true
+          schema:
+            maxLength: 100
+            minLength: 8
+            type: string
+            format: password
+        - name: Postal
+          in: query
+          schema:
+            type: string
+        - name: Language
+          description: language locale, ie 'en-us'
+          in: query
+          schema:
+            type: string
+        - name: Country
+          in: query
+          schema:
+            type: string
+        - name: CountryCode
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  token_type:
+                    type: string
+                  expires_in:
+                    type: number
+                  refresh_token:
+                    type: string
+                  id: { type: string, format: uuid }
+                  email:
+                    type: string
+                  remaining_attempts:
+                    type: number
+                  promptFacebookUserForZip:
+                    type: boolean
+                  roles: { }
+                  expiration:
+                    type: string
+                  secure:
+                    type: boolean
+                  issuedDT:
+                    type: string
+                  .issued:
+                    type: string
+                  .expires:
+                    type: string
+                  statusCode:
+                    type: number
+                  responseText: { }
+                  contentType: { }
   /api/v1/users/hash:
     post:
       operationId: getTempPassword
@@ -40,7 +234,6 @@ paths:
         '401': # No failures for unfound endpoints. querying ID "this is a bad ID" returns the current user's bearer context.
           description: Unauthorized
           content: { application/json: { schema: { $ref: '#/components/schemas/ProblemDetails' } } }
-
   /api/v1/users/slimSearch:
     post:
       operationId: userSearchSlim
@@ -60,7 +253,6 @@ paths:
         '500':
           description: Internal Server Error
           content: { application/json: { schema: { $ref: '#/components/schemas/ProblemDetails' } } }
-
   /api/v1/routing/{url}:
     get:
       operationId: getOrgIdFromSlug
@@ -77,65 +269,168 @@ paths:
 
 components:
   schemas:
+    BoundaryUpdateRequest:
+      type: object
+      properties:
+        id:
+          description: |
+            When reassigning to a specialist, this is the specialist's church geography ID.
+            Sometimes the security context endpoint will include this information, otherwise you can look up the church ID with 
+            api/v1/locations/lds/{CDOL-id}.
+          type: string
+          nullable: true
+        boundaryType:
+          $ref: '#/components/schemas/BoundaryType'
+        updateInfo:
+          type: array
+          items:
+            $ref: '#/components/schemas/BoundaryUserInfo'
+          nullable: true
+      additionalProperties: false
+    BoundaryUserInfo:
+      type: object
+      properties:
+        addCivicGeographyIds:
+          type: array
+          items: { type: string, format: uuid }
+        removeCivicGeographyIds:
+          type: array
+          items: { type: string, format: uuid }
+          nullable: true
+        role: { $ref: '#/components/schemas/Role' }
+        userId: { type: string, format: uuid }
+        add: { type: boolean, nullable: true }
+      additionalProperties: false
+    BoundaryType:
+      type: integer
+      format: int32
+      enum:
+        - 0
+        - 1
+      x-enum-varnames:
+        - LdsGeography
+        - Organization
     ChurchCivicGeographyUserRole:
       type: object
       properties:
-        churchGeographyId:
-          type: string
-          format: uuid
+        churchGeographyId: { type: string, format: uuid }
         unitId:
           type: string
           nullable: true
-        civicGeographyId:
-          type: string
-          format: uuid
+        civicGeographyId: { type: string, format: uuid }
         role:
           $ref: '#/components/schemas/Role'
       additionalProperties: false
     ChurchGeographyUserRole:
       type: object
       properties:
-        churchGeographyId:
-          type: string
-          format: uuid
+        churchGeographyId: { type: string, format: uuid }
         unitId:
           type: string
           nullable: true
         role:
           $ref: '#/components/schemas/Role'
       additionalProperties: false
+    Time.DayOfWeek:
+      enum: [ 0, 1, 2, 3, 4, 5, 6 ]
+      x-enum-varnames:
+        - Sunday
+        - Monday
+        - Tuesday
+        - Wednesday
+        - Thursday
+        - Friday
+        - Saturday
+      type: integer
+      format: int32
+    Time.TimeOfDay:
+      enum: [ 0,1,2,3 ]
+      x-enum-varnames:
+        - None
+        - Morning
+        - Afternoon
+        - Evening
+      type: integer
+      format: int32
+    DistanceType:
+      type: string
+      enum:
+        - None
+        - Miles
+        - Kilometers
     DynamicRoutingDataResponse:
       type: object
       properties:
-        id:
-          type: string
-          nullable: true
+        id: { type: string, format: uuid }
         dynamicRouteType:
           description: "The type of entity the route points to."
           type: integer
           format: int32
-          enum:
-            - 0
-            - 1
+          enum: [ 0, 1 ]
           x-enum-varnames:
             - Organization
             - DisasterRelief
       additionalProperties: false
+    ImageUploadRequest:
+      type: object
+      properties:
+        base64: { type: string }
+        height: { type: integer, format: int32 }
+        width: { type: integer, format: int32 }
+        squareWrapper: { type: boolean }
+        x: { type: integer, format: int32 }
+        y: { type: integer, format: int32 }
+    ImageUploadResponse:
+      type: object
+      properties:
+        attachmentId: { type: string, format: uuid }
+        full: { type: string }
+        displayFileName: { type: string }
+        thumb: { type: string }
+    OrganizationCreateRequest:
+      type: object
+      properties:
+        banner: { type: string, nullable: true }
+        logo: { type: string, nullable: true }
+        contactEmail: { type: string }
+        contactName: { type: string }
+        contactPhone: { type: string }
+        description: { type: string }
+        locationString: { type: string }
+        name: { type: string }
+        public: { type: boolean }
+        url:
+          type: string
+          description: The vanity URL slug for the organization's public page ('my-cool-org' not 'https.../orgs/my-cool-org'
+        volunteerCenterInfo: { type: string, nullable: true }
+        website: { type: string, nullable: true }
+      additionalProperties: false
     OrganizationUserRole:
       type: object
       properties:
-        organizationId:
-          type: string
-          format: uuid
+        organizationId: { type: string, format: uuid }
         role:
           $ref: '#/components/schemas/Role'
+      additionalProperties: false
+    OrganizationSearchResponse:
+      type: object
+      properties:
+        count:
+          type: integer
+          format: int32
+        organizations:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrganizationSlimResponse"
+          nullable: true
+        location:
+          $ref: "#/components/schemas/Location"
+        isLocationSupported:
+          type: boolean
       additionalProperties: false
     UserHashRequest:
       description: |
         A request containing either the email or the userid for a user.
-        
-        @author jonathan zollinger
-        @since 0.0.1
       type: object
       oneOf:
         - $ref: '#/components/schemas/UserHashRequestByEmail'
@@ -160,9 +455,6 @@ components:
     UserSearchRequest:
       description: |
         search query used in a few different endpoints
-        
-        since 0.0.1
-        @author jonathan zollinger
       required: [ value, page, size ]
       type: object
       properties:
@@ -182,9 +474,6 @@ components:
     UserSlimSearchResults:
       description: |
         Return object for the user slim search endpoint
-        
-        @author jonathanzollinger
-        @since 0.0.1
       type: object
       properties:
         count: { type: integer, format: int32 }
@@ -197,9 +486,6 @@ components:
       deprecated: true
       description: |
         Return object for the user search endpoint
-        
-        @since 0.0.1
-        @author jonathan zollinger
       type: object
       properties:
         count: { type: integer, format: int32 }
@@ -281,12 +567,9 @@ components:
     UserSlimSearchResult:
       description: |
         high level information for a given user
-        
-        @author jonathan zollinger
-        @since 0.0.1
       type: object
       properties:
-        id: { type: string }
+        id: { type: string, format: uuid }
         firstName: { type: string, nullable: true }
         lastName: { type: string, nullable: true }
         userName: { type: string, nullable: true }
@@ -302,7 +585,7 @@ components:
     Organization:
       type: object
       properties:
-        id: { type: string }
+        id: { type: string, format: uuid }
         language: { type: string, nullable: true }
         organizationType: { $ref: '#/components/schemas/OrganizationType' }
         endorsements: { type: array, items: { $ref: '#/components/schemas/Endorsement' }, nullable: true }
@@ -355,10 +638,38 @@ components:
           items: { $ref: '#/components/schemas/OrganizationSlimResponse' }
           nullable: true
         additionalProperties: false
+    OrganizationSearchRequest:
+      type: object
+      properties:
+        keywords: { type: string, nullable: true }
+        location:
+          description: |
+            The full or partial geographic name for the organization search. 
+            This can be a full street address, including street, city, state, and 
+            country, or a specific location name (e.g., 'Far West, UT'). 
+            For best results, provide the most specific, full address 
+            available, including Zip codes. Partial queries perform best
+            when matching a whole location name (e.g., 'Zionsv' for 'Zionsville') 
+            rather than a partial street name.
+          type: string
+          nullable: true
+        radius: { default: 75, type: integer, format: int32 }
+        sortBy: { type: string, nullable: true }
+        page: { default: 0, type: integer, format: int32 }
+        size: { default: 5, type: integer, format: int32 }
+      additionalProperties: false
+    OrganizationStatus:
+      type: string
+      enum:
+        - None
+        - Active
+        - Inactive
+        - Pending
+        - Rejected
     OrganizationSlimResponse:
       type: object
       properties:
-        id: { type: string, nullable: true }
+        id: { type: string, format: uuid, nullable: true }
         organizationType: { $ref: '#/components/schemas/OrganizationType' }
         title: { type: string, nullable: true }
         logo: { type: string, nullable: true }
@@ -372,20 +683,18 @@ components:
         isIndividualProject: { type: boolean }
         status: { $ref: '#/components/schemas/OrganizationStatus' }
     OrganizationType:
-      type: string
+      type: integer
+      format: int32
       enum:
+        - 0
+        - 1
+        - 2
+        - 3
+      x-enum-varnames:
         - None
         - Organization
         - VolunteerCenter
         - DisasterRelief
-    OrganizationStatus:
-      type: string
-      enum:
-        - None
-        - Active
-        - Inactive
-        - Pending
-        - Rejected
     Endorsement:
       type: object
       properties:
@@ -417,19 +726,45 @@ components:
     OrganizationCivicGeographyUserRole:
       type: object
       properties:
-        organizationId:
-          type: string
-          format: uuid
+        organizationId: { type: string, format: uuid }
         role:
           $ref: '#/components/schemas/Role'
-        civicGeographyId:
-          type: string
-          format: uuid
+        civicGeographyId: { type: string, format: uuid }
       additionalProperties: false
     Location:
       type: object
       properties: { latitude: { type: number, format: double },
                     longitude: { type: number, format: double } }
+      additionalProperties: false
+    LocationWithRadius:
+      type: object,
+      properties:
+        mapId: { type: string, nullable: true }
+        fullDisplayAddress: { type: string, nullable: true }
+        address: { type: string, nullable: true }
+        suite: { type: string, nullable: true }
+        city: { type: string, nullable: true }
+        civicCityId: { type: string, format: uuid, nullable: true }
+        neighborhood: { type: string, nullable: true }
+        county: { type: string, nullable: true }
+        state: { type: string, nullable: true }
+        postal: { type: string, nullable: true }
+        country: { type: string, nullable: true }
+        countryCode: { type: string, nullable: true }
+        missionId: { type: string, nullable: true }
+        ccId: { type: string, nullable: true }
+        stakeId: { type: string, nullable: true }
+        areaId: { type: string, nullable: true }
+        latitude: { type: number, format: double }
+        longitude: { type: number, format: double }
+        maxLatitude: { type: number, format: double }
+        minLatitude: { type: number, format: double }
+        maxLongitude: { type: number, format: double }
+        minLongitude: { type: number, format: double }
+        geoCodeOverride: { type: boolean }
+        timezone: { type: string, nullable: true }
+        radiusType: { $ref: '#/components/schemas/DistanceType' }
+        countryCode2Char: { type: string, nullable: true }
       additionalProperties: false
     VolunteerCenterInfo:
       type: object
@@ -483,15 +818,10 @@ components:
     SecurityContext:
       type: object
       properties:
-        userId:
-          type: string
-          format: uuid
+        userId: { type: string, format: uuid }
         userRepresentativeForOrganizations:
           type: array
-          items:
-            type: string
-            format: uuid
-          nullable: true
+          items: { type: string, format: uuid, nullable: true }
         churchGeographies:
           type: object
           additionalProperties:

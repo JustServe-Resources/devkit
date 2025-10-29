@@ -28,10 +28,10 @@ class DynamicRoutingClientSpec extends JustServeSpec {
         }
 
         where:
-        url            | expectedStatus       | client
-        "blankparkzoo" | HttpStatus.OK        | authClient
-        "blankparkzoo" | HttpStatus.OK        | noAuthClient
-        "1234"         | HttpStatus.NOT_FOUND | authClient
-        "1234"         | HttpStatus.NOT_FOUND | noAuthClient
+        url       | expectedStatus       | client
+        "pickles" | HttpStatus.OK        | authClient
+        "pickles" | HttpStatus.OK        | noAuthClient
+        "1234"    | HttpStatus.NOT_FOUND | authClient
+        "1234"    | HttpStatus.NOT_FOUND | noAuthClient
     }
 }
