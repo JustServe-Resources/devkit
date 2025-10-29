@@ -1,5 +1,6 @@
 package org.justserve.cli.command;
 
+import io.micronaut.context.annotation.Value;
 import io.micronaut.core.annotation.NonNull;
 import io.micronaut.core.annotation.ReflectiveAccess;
 import picocli.CommandLine.Command;
@@ -9,15 +10,28 @@ import picocli.CommandLine.Spec;
 import java.io.PrintWriter;
 import java.util.Optional;
 
+import static org.justserve.cli.util.JustServePrinter.printError;
 import static picocli.CommandLine.Help.Ansi.AUTO;
 
 @Command
-public class BaseCommand implements ConsoleOutput{
+public class BaseCommand implements ConsoleOutput {
 
     @Spec
     @ReflectiveAccess
     protected CommandSpec spec;
 
+    @Value("${justserve.token}")
+    String token;
+
+    boolean validateToken() {
+        if ("i-need-to-be-defined".equals(token) || null == token) {
+            printError(("NO AUTHENTICATION PROVIDED" + System.lineSeparator() +
+                    "The Authentication token is not assigned as an environment variable." + System.lineSeparator() +
+                    "Please define the environment variable \"JUSTSERVE_TOKEN\" and try again."));
+            return false;
+        }
+        return true;
+    }
 
     @Override
     public void out(String message) {

@@ -16,13 +16,15 @@ class BaseCommandSpec extends JustServeSpec {
 
     @Shared
     Pattern cliVersion, blankRegex, successRegex, errorRegex, tokenNotSetRegex
+    @Shared
+    String ansi
 
     def setupSpec() {
         def props = new Properties()
         new File('gradle.properties').withInputStream { stream ->
             props.load(stream)
         }
-        def ansi = "\\u001B\\[[;\\d]*m"
+        ansi = "\\u001B\\[[;\\d]*m"
         def staticText = """     _           _    ____
     | |         | |  / ___|
     | |_   _ ___| |_| (___   ___ _ ____   _____
