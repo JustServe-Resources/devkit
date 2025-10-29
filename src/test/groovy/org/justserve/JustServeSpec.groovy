@@ -4,6 +4,7 @@ import io.micronaut.context.ApplicationContext
 import io.micronaut.context.env.Environment
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
+import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.test.extensions.spock.annotation.MicronautTest
 import net.datafaker.Faker
 import org.justserve.client.*
@@ -80,7 +81,16 @@ class JustServeSpec extends Specification {
     }
 
     def createUser() {
-        return createUser(new TestUser(new Faker(Locale.of("en-us"))))
+        def response
+        while (null == response) {
+            try {
+                // A new user is generated on each loop iteration to avoid collisions
+                response = createUser(noAuthUserClient, new TestUser(new Faker(Locale.of("en-us"))))
+            } catch (HttpClientResponseException ignored) {
+                // This user likely already exists, so we'll loop and try a new one.
+            }
+        }
+        return response
     }
 
     def createUser(UserClient client = noAuthUserClient, TestUser user) {
@@ -92,10 +102,13 @@ class JustServeSpec extends Specification {
                 user.zipcode,
                 user.locale,
                 user.country,
-                user.countryCode
-        )
+                user.countryCode)
     }
 
+    /**
+     * creates a random org for testing
+     * @return
+     */
     UUID createOrg() {
         def orgRequest = new OrganizationCreateRequest()
                 .setContactEmail(faker.internet().emailAddress())
@@ -111,6 +124,17 @@ class JustServeSpec extends Specification {
                 .setWebsite(faker.internet().url())
         authOrgClient.createOrganization(orgRequest)
         return authDynamicRoutingClient.getOrgIdFromSlug(orgRequest.url).body().id
+    }
+
+    /**
+     * Creates a specified number of random organizations for testing.
+     * @param count The number of organizations to create.
+     * @return A list of UUIDs for the created organizations.
+     */
+    List<UUID> createOrgs(int count) {
+        return (1..count).collect {
+            createOrg()
+        }
     }
 
 
