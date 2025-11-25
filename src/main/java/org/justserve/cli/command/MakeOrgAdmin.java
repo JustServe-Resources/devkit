@@ -17,8 +17,6 @@ import picocli.CommandLine.Option;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.justserve.cli.util.JustServePrinter.printError;
-import static org.justserve.cli.util.JustServePrinter.printNormal;
 
 @Slf4j
 @Command(name = "makeOrgAdmin", description = "make a user an admin for the provided organization(s). " +
@@ -58,7 +56,7 @@ public class MakeOrgAdmin extends BaseCommand implements Runnable {
                     .filter(entry -> entry.getValue() == null)
                     .map(entry -> (OrgSlug) entry.getKey())
                     .forEach(invalidOrgSlugs::add);
-            printError("The following organization slugs are invalid: " + invalidOrgSlugs.stream()
+            err("The following organization slugs are invalid: " + invalidOrgSlugs.stream()
                     .map(OrgSlug::getSlug)
                     .collect(Collectors.joining(", ")));
             return;
@@ -79,11 +77,11 @@ public class MakeOrgAdmin extends BaseCommand implements Runnable {
                 log.atDebug().log("Successfully made user {} an admin for org {}.", user, orgIdentifier);
                 successfulReassignments.put(org, orgId);
             } catch (HttpClientResponseException e) {
-                printError("Failed to make user " + user + " an admin for organization " + orgIdentifier + ".");
+                err("Failed to make user " + user + " an admin for organization " + orgIdentifier + ".");
                 log.atError().setCause(e).log("Error response from API: {}", e.getResponse().body());
             }
         });
-        printNormal("successfully reassigned %d orgs to user %s", successfulReassignments.size(), user);
+        out("successfully reassigned %d orgs to user %s", successfulReassignments.size(), user);
     }
 
     /**

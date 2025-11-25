@@ -3,8 +3,7 @@ package org.justserve.cli.util;
 import io.micronaut.context.annotation.Value;
 import picocli.CommandLine;
 
-import static org.justserve.cli.util.JustServePrinter.styleEmphasis;
-import static org.justserve.cli.util.JustServePrinter.styleTitle;
+import static org.justserve.cli.util.JustServeStyle.*;
 
 public class JustServeVersionProvider implements CommandLine.IVersionProvider {
 
@@ -21,6 +20,6 @@ public class JustServeVersionProvider implements CommandLine.IVersionProvider {
 
     @Override
     public String[] getVersion() {
-        return new String[]{styleEmphasis(fancyPrintout), styleTitle(justserveCliVersion)};
+        return new String[]{applyStyle(fancyPrintout, emphasisStyle), applyStyle(justserveCliVersion, titleStyle)};
     }
 }
