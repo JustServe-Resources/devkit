@@ -35,9 +35,9 @@ class BaseCommandSpec extends JustServeSpec {
                 Pattern.quote(props.getProperty('justserveCliVersion')) + "${ansi}\\s*\$")
         blankRegex = Pattern.compile "^\\s*\$"
         successRegex = Pattern.compile("^${ansi}\\w+${ansi}\\s*\$")
-        errorRegex = Pattern.compile("(?is)^${ansi}received an unexpected response from JustServe:${ansi}.*\\d+ \\(.*?\\)${ansi}\\s*\$")
-        tokenNotSetRegex = Pattern.compile("(?s)^${ansi}NO AUTHENTICATION PROVIDED${ansi}.*" +
-                "${ansi}The Authentication token is not assigned as an environment variable\\.${ansi}.*" +
+        errorRegex = Pattern.compile("(?is)^${ansi}Error | Received an unexpected response from JustServe:${ansi}\r?\n\\d+ \\(.*?\\)${ansi}\\s*\$")
+        tokenNotSetRegex = Pattern.compile("(?s)^${ansi}Error | No authentication provided\\.${ansi}.*" +
+                "${ansi}The authentication token is not assigned as an environment variable\\.${ansi}.*" +
                 "${ansi}Please define the environment variable \"JUSTSERVE_TOKEN\" and try again\\.${ansi}\\s*\$")
     }
 

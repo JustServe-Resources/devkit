@@ -31,8 +31,8 @@ public class BaseCommand implements ConsoleOutput {
 
     boolean validateToken() {
         if ("i-need-to-be-defined".equals(token) || null == token) {
-            err(("NO AUTHENTICATION PROVIDED" + System.lineSeparator() +
-                    "The Authentication token is not assigned as an environment variable." + System.lineSeparator() +
+            err(("No authentication provided" + System.lineSeparator() +
+                    "The authentication token is not assigned as an environment variable." + System.lineSeparator() +
                     "Please define the environment variable \"JUSTSERVE_TOKEN\" and try again."));
             return false;
         }
@@ -79,7 +79,7 @@ public class BaseCommand implements ConsoleOutput {
         //splits the message into lines and prints the first line in the errorTitleStyle, the rest in errorInfoStyle
         String fullMessage = (args == null || args.length == 0) ? message : String.format(message, args);
         String[] lines = fullMessage.split("(\\r\\n|\\r|\\n)");
-        errWriter().ifPresent(writer -> writer.println(applyStyle(" Error|" + lines[0], errorTitleStyle)));
+        errWriter().ifPresent(writer -> writer.println(applyStyle("Error | " + lines[0], errorTitleStyle)));
         if (lines.length > 1) {
             stream(lines).skip(1).forEach(line -> {
                 errWriter().ifPresent(writer -> writer.println(applyStyle(line, errorInfoStyle)));
