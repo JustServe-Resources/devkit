@@ -23,7 +23,7 @@ public class GetTempPassword extends BaseCommand implements Runnable {
 
     @Override
     public void run() {
-        if (!validateToken()) {
+        if (isTokenInvalid()) {
             return;
         }
         HttpResponse<String> response;

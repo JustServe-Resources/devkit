@@ -29,14 +29,14 @@ public class BaseCommand implements ConsoleOutput {
     @Value("${justserve.token}")
     String token;
 
-    boolean validateToken() {
+    boolean isTokenInvalid() {
         if ("i-need-to-be-defined".equals(token) || null == token) {
             err(("No authentication provided" + System.lineSeparator() +
                     "The authentication token is not assigned as an environment variable." + System.lineSeparator() +
                     "Please define the environment variable \"JUSTSERVE_TOKEN\" and try again."));
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
     /**
@@ -81,9 +81,7 @@ public class BaseCommand implements ConsoleOutput {
         String[] lines = fullMessage.split("(\\r\\n|\\r|\\n)");
         errWriter().ifPresent(writer -> writer.println(applyStyle("Error | " + lines[0], errorTitleStyle)));
         if (lines.length > 1) {
-            stream(lines).skip(1).forEach(line -> {
-                errWriter().ifPresent(writer -> writer.println(applyStyle(line, errorInfoStyle)));
-            });
+            stream(lines).skip(1).forEach(line -> errWriter().ifPresent(writer -> writer.println(applyStyle(line, errorInfoStyle))));
         }
     }
 
