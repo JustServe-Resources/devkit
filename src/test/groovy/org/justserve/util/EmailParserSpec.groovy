@@ -1,9 +1,10 @@
-package org.justserve.cli.util
+package org.justserve.util
 
 import io.micronaut.core.io.ResourceResolver
 import io.micronaut.test.extensions.spock.annotation.MicronautTest
 import jakarta.inject.Inject
 import org.jsoup.nodes.Document
+import org.justserve.cli.util.JustServeEmailParserError
 import spock.lang.Shared
 import spock.lang.Specification
 

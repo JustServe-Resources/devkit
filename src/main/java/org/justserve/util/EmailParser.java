@@ -1,4 +1,4 @@
-package org.justserve.cli.util;
+package org.justserve.util;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.Multipart;
@@ -9,6 +9,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Node;
 import org.jsoup.select.Elements;
+import org.justserve.cli.util.JustServeEmailParserError;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
