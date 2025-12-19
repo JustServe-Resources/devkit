@@ -32,6 +32,8 @@ dependencies {
     implementation("io.micronaut.picocli:micronaut-picocli")
     implementation("io.micronaut.serde:micronaut-serde-jackson")
     implementation("io.micronaut:micronaut-retry")
+    implementation("org.simplejavamail:simple-java-mail:8.12.6")
+    implementation("org.jsoup:jsoup:1.21.2")
     testImplementation("net.datafaker:datafaker:2.5.1")
     compileOnly("org.projectlombok:lombok")
     runtimeOnly("ch.qos.logback:logback-classic")
