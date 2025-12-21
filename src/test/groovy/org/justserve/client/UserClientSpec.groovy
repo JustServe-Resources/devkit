@@ -5,24 +5,10 @@ import net.datafaker.Faker
 import org.justserve.JustServeSpec
 import org.justserve.TestUser
 import org.justserve.model.UserHashRequestByEmail
-import spock.lang.Shared
 
 import static io.micronaut.http.HttpStatus.UNAUTHORIZED
 
 class UserClientSpec extends JustServeSpec {
-
-    @Shared
-    UserClient userClient
-
-    @Shared
-    TestUser readOnlyUser
-
-
-    def setupSpec() {
-        userClient = ctx.getBean(UserClient)
-        readOnlyUser = new TestUser(new Faker(Locale.of("en-us")))
-        readOnlyUser.uuid = createUser(readOnlyUser).body().getId()
-    }
 
     def "create user #{user.firstname} #{user.lastname} #{user.email} #{user.password} #{user.postal} #{user.locale} #{user.country} #{user.countryCode}"() {
         when:
