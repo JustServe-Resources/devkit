@@ -2,22 +2,53 @@ package org.justserve.client
 
 import io.micronaut.http.HttpResponse
 import org.justserve.JustServeSpec
-import org.justserve.model.ProjectSearchRequest
-import org.justserve.model.ProjectSearchResponse
-import spock.lang.Shared
+import org.justserve.model.*
 
 import static io.micronaut.http.HttpStatus.OK
 import static org.justserve.model.DistanceType.MILES
 
 class ProjectClientSpec extends JustServeSpec {
 
-    @Shared
-    ProjectClient projectClient
+    void "get project's current owner"() {
+        when:
+        GetProjectRequest projectRequest = new GetProjectRequest()
 
-    def setupSpec() {
-        projectClient = ctx.getBean(ProjectClient)
+        def response = projectClient
+                .getProject((project as ProjectCard).getId(), "en-US", projectRequest)
+
+        then:
+        verifyAll {
+            response.body() != null
+            response.body().getProjectOwnerUserId() != null
+        }
+
+
+        where:
+        project << searchResults
+
     }
 
+    void "can reassign a project"() {
+        given:
+        GetProjectRequest projectRequest = new GetProjectRequest()
+        UUID currentOwner = projectClient.getProject((project as ProjectCard).getId(), "en-US", projectRequest)
+                .body().getProjectOwnerUserId()
+        ReassignProjectRequest reassignProjectRequest = new ReassignProjectRequest(readOnlyUser.uuid, currentOwner)
+
+        when:
+        def response = projectClient.reassignProject((project as ProjectCard).getId(), reassignProjectRequest)
+
+        then:
+        noExceptionThrown()
+        verifyAll {
+            response.status() == OK
+            projectClient.getProject((project as ProjectCard).getId(), "en-US", projectRequest)
+                    .body().getProjectOwnerUserId() == readOnlyUser.uuid
+        }
+
+        where:
+        project << searchResults
+    }
 
     void "searchProjects should return results"() {
         given:
@@ -36,7 +67,6 @@ class ProjectClientSpec extends JustServeSpec {
             response.body() != null
             response.body().items != null
         }
-
     }
 
 }
