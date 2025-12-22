@@ -28,10 +28,11 @@ class ProjectClientSpec extends JustServeSpec {
 
     }
 
-    void "can reassign a project"() {
+    void "can reassign a project using either an empty string locale or 'en-US' locale"() {
         given:
         GetProjectRequest projectRequest = new GetProjectRequest()
-        UUID currentOwner = projectClient.getProject((project as ProjectCard).getId(), "en-US", projectRequest)
+        String locale = new Random().nextBoolean() ? " " : "en-US"
+        UUID currentOwner = projectClient.getProject((project as ProjectCard).getId(), locale, projectRequest)
                 .body().getProjectOwnerUserId()
         ReassignProjectRequest reassignProjectRequest = new ReassignProjectRequest(readOnlyUser.uuid, currentOwner)
 
