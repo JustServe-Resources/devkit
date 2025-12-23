@@ -88,6 +88,11 @@ public class UnReassignProjects extends BaseCommand implements Runnable {
                 log.atError().setCause(e).log("Error getting project");
                 continue;
             }
+            if (null == project.getProjectOwnerUserId()) {
+                warning(String.format("Project %s (%s) has no owner", projectName, projectId));
+                log.warn("Project {} ({}) has no owner", projectName, projectId);
+                continue;
+            }
             if (project.getProjectOwnerUserId().equals(userID)) {
                 log.warn("Project {} ({}) is already assigned to user {}", projectName, projectId, userID);
                 continue;
