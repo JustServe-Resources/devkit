@@ -37,8 +37,10 @@ class UnReassignProjectsSpec extends BaseCommandSpec {
 
     def "can make reassignments from #emlFile to #user"() {
         given:
-        List<ProjectCard> projects = getProjectsByLocation(new Faker().address().fullAddress())
-        assert projects.size() > 0
+        List<ProjectCard> projects
+        do {
+            projects = getProjectsByLocation(new Faker().address().fullAddress())
+        } while (projects.size() == 0)
 
         String emlContent = TestEmailGenerator.generateMockEmlContent(projects, readOnlyUser)
         Files.writeString(tempEmlFile.toPath(), emlContent)
