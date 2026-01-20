@@ -9,7 +9,7 @@ import static org.justserve.model.DistanceType.MILES
 
 class ProjectClientSpec extends JustServeSpec {
 
-    void "get project's current owner"() {
+    void "get project's current owner"(ProjectCard project) {
         when:
         GetProjectRequest projectRequest = new GetProjectRequest()
 
@@ -28,7 +28,7 @@ class ProjectClientSpec extends JustServeSpec {
 
     }
 
-    void "can reassign a project using either an empty string locale or 'en-US' locale"() {
+    void "can reassign a project using either an empty string locale or 'en-US' locale"(ProjectCard project) {
         given:
         GetProjectRequest projectRequest = new GetProjectRequest()
         String locale = new Random().nextBoolean() ? " " : "en-US"
