@@ -23,14 +23,14 @@ public class BaseCommand implements ConsoleOutput {
     @Value("${justserve.token}")
     String token;
 
-    boolean validateToken() {
+    boolean isTokenInvalid() {
         if ("i-need-to-be-defined".equals(token) || null == token) {
             printError(("NO AUTHENTICATION PROVIDED" + System.lineSeparator() +
                     "The Authentication token is not assigned as an environment variable." + System.lineSeparator() +
                     "Please define the environment variable \"JUSTSERVE_TOKEN\" and try again."));
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
     @Override

@@ -40,7 +40,7 @@ public class MakeOrgAdmin extends BaseCommand implements Runnable {
 
     @Override
     public void run() {
-        if (!validateToken()) {
+        if (isTokenInvalid()) {
             return;
         }
         DynamicRoutingClient dynamicRoutingClient = dynamicRoutingClientProvider.get();
