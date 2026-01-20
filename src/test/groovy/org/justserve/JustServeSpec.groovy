@@ -8,12 +8,11 @@ import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.test.extensions.spock.annotation.MicronautTest
 import net.datafaker.Faker
 import org.justserve.client.*
-import org.justserve.model.ImageUploadRequest
-import org.justserve.model.ImageUploadResponse
-import org.justserve.model.OrganizationCreateRequest
-import org.justserve.model.OrganizationSearchRequest
+import org.justserve.model.*
 import spock.lang.Shared
 import spock.lang.Specification
+
+import static org.justserve.model.DistanceType.MILES
 
 @MicronautTest()
 class JustServeSpec extends Specification {
@@ -25,6 +24,9 @@ class JustServeSpec extends Specification {
 
     @Shared
     TestUser[] users
+
+    @Shared
+    List<ProjectCard> searchResults
 
     @Shared
     Faker faker
@@ -47,6 +49,15 @@ class JustServeSpec extends Specification {
 
     @Shared
     OrganizationClient authOrgClient
+
+    @Shared
+    UserClient userClient
+
+    @Shared
+    TestUser readOnlyUser
+
+    @Shared
+    ProjectClient projectClient
 
 
     def setupSpec() {
@@ -73,6 +84,11 @@ class JustServeSpec extends Specification {
         authOrgClient = ctx.getBean(OrganizationClient)
         authBoundaryPermissionClient = ctx.getBean(BoundaryPermissionClient)
         authDynamicRoutingClient = ctx.getBean(DynamicRoutingClient)
+        userClient = ctx.getBean(UserClient)
+        readOnlyUser = new TestUser(new Faker(Locale.of("en-us")))
+        projectClient = ctx.getBean(ProjectClient)
+        readOnlyUser.uuid = createUser(noAuthUserClient, readOnlyUser).body().getId()
+        searchResults = getProjectsByLocation(faker.location().toString())
     }
 
     void cleanupSpec() {
@@ -103,6 +119,18 @@ class JustServeSpec extends Specification {
                 user.locale,
                 user.country,
                 user.countryCode)
+    }
+
+    List<ProjectCard> getProjectsByLocation(String location) {
+        return getProjects(" ", 1, 10, location, "en-US")
+    }
+
+    List<ProjectCard> getProjects(String keyword = " ", int page = 1, int size = 10, String location = " ", String locale = "en-US") {
+        return projectClient.searchProjects(new ProjectSearchRequest().setPage(Integer.valueOf(page))
+                .setSize(size).setKeywords(keyword).setLocation(location).setRadiusType(MILES).setVolunteerFromAnywhere(false)
+                .setIncludeOrgInfo(true).setLanguage(locale).setBrowserLocale(locale).setPublishedOnly(false)
+                .setIncludeFilledProjects(true).setDisasterRecoveryProjectsOnly(false).setTimesOfDay(null)).body().getItems()
+
     }
 
     /**

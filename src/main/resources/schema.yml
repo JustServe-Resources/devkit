@@ -10,6 +10,7 @@ info:
     - Image
     - User
     - Organization
+    - Project
 paths:
   /api/v1/images:
     post:
@@ -70,6 +71,85 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/UserSlimSearchResult' } } } }
+  /api/v2/projects/search:
+    post:
+      tags: [ Project ]
+      description: search active projects
+      operationId: searchProjects
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectSearchRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectSearchResponse'
+  /api/v1/projects/{id}/{locale}:
+    post:
+      tags: [ Project ]
+      description: Get project details for a given project
+      operationId: getProject
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: locale
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                latitude:
+                  type: string
+                longitude:
+                  type: string
+                postalCode:
+                  type: string
+                lang:
+                  type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+  /api/v1/projects/{projectId}/users/reassignAndDelete:
+    put:
+      tags: [ Project ]
+      description: Reassigns multiple projects to a new user.
+      operationId: reassignProject
+      parameters:
+        - name: projectId
+          in: path
+          description: ID of the project to be reassigned
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                assignId: { type: string, format: UUID, description: "UUID of the new owner of the project" }
+                deleteId: { type: string, format: UUID, description: "UUID of the previous owner of the project" }
+              additionalProperties: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: null
   /api/v1/users:
     post:
       description: Register a new user on JustServe
@@ -388,6 +468,150 @@ components:
         isLocationSupported:
           type: boolean
       additionalProperties: false
+    ProjectSearchRequest:
+      type: object
+      properties:
+        latitude: { type: number, format: double }
+        longitude: { type: number, format: double }
+        searchType: { $ref: '#/components/schemas/SearchLocationType' }
+        radius: { type: integer, format: int32 }
+        radiusType: { $ref: '#/components/schemas/DistanceType' }
+        start: { type: string, format: date-time }
+        page: { type: integer, format: int32 }
+        size: { type: integer, format: int32 }
+        sortBy: { type: string, nullable: true }
+        language: { type: string, nullable: true }
+        browserLocale: { type: string, nullable: true }
+        getProjectSearchOrderBy: { $ref: '#/components/schemas/ProjectSearchOrderBy' }
+        keywords: { type: string, nullable: true }
+        location: { type: string, nullable: true }
+        end: { type: string, format: date-time }
+        suitableAllAges: { type: boolean }
+        groupProject: { type: boolean }
+        volunteerRemotely: { type: boolean }
+        volunteerFromAnywhere: { type: boolean }
+        itemDonations: { type: boolean }
+        wheelchairAccessible: { type: boolean }
+        indoors: { type: boolean }
+        onGoing: { type: boolean }
+        dtl: { type: boolean }
+        skills: { type: array, items: { type: integer, format: int32 }, nullable: true }
+        interests: { type: array, items: { type: integer, format: int32 }, nullable: true }
+        userInitiatedSearch: { type: boolean }
+        includeOrgInfo: { type: boolean }
+        includeFilledProjects: { type: boolean }
+        disasterRecoveryProjectsOnly: { type: boolean }
+        daysOfWeek: { type: array, items: { $ref: '#/components/schemas/Time.DayOfWeek' }, nullable: true }
+        timesOfDay: { type: array, items: { $ref: '#/components/schemas/Time.TimeOfDay' }, nullable: true }
+        publishedOnly: { type: boolean }
+      additionalProperties: false
+    ProjectSearchResponse:
+      type: object
+      properties:
+        pageNumber: { type: integer, format: int32 }
+        pageSize: { type: integer, format: int32 }
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/ProjectCard' }
+          nullable: true
+        pageCount: { type: integer, format: int32, nullable: true, readOnly: true }
+        itemCount: { type: integer, format: int32, nullable: true }
+        searchLatitude: { type: number, format: double }
+        searchLongitude: { type: number, format: double }
+      additionalProperties: false
+    ProjectCard:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        statusId: { type: integer, format: int32 }
+        projectTypeId: { type: integer, format: int32 }
+        title: { type: string, nullable: true }
+        shortDescription: { type: string, nullable: true }
+        imagePath: { type: string, nullable: true }
+        organizationName: { type: string, nullable: true }
+        suitableAllAges: { type: boolean }
+        groupProjects: { type: boolean }
+        volunteerRemotely: { type: boolean }
+        volunteerFromAnywhere: { type: boolean }
+        itemDonations: { type: boolean }
+        wheelchairAccessible: { type: boolean }
+        indoors: { type: boolean }
+        forYouthGroups: { type: boolean }
+        totalNextOpportunities: { type: integer, format: int32, nullable: true }
+        regionSelected: { type: boolean }
+        nextOpportunity: { $ref: '#/components/schemas/ProjectCardOpportunity' }
+        location: { $ref: '#/components/schemas/ProjectCardLocation' }
+        countryCode: { type: string, nullable: true }
+        boundaries:
+          type: array
+          items: { $ref: '#/components/schemas/RegionCivicGeography' }
+          nullable: true
+      additionalProperties: false
+    ProjectCardOpportunity:
+      type: object
+      properties:
+        projectEventId: { type: string, format: uuid }
+        start: { type: string, nullable: true }
+        end: { type: string, nullable: true }
+        volunteersNeeded: { type: integer, format: int32, nullable: true }
+        timezone: { type: string, nullable: true }
+      additionalProperties: false
+    ProjectCardLocation:
+      type: object
+      properties:
+        city: { type: string, nullable: true }
+        state: { type: string, nullable: true }
+        postal: { type: string, nullable: true }
+        latitude: { type: number, format: double }
+        longitude: { type: number, format: double }
+      additionalProperties: false
+    RegionCivicGeography:
+      type: object
+      properties:
+        type: { $ref: '#/components/schemas/GeographyType' }
+        name: { type: string, nullable: true }
+        id: { type: string, nullable: true }
+      additionalProperties: false
+    GeographyType:
+      enum: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ]
+      x-enum-varnames:
+        - All
+        - Area
+        - Mission
+        - CC
+        - Stake
+        - Country
+        - State
+        - County
+        - City
+        - Zipcode
+        - Neighborhood
+        - National
+        - None
+      type: integer
+      format: int32
+    SearchLocationType:
+      enum: [ 0, 1, 2, 3 ]
+      x-enum-varnames:
+        - Radius
+        - State
+        - Regional
+        - None
+      type: integer
+      format: int32
+    ProjectSearchOrderBy:
+      enum: [ 0, 1, 2, 3, 4, 5, 6, 7 ]
+      x-enum-varnames:
+        - None
+        - Relativity
+        - Recent
+        - Title
+        - TitleReverse
+        - Created
+        - NextOpportunity
+        - Distance
+      type: integer
+      format: int32
     UserHashRequest:
       description: |
         A request containing either the email or the userid for a user.
@@ -490,7 +714,7 @@ components:
     ProjectSlimResponse:
       type: object
       properties:
-        id: { type: string }
+        id: { type: string, format: uuid}
         title: { type: string, nullable: true }
         description: { type: string, nullable: true }
         projectExpired: { type: boolean }
@@ -510,7 +734,7 @@ components:
         isOwnedOrRepresentedViaOrganization: { type: boolean }
         isIndividualProject: { type: boolean }
         projectOwnerName: { type: string, nullable: true }
-        projectOwnerUserId: { type: string, nullable: true }
+        projectOwnerUserId: { type: string, format: uuid, nullable: true }
         relativityScore: { type: number, format: double }
       additionalProperties: false
     ProjectStatus:
@@ -803,3 +1027,540 @@ components:
             $ref: '#/components/schemas/OrganizationCivicGeographyUserRole'
           nullable: true
       additionalProperties: false
+    Project:
+      type: object
+      properties:
+        id:
+          type: string
+        projectOwners:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              ownerType:
+                type: number
+            required:
+              - id
+              - ownerType
+        projectOwnerLocation:
+          type: object
+          properties:
+            mapId: {}
+            fullDisplayAddress:
+              type: string
+            address: {}
+            suite: {}
+            city:
+              type: string
+            civicCityId:
+              type: string
+            neighborhood: {}
+            county:
+              type: string
+            state:
+              type: string
+            postal:
+              type: string
+            country:
+              type: string
+            countryCode:
+              type: string
+            locationVisibilityId:
+              type: number
+            missionId:
+              type: string
+            ccId:
+              type: string
+            stakeId:
+              type: string
+            areaId:
+              type: string
+            latitude:
+              type: number
+            longitude:
+              type: number
+            maxLatitude:
+              type: number
+            minLatitude:
+              type: number
+            maxLongitude:
+              type: number
+            minLongitude:
+              type: number
+            geoCodeOverride:
+              type: boolean
+            timezone: {}
+          required:
+            - mapId
+            - fullDisplayAddress
+            - address
+            - suite
+            - city
+            - civicCityId
+            - neighborhood
+            - county
+            - state
+            - postal
+            - country
+            - countryCode
+            - locationVisibilityId
+            - missionId
+            - ccId
+            - stakeId
+            - areaId
+            - latitude
+            - longitude
+            - maxLatitude
+            - minLatitude
+            - maxLongitude
+            - minLongitude
+            - geoCodeOverride
+            - timezone
+        ownerLog:
+          type: array
+          items: {}
+        projectType:
+          type: number
+        status:
+          type: number
+        publishDate:
+          type: string
+        language:
+          type: string
+        country:
+          type: string
+        title:
+          type: string
+        shortDescription:
+          type: string
+        longDescription:
+          type: string
+        logo:
+          type: string
+        attachments:
+          type: array
+          items: {}
+        attachmentInfo:
+          type: array
+          items: {}
+        applicant:
+          type: object
+          properties:
+            submitterUserId:
+              type: string
+            firstName:
+              type: string
+            lastName:
+              type: string
+            email:
+              type: string
+            phone:
+              type: string
+            postal:
+              type: string
+            applicantPostal:
+              type: string
+            applicantCity:
+              type: string
+            applicantCountry:
+              type: string
+            applicantCountryCode:
+              type: string
+            assignmentLevel:
+              type: number
+            assignedOn:
+              type: string
+          required:
+            - submitterUserId
+            - firstName
+            - lastName
+            - email
+            - phone
+            - postal
+            - applicantPostal
+            - applicantCity
+            - applicantCountry
+            - applicantCountryCode
+            - assignmentLevel
+            - assignedOn
+        contact:
+          type: object
+          properties:
+            name: {}
+            phone: {}
+            email: {}
+          required:
+            - name
+            - phone
+            - email
+        sponsor:
+          type: object
+          properties:
+            name:
+              type: string
+            email:
+              type: string
+            phone:
+              type: string
+            userId:
+              type: string
+          required:
+            - name
+            - email
+            - phone
+            - userId
+        representative:
+          type: object
+          properties:
+            name: {}
+            email: {}
+            userId: {}
+          required:
+            - name
+            - email
+            - userId
+        organization:
+          type: object
+          properties:
+            authorization:
+              type: boolean
+            organizationAuthorization: {}
+            name: {}
+            description: {}
+            url: {}
+            internalUrl: {}
+            organizationId: {}
+            reviewedBy: {}
+            reviewedOn: {}
+            linked:
+              type: boolean
+            logo: {}
+          required:
+            - authorization
+            - organizationAuthorization
+            - name
+            - description
+            - url
+            - internalUrl
+            - organizationId
+            - reviewedBy
+            - reviewedOn
+            - linked
+            - logo
+        suitableAllAges:
+          type: boolean
+        groupProject:
+          type: boolean
+        volunteerRemotely:
+          type: boolean
+        itemDonations:
+          type: boolean
+        wheelchairAccessible:
+          type: boolean
+        indoors:
+          type: boolean
+        forYouthGroups:
+          type: boolean
+        volunteerFromAnywhere:
+          type: boolean
+        regionSelected:
+          type: boolean
+        temporaryFakeDistanceScore:
+          type: number
+        fakeDistanceScoreUpdate:
+          type: string
+        skills:
+          type: array
+          items: {}
+        interests:
+          type: array
+          items: {}
+        tools:
+          type: array
+          items: {}
+        projectSkills:
+          type: array
+          items: {}
+        projectInterests:
+          type: array
+          items: {}
+        projectTools:
+          type: array
+          items: {}
+        externalVolunteerURL:
+          type: string
+        isExternalProject:
+          type: boolean
+        isUnlistedProject:
+          type: boolean
+        archivedProject:
+          type: boolean
+        isActive:
+          type: boolean
+        externalVolunteerCount:
+          type: number
+        externalVolunteers:
+          type: array
+          items:
+            type: string
+        allEventsFilled:
+          type: boolean
+        daysOfWeek:
+          type: array
+          items: {}
+        timesOfDay:
+          type: array
+          items: {}
+        waiverURL: {}
+        dtl:
+          type: array
+          items: {}
+        onGoing:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              start:
+                type: string
+              renewDate:
+                type: string
+              end:
+                type: string
+              schedule:
+                type: string
+              scheduleLanguage:
+                type: object
+                properties: {}
+                required: []
+              specialDirections: {}
+              specialDirectionsLanguage:
+                type: object
+                properties: {}
+                required: []
+              locationName:
+                type: string
+              locationLink:
+                type: string
+              location:
+                type: object
+                properties:
+                  mapId: {}
+                  fullDisplayAddress:
+                    type: string
+                  address: {}
+                  suite: {}
+                  city:
+                    type: string
+                  civicCityId: {}
+                  neighborhood: {}
+                  county: {}
+                  state: {}
+                  postal: {}
+                  country:
+                    type: string
+                  countryCode: {}
+                  locationVisibilityId:
+                    type: number
+                  missionId: {}
+                  ccId: {}
+                  stakeId: {}
+                  areaId: {}
+                  latitude:
+                    type: number
+                  longitude:
+                    type: number
+                  maxLatitude:
+                    type: number
+                  minLatitude:
+                    type: number
+                  maxLongitude:
+                    type: number
+                  minLongitude:
+                    type: number
+                  geoCodeOverride:
+                    type: boolean
+                  timezone:
+                    type: string
+                required:
+                  - mapId
+                  - fullDisplayAddress
+                  - address
+                  - suite
+                  - city
+                  - civicCityId
+                  - neighborhood
+                  - county
+                  - state
+                  - postal
+                  - country
+                  - countryCode
+                  - locationVisibilityId
+                  - missionId
+                  - ccId
+                  - stakeId
+                  - areaId
+                  - latitude
+                  - longitude
+                  - maxLatitude
+                  - minLatitude
+                  - maxLongitude
+                  - minLongitude
+                  - geoCodeOverride
+                  - timezone
+              interested:
+                type: array
+                items: {}
+              contacts:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    phone:
+                      type: string
+                    email:
+                      type: string
+                  required:
+                    - name
+                    - phone
+                    - email
+              boundaries:
+                type: array
+                items: {}
+            required:
+              - id
+              - start
+              - renewDate
+              - end
+              - schedule
+              - scheduleLanguage
+              - specialDirections
+              - specialDirectionsLanguage
+              - locationName
+              - locationLink
+              - location
+              - interested
+              - contacts
+              - boundaries
+        recurring: {}
+        lastChangeReason: {}
+        escalated: {}
+        created:
+          type: string
+        updated:
+          type: string
+        createdBy:
+          type: string
+        deleted:
+          type: boolean
+        deletedOn: {}
+        deletedBy: {}
+        firstStartDateTimeOffset:
+          type: string
+        lastEndDateTimeOffset:
+          type: string
+        cbfName:
+          type: string
+        cblName:
+          type: string
+        updatedBy:
+          type: string
+        ubfName:
+          type: string
+        ublName:
+          type: string
+        volunteerCentersData:
+          type: array
+          items: {}
+        relativityScore:
+          type: number
+        projectOwnerName:
+          type: string
+        projectOwnerLastName:
+          type: string
+        projectOwnerUserId:
+          type: string
+          format: uuid
+        projectLocationType:
+          type: number
+        underReview:
+          type: boolean
+      required:
+        - id
+        - projectOwners
+        - projectOwnerLocation
+        - ownerLog
+        - projectType
+        - status
+        - publishDate
+        - language
+        - country
+        - title
+        - shortDescription
+        - longDescription
+        - logo
+        - attachments
+        - attachmentInfo
+        - applicant
+        - contact
+        - sponsor
+        - representative
+        - organization
+        - suitableAllAges
+        - groupProject
+        - volunteerRemotely
+        - itemDonations
+        - wheelchairAccessible
+        - indoors
+        - forYouthGroups
+        - volunteerFromAnywhere
+        - regionSelected
+        - temporaryFakeDistanceScore
+        - fakeDistanceScoreUpdate
+        - skills
+        - interests
+        - tools
+        - projectSkills
+        - projectInterests
+        - projectTools
+        - externalVolunteerURL
+        - isExternalProject
+        - isUnlistedProject
+        - archivedProject
+        - isActive
+        - externalVolunteerCount
+        - externalVolunteers
+        - allEventsFilled
+        - daysOfWeek
+        - timesOfDay
+        - waiverURL
+        - dtl
+        - onGoing
+        - recurring
+        - lastChangeReason
+        - escalated
+        - created
+        - updated
+        - createdBy
+        - deleted
+        - deletedOn
+        - deletedBy
+        - firstStartDateTimeOffset
+        - lastEndDateTimeOffset
+        - cbfName
+        - cblName
+        - updatedBy
+        - ubfName
+        - ublName
+        - volunteerCentersData
+        - relativityScore
+        - projectOwnerName
+        - projectOwnerLastName
+        - projectOwnerUserId
+        - projectLocationType
+        - underReview

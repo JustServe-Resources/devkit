@@ -1,4 +1,4 @@
-package org.justserve.command
+package org.justserve.cli.command
 
 import io.micronaut.context.ApplicationContext
 import spock.lang.Execution
