@@ -12,6 +12,39 @@ info:
     - Organization
     - Project
 paths:
+  /api/v1/users/{userId}/bounded:
+    get:
+      tags:
+        - User
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: showLeads
+          in: query
+          schema:
+            type: boolean
+            default: true
+        - name: showFull
+          in: query
+          schema:
+            type: boolean
+            default: true
+        - name: levels
+          in: query
+          schema:
+            type: integer
+            format: int32
+            default: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JustServe.Contracts.Responses.UserResultBounded"
   /api/v1/images:
     post:
       tags: [ Image ]
