@@ -427,6 +427,32 @@ components:
         full: { type: string }
         displayFileName: { type: string }
         thumb: { type: string }
+    JustServe.Contracts.Organizations.OrganizationBounded:
+      type: object
+      properties:
+        id:
+          type: string
+          nullable: true
+        endorsements:
+          type: array
+          items:
+            $ref: "#/components/schemas/Endorsement"
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        url:
+          type: string
+          nullable: true
+        location:
+          $ref: "#/components/schemas/Location"
+        status:
+          $ref: "#/components/schemas/OrganizationStatus"
+        isLead:
+          type: boolean
+        type:
+          $ref: "#/components/schemas/OrganizationType"
+      additionalProperties: false
     OrganizationCreateRequest:
       type: object
       properties:
