@@ -27,7 +27,7 @@ class EmailParserSpec extends Specification {
 
     def setupSpec() {
         testEmails = new HashMap<>()
-        Stream.of("test-with-automated-email.eml", "test-without-automated-email.eml").forEach { file ->
+        Stream.of("sara-anderson-email.eml", "test-with-automated-email.eml", "test-without-automated-email.eml").forEach { file ->
             def resource = resourceResolver.getResourceAsStream("classpath:$file")
             resource.ifPresent { stream ->
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
