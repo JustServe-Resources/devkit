@@ -3,13 +3,12 @@ package org.justserve.cli.command
 import io.micronaut.core.io.ResourceResolver
 import io.micronaut.test.extensions.spock.annotation.MicronautTest
 import jakarta.inject.Inject
-import net.datafaker.Faker
-import org.justserve.model.ProjectCard
-import org.justserve.util.TestEmailGenerator
+import org.justserve.util.EmailParser
 import spock.lang.Execution
 import spock.lang.Shared
 
-import java.nio.file.Files
+import java.util.stream.Collectors
+import java.util.stream.Stream
 
 import static org.spockframework.runtime.model.parallel.ExecutionMode.SAME_THREAD
 
@@ -18,10 +17,28 @@ import static org.spockframework.runtime.model.parallel.ExecutionMode.SAME_THREA
 class UnReassignProjectsSpec extends BaseCommandSpec {
 
     @Inject
+    @Shared
     ResourceResolver resourceResolver
 
     @Shared
     File tempEmlFile
+
+    @Shared
+    Map<String, String> testEmails
+
+    def setupSpec() {
+        testEmails = new HashMap<>()
+        Stream.of("sara-anderson-email.eml"/*, "test-with-automated-email.eml", "test-without-automated-email.eml"*/).forEach { file ->
+            def resource = resourceResolver.getResourceAsStream("classpath:$file")
+            resource.ifPresent { stream ->
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
+                    testEmails.put(file.replace(".eml", ""), reader.lines().collect(Collectors.joining(System.lineSeparator())))
+                } catch (IOException e) {
+                    throw new RuntimeException("Failed to read test file: $file", e)
+                }
+            }
+        }
+    }
 
     def setup() {
         // Create a temporary file for the test
@@ -35,17 +52,11 @@ class UnReassignProjectsSpec extends BaseCommandSpec {
         }
     }
 
-    def "can make reassignments from #emlFile to #user"() {
+    def "can make reassignments from #title to a user"(String title, String fileContent) {
         given:
-        List<ProjectCard> projects
-        do {
-            projects = getProjectsByLocation(new Faker().address().fullAddress())
-        } while (projects.size() == 0)
 
-        String emlContent = TestEmailGenerator.generateMockEmlContent(projects, readOnlyUser)
-        Files.writeString(tempEmlFile.toPath(), emlContent)
-
-        def args = ["unReassignProjects", "-u", readOnlyUser.uuid.toString(), "-f", tempEmlFile.absolutePath]
+        def args = ["unReassignProjects", "-u", readOnlyUser.uuid.toString(), "-f", "build\\resources\\test\\" + title + ".eml"]
+        def projectCount = EmailParser.getProjects(fileContent).size()
 
         when:
         def (outputStream, errorStream) = executeCommand(ctx, args as String[])
@@ -55,6 +66,10 @@ class UnReassignProjectsSpec extends BaseCommandSpec {
         projects.each { project ->
             outputStream.contains(project.id.toString())
         }
-        outputStream.contains("Successfully reassigned ${projects.size()} projects to user ${readOnlyUser.uuid}")
+        outputStream.contains("Successfully reassigned ${projectCount} projects to user ${readOnlyUser.uuid}")
+
+        where:
+        [title, fileContent] << testEmails.collect { key, value -> [key, value] }
+
     }
 }

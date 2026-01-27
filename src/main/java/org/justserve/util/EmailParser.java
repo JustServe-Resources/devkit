@@ -7,7 +7,7 @@ import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Node;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.justserve.cli.util.JustServeEmailParserError;
 
@@ -27,10 +27,10 @@ public class EmailParser {
      *
      * @param emlFileContent The content of the EML file as a String.
      * @return A map where keys are project names (String) and values are project UUIDs.
-     * @throws MessagingException If there is an issue with parsing the MimeMessage.
-     * @throws IOException If an I/O error occurs during stream processing.
+     * @throws MessagingException        If there is an issue with parsing the MimeMessage.
+     * @throws IOException               If an I/O error occurs during stream processing.
      * @throws JustServeEmailParserError If the email does not contain an HTML body, is not a JustServe generated email,
-     * or the HTML structure does not conform to the expected format for extracting projects.
+     *                                   or the HTML structure does not conform to the expected format for extracting projects.
      */
     public static Map<String, UUID> getProjects(String emlFileContent) throws MessagingException, IOException, JustServeEmailParserError {
         return getProjects(parse(emlFileContent));
@@ -41,8 +41,8 @@ public class EmailParser {
      *
      * @param emlFileContent The content of the EML file as a String.
      * @return A Jsoup Document representing the HTML body of the email.
-     * @throws MessagingException If there is an issue with parsing the MimeMessage.
-     * @throws IOException If an I/O error occurs during stream processing.
+     * @throws MessagingException        If there is an issue with parsing the MimeMessage.
+     * @throws IOException               If an I/O error occurs during stream processing.
      * @throws JustServeEmailParserError If the email does not contain an HTML body or is not a JustServe generated email.
      */
     public static Document parse(String emlFileContent) throws MessagingException, IOException, JustServeEmailParserError {
@@ -73,12 +73,38 @@ public class EmailParser {
     public static Map<String, UUID> getProjects(Document doc) throws JustServeEmailParserError {
         Map<String, UUID> projects = new HashMap<>();
         Collection<String> errors = new ArrayList<>();
-        doc.selectXpath("//li").forEach(element -> {
-            List<Node> children = element.childNodes();
-            if (children.size() != 1 || children.getFirst().childNodes().size() != 1) {
-                errors.add(String.format("Expected 1 child node (with another single child node) in html list, but " + "found %d in list element with %d children", children.size(), children.getFirst().childNodes().size()));
+
+        /*
+        the original email from justserve's list element is :
+        ```
+        <li>
+            ::marker
+            <a href="ugly-url" rel="noopener" style="color:#45a2c4;text-decoration:none">Downtown Love Day - Alley Clean-up</a>
+        </li
+        ```
+        some email clients manipulate this into something else, like :
+        <li style="color:#64686C;">
+            <span style="font-size:13.5pt;">
+                <a href="ugly-url">
+                <span style="color:#45A2C4;text-decoration:none">Food Distribution, We Care Wednesday at MCC</span>
+                </a>
+            </span>
+        </li>
+
+         */
+
+        doc.select("li").forEach(element -> {
+            Element link = element.selectFirst("a");
+            if (link == null) {
+                errors.add(String.format("Expected list element to contain a link, but found none. Element text: %s", element.text()));
+            } else {
+                UUID uuid = getProjectIDFromUglyUrl(link.attr("href"));
+                if (uuid == null) {
+                    errors.add(String.format("Expected link to contain a valid project ID, but found none. URL: %s", link.attr("href")));
+                } else {
+                    projects.put(link.text(), uuid);
+                }
             }
-            projects.put(children.getFirst().childNode(0).toString(), getProjectIDFromUglyUrl(children.getFirst().attr("href")));
         });
         if (!errors.isEmpty()) {
             throw new JustServeEmailParserError(String.join("\n", errors));
