@@ -427,7 +427,7 @@ components:
         full: { type: string }
         displayFileName: { type: string }
         thumb: { type: string }
-    JustServe.Contracts.Organizations.OrganizationBounded:
+    OrganizationBounded:
       type: object
       properties:
         id:
