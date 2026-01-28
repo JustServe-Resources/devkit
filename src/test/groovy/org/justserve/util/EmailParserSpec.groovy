@@ -89,7 +89,7 @@ class EmailParserSpec extends Specification {
         Document doc = EmailParser.parse(fileContent as String)
 
         when:
-        Map<String, UUID> projects = EmailParser.getProjects(doc)
+        Map<String, Set<UUID>> projects = EmailParser.getProjects(doc)
 
         then:
         if (!(title as String).toLowerCase().contains("without")) {
@@ -105,7 +105,7 @@ class EmailParserSpec extends Specification {
 
     def "Can use 'getProjects' to parse entire #title file"() {
         when:
-        Map<String, UUID> projects = EmailParser.getProjects(fileContent as String)
+        Map<String, Set<UUID>> projects = EmailParser.getProjects(fileContent as String)
 
         then:
         if (!(title as String).toLowerCase().contains("without")) {
