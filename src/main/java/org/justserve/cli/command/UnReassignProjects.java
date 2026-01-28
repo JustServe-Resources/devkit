@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.justserve.cli.util.JustServePrinter.printError;
@@ -58,7 +59,7 @@ public class UnReassignProjects extends BaseCommand implements Runnable {
             return;
         }
 
-        Map<String, UUID> projects;
+        Map<String, Set<UUID>> projects;
         try {
             projects = EmailParser.getProjects(emlContent);
         } catch (MessagingException | IOException | JustServeEmailParserError e) {
@@ -76,45 +77,46 @@ public class UnReassignProjects extends BaseCommand implements Runnable {
         ProjectClient client = projectClientProvider.get();
         int successCount = 0;
 
-        for (Map.Entry<String, UUID> entry : projects.entrySet()) {
+        for (Map.Entry<String, Set<UUID>> entry : projects.entrySet()) {
             String projectName = entry.getKey();
-            UUID projectId = entry.getValue();
-            GetProjectRequest getProjectRequest = new GetProjectRequest();
-            Project project;
-            try {
-                project = client.getProject(projectId, " ", getProjectRequest).body();
-            } catch (HttpClientResponseException | NullPointerException e) {
-                printError("Failed to get project " + projectName + " (" + projectId + ")");
-                log.atError().setCause(e).log("Error getting project");
-                continue;
-            }
-            if (null == project.getProjectOwnerUserId()) {
-                warning(String.format("Project %s (%s) has no owner", projectName, projectId));
-                log.warn("Project {} ({}) has no owner", projectName, projectId);
-                continue;
-            }
-            if (project.getProjectOwnerUserId().equals(userID)) {
-                log.warn("Project {} ({}) is already assigned to user {}", projectName, projectId, userID);
-                continue;
-            }
-
-            try {
-                ReassignProjectRequest reassignProjectRequest = new ReassignProjectRequest(userID, project.getProjectOwnerUserId());
-                log.atTrace().log("Reassigning project {} ({}) to user {}", projectName, projectId, userID);
-                HttpResponse<Object> reassignResponse = client.reassignProject(projectId, reassignProjectRequest);
-                if (reassignResponse.status() == HttpStatus.OK) {
-                    printNormal("Successfully reassigned project %s (%s) to user %s", projectName, projectId, userID);
-                    log.atTrace().log("received api response status: {}", reassignResponse.status());
-                    successCount++;
+            Set<UUID> projectIds = entry.getValue();
+            for (UUID projectId : projectIds) {
+                GetProjectRequest getProjectRequest = new GetProjectRequest();
+                Project project;
+                try {
+                    project = client.getProject(projectId, " ", getProjectRequest).body();
+                } catch (HttpClientResponseException | NullPointerException e) {
+                    printError("Failed to get project " + projectName + " (" + projectId + ")");
+                    log.atError().setCause(e).log("Error getting project");
                     continue;
                 }
-                printError("Failed to reassign project " + projectName + " (" + projectId + ") to user " + userID +
-                        ". Expected HTTP Status 'OK', but got " + reassignResponse.status());
-                log.atError().log("Failed to reassign project {} ({}) to user {}. Expected HTTP Status 'OK', but got {}",
-                        projectName, projectId, userID, reassignResponse.status());
-            } catch (HttpClientResponseException e) {
-                printError("Failed to reassign project " + projectName + " (" + projectId + ") to user " + userID);
-                log.atError().setCause(e).log("Error response from API: {}", e.getResponse().body());
+                if (null == project.getProjectOwnerUserId()) {
+                    warning(String.format("Project %s (%s) has no owner", projectName, projectId));
+                    log.warn("Project {} ({}) has no owner", projectName, projectId);
+                    continue;
+                }
+                if (project.getProjectOwnerUserId().equals(userID)) {
+                    log.warn("Project {} ({}) is already assigned to user {}", projectName, projectId, userID);
+                    continue;
+                }
+                try {
+                    ReassignProjectRequest reassignProjectRequest = new ReassignProjectRequest(userID, project.getProjectOwnerUserId());
+                    log.atTrace().log("Reassigning project {} ({}) to user {}", projectName, projectId, userID);
+                    HttpResponse<Object> reassignResponse = client.reassignProject(projectId, reassignProjectRequest);
+                    if (reassignResponse.status() == HttpStatus.OK) {
+                        printNormal("Successfully reassigned project %s (%s) to user %s", projectName, projectId, userID);
+                        log.atTrace().log("received api response status: {}", reassignResponse.status());
+                        successCount++;
+                        continue;
+                    }
+                    printError("Failed to reassign project " + projectName + " (" + projectId + ") to user " + userID +
+                            ". Expected HTTP Status 'OK', but got " + reassignResponse.status());
+                    log.atError().log("Failed to reassign project {} ({}) to user {}. Expected HTTP Status 'OK', but got {}",
+                            projectName, projectId, userID, reassignResponse.status());
+                } catch (HttpClientResponseException e) {
+                    printError("Failed to reassign project " + projectName + " (" + projectId + ") to user " + userID);
+                    log.atError().setCause(e).log("Error response from API: {}", e.getResponse().body());
+                }
             }
         }
         printNormal("Successfully reassigned %d projects to user %s", successCount, userID);

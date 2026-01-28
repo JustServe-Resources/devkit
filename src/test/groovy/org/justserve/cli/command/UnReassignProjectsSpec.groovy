@@ -28,7 +28,7 @@ class UnReassignProjectsSpec extends BaseCommandSpec {
 
     def setupSpec() {
         testEmails = new HashMap<>()
-        Stream.of("sara-anderson-email.eml"/*, "test-with-automated-email.eml", "test-without-automated-email.eml"*/).forEach { file ->
+        Stream.of("sara-anderson-email.eml", "test-with-automated-email.eml", "test-without-automated-email.eml").forEach { file ->
             def resource = resourceResolver.getResourceAsStream("classpath:$file")
             resource.ifPresent { stream ->
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
@@ -40,23 +40,14 @@ class UnReassignProjectsSpec extends BaseCommandSpec {
         }
     }
 
-    def setup() {
-        // Create a temporary file for the test
-        tempEmlFile = File.createTempFile("test-reassign", ".eml")
-        println "Temp file created at: " + tempEmlFile.absolutePath
-    }
-
-    def cleanup() {
-        if (tempEmlFile != null && tempEmlFile.exists()) {
-             tempEmlFile.delete()
-        }
-    }
-
     def "can make reassignments from #title to a user"(String title, String fileContent) {
         given:
-
-        def args = ["unReassignProjects", "-u", readOnlyUser.uuid.toString(), "-f", "build\\resources\\test\\" + title + ".eml"]
-        def projectCount = EmailParser.getProjects(fileContent).size()
+        if (title.contains("without")) {
+            return
+        }
+        String testFile = new File(resourceResolver.getResource("classpath:${title}.eml").get().toURI()).absolutePath
+        def args = ["unReassignProjects", "-u", readOnlyUser.uuid.toString(), "-f", testFile]
+        def projectCount = EmailParser.getProjects(fileContent).values().flatten().size()
 
         when:
         def (outputStream, errorStream) = executeCommand(ctx, args as String[])
@@ -70,6 +61,5 @@ class UnReassignProjectsSpec extends BaseCommandSpec {
 
         where:
         [title, fileContent] << testEmails.collect { key, value -> [key, value] }
-
     }
 }
