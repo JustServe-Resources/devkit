@@ -32,7 +32,7 @@ public class EmailParser {
      * @throws JustServeEmailParserError If the email does not contain an HTML body, is not a JustServe generated email,
      *                                   or the HTML structure does not conform to the expected format for extracting projects.
      */
-    public static Map<String, UUID> getProjects(String emlFileContent) throws MessagingException, IOException, JustServeEmailParserError {
+    public static Map<String, Set<UUID>> getProjects(String emlFileContent) throws MessagingException, IOException, JustServeEmailParserError {
         return getProjects(parse(emlFileContent));
     }
 
@@ -70,8 +70,8 @@ public class EmailParser {
      * @return A map where keys are project names (String) and values are project UUIDs.
      * @throws JustServeEmailParserError If the HTML structure does not conform to the expected format for extracting projects.
      */
-    public static Map<String, UUID> getProjects(Document doc) throws JustServeEmailParserError {
-        Map<String, UUID> projects = new HashMap<>();
+    public static Map<String, Set<UUID>> getProjects(Document doc) throws JustServeEmailParserError {
+        Map<String, Set<UUID>> projects = new HashMap<>();
         Collection<String> errors = new ArrayList<>();
 
         /*
@@ -102,7 +102,10 @@ public class EmailParser {
                 if (uuid == null) {
                     errors.add(String.format("Expected link to contain a valid project ID, but found none. URL: %s", link.attr("href")));
                 } else {
-                    projects.put(link.text(), uuid);
+                    if (!projects.containsKey(link.text())) {
+                        projects.put(link.text(), new HashSet<>());
+                    }
+                    projects.get(link.text()).add(uuid);
                 }
             }
         });
