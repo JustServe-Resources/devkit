@@ -1,16 +1,13 @@
 package org.justserve.cli;
 
 import io.micronaut.configuration.picocli.PicocliRunner;
-import org.justserve.cli.command.BaseCommand;
-import org.justserve.cli.command.GetTempPassword;
-import org.justserve.cli.command.MakeOrgAdmin;
-import org.justserve.cli.command.UnReassignProjects;
+import org.justserve.cli.command.*;
 import org.justserve.cli.util.JustServeVersionProvider;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.ParameterException;
 import picocli.jansi.graalvm.AnsiConsole;
 
-@Command(subcommands = {GetTempPassword.class, MakeOrgAdmin.class, UnReassignProjects.class},
+@Command(subcommands = {GetTempPassword.class, MakeOrgAdmin.class, UnReassignProjects.class, AssignOrgToProject.class},
         mixinStandardHelpOptions = true,
         name = "justserve", versionProvider = JustServeVersionProvider.class,
         description = "justserve-cli is a terminal tool to help specialists and admin using JustServe")

@@ -150,6 +150,29 @@ paths:
             application/json:
               schema:
                 type: null
+  /api/v1/projects/{id}/organization/{organizationId}/assign:
+    put:
+      tags: [ Project ]
+      description: Assigns an organization to a project.
+      operationId: assignOrganizationToProject
+      parameters:
+        - name: id
+          in: path
+          description: ID of the project
+          required: true
+          schema: { type: string, format: uuid }
+        - name: organizationId
+          in: path
+          description: ID of the organization to assign
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: null
   /api/v1/users:
     post:
       description: Register a new user on JustServe
@@ -1231,7 +1254,7 @@ components:
             description: {}
             url: {}
             internalUrl: {}
-            organizationId: {}
+            organizationId: { type: string, format: uuid }
             reviewedBy: {}
             reviewedOn: {}
             linked:
