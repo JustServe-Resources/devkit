@@ -73,4 +73,25 @@ class ProjectClientSpec extends JustServeSpec {
         }
     }
 
+    void "can assign an organization to a project"() {
+        given:
+        def orgSearchResponse = authOrgClient.searchByLocation(createSearchRequestForElkGrove())
+        UUID orgId = orgSearchResponse.body().organizations.first().id
+        ProjectCard project = searchResults.first()
+
+        when:
+        def response = projectClient.assignOrganizationToProject(project.getId(), orgId)
+
+        then:
+        verifyAll {
+            response.status == OK
+        }
+
+        and: "validate that the reassignment worked - this is testing the underlying tech, not our codebase"
+        def updatedProject = projectClient.getProject(project.getId(), "en-US", new GetProjectRequest()).body()
+        verifyAll {
+            updatedProject.organization.organizationId == orgId
+        }
+    }
+
 }
