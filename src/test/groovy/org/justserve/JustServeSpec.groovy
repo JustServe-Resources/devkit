@@ -115,7 +115,7 @@ class JustServeSpec extends Specification {
         return response
     }
 
-    private def createUserFromFaker(UserClient client, TestUser user, String uniqueEmailInput=null) {
+    private static def createUserFromFaker(UserClient client, TestUser user, String uniqueEmailInput=null) {
         return client.createUser(
                 user.firstName,
                 user.lastName,
