@@ -11,7 +11,7 @@ class MakeOrgAdminSpec extends BaseCommandSpec {
     def "can make a user an admin to #orgCount org(s) using the #orgFlag and #userFlag flags #title"() {
         given:
         UUID userID = createUser().body().id
-        def orgs = createOrgs(orgCount).join(",")
+        def orgs = createTestOrgs(orgCount).join(",")
 
         when:
         def (outputStream, errorStream) = executeCommand(context as ApplicationContext, ["makeOrgAdmin", orgFlag, orgs, userFlag, userID] as String[])
@@ -53,7 +53,7 @@ class MakeOrgAdminSpec extends BaseCommandSpec {
         if (orgCount == 1) {
             orgs = fakeId
         } else {
-            orgs = createOrgs(orgCount - 1).join(",") + "," + fakeId
+            orgs = createTestOrgs(orgCount - 1).join(",") + "," + fakeId
         }
 
         when:
