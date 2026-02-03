@@ -84,6 +84,7 @@ graalvmNative.binaries {
     named("main") {
         imageName.set("justserve")
         buildArgs.add("--color=always")
+        buildArgs.add("-march=native")
     }
 }
 
