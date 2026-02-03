@@ -2,6 +2,7 @@ package org.justserve.client
 
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import net.datafaker.Faker
+import org.apache.commons.lang3.RandomStringUtils
 import org.justserve.JustServeSpec
 import org.justserve.TestUser
 import org.justserve.model.UserHashRequestByEmail
@@ -13,8 +14,19 @@ class UserClientSpec extends JustServeSpec {
     def "create user #{user.firstname} #{user.lastname} #{user.email} #{user.password} #{user.postal} #{user.locale} #{user.country} #{user.countryCode}"() {
         when:
         TestUser user = new TestUser(new Faker(Locale.of("en-us")))
+
         then:
-        createUser(client, user)
+//        TODO: validate the user does not already exist (use the admin client user search)
+        client.createUser(
+                user.firstName,
+                user.lastName,
+                RandomStringUtils.insecure().nextAlphanumeric(20)+ "@fake.com",
+                user.password,
+                user.zipcode,
+                user.locale,
+                user.country,
+                user.countryCode
+        )
 
         where:
         client           | _
