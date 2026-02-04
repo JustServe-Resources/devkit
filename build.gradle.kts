@@ -35,6 +35,7 @@ dependencies {
     implementation("org.simplejavamail:simple-java-mail:8.12.6")
     implementation("org.jsoup:jsoup:1.21.2")
     testImplementation("net.datafaker:datafaker:2.5.1")
+    testImplementation("org.apache.commons:commons-lang3:3.20.0")
     compileOnly("org.projectlombok:lombok")
     runtimeOnly("ch.qos.logback:logback-classic")
     runtimeOnly("org.yaml:snakeyaml")
@@ -56,6 +57,16 @@ tasks.withType<ProcessResources> {
     filesMatching("**/application.yml") {
         filter(mapOf("tokens" to props), ReplaceTokens::class.java)
     }
+}
+
+tasks.withType<Test> {
+    testLogging {
+        events("passed", "skipped", "failed")
+        showStandardStreams = true
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+    }
+    // Exclude EmailParserSpec until we can provide test .eml files without PII data
+    exclude("**/EmailParserSpec.class")
 }
 
 micronaut {
