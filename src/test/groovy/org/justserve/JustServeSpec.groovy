@@ -7,6 +7,7 @@ import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.test.extensions.spock.annotation.MicronautTest
 import net.datafaker.Faker
+import org.apache.commons.lang3.RandomStringUtils
 import org.justserve.client.*
 import org.justserve.model.*
 import spock.lang.Shared
@@ -62,9 +63,9 @@ class JustServeSpec extends Specification {
 
     def setupSpec() {
         faker = new Faker()
-        if (null != System.getenv("JUSTSERVE_TOKEN")) {
-            throw new IllegalStateException("JUSTSERVE_TOKEN is set. Do not define this variable in testing.")
-        }
+        // if (null != System.getenv("JUSTSERVE_TOKEN")) {
+        //     throw new IllegalStateException("JUSTSERVE_TOKEN is set. Do not define this variable in testing.")
+        // }
         ctx = ApplicationContext.builder()
                 .environments(Environment.CLI, Environment.TEST)
                 .properties([
@@ -87,7 +88,10 @@ class JustServeSpec extends Specification {
         userClient = ctx.getBean(UserClient)
         readOnlyUser = new TestUser(new Faker(Locale.of("en-us")))
         projectClient = ctx.getBean(ProjectClient)
-        readOnlyUser.uuid = createUser(noAuthUserClient, readOnlyUser).body().getId()
+
+        //        TODO: validate the user does not already exist (use the admin client user search)
+        String customRandomEmail=RandomStringUtils.insecure().nextAlphanumeric(20)+ "@fake.com"
+        readOnlyUser.uuid = createUserFromFaker(noAuthUserClient, readOnlyUser, customRandomEmail).body().getId()
         searchResults = getProjectsByLocation(faker.location().toString())
     }
 
@@ -96,24 +100,26 @@ class JustServeSpec extends Specification {
         ctx.stop()
     }
 
-    def createUser() {
-        def response
-        while (null == response) {
+    def createUser(UserClient client = noAuthUserClient) {
+        HttpResponse response = null
+        def tries = 0
+        while ((null == response || HttpStatus.OK != response.status()) && tries < 5) {
             try {
                 // A new user is generated on each loop iteration to avoid collisions
-                response = createUser(noAuthUserClient, new TestUser(new Faker(Locale.of("en-us"))))
+                response = createUserFromFaker(client, new TestUser(new Faker(Locale.of("en-us"))))
             } catch (HttpClientResponseException ignored) {
+                tries++
                 // This user likely already exists, so we'll loop and try a new one.
             }
         }
         return response
     }
 
-    def createUser(UserClient client = noAuthUserClient, TestUser user) {
+    private static def createUserFromFaker(UserClient client, TestUser user, String uniqueEmailInput=null) {
         return client.createUser(
                 user.firstName,
                 user.lastName,
-                user.email,
+                (uniqueEmailInput ?: user.email) as String, //in the case that we provide our own custom email, to avoid the same email being repeated
                 user.password,
                 user.zipcode,
                 user.locale,

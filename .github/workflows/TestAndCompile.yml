@@ -10,14 +10,16 @@ jobs:
 #        os: [macos-latest, windows-latest, ubuntu-latest]
     env:
       TEST_TOKEN: ${{ secrets.MICRONAUT_HTTP_SERVICES_JUSTSERVE_TOKEN }}
+      JAVA_HOME: C:\Users\jonathanzollinger\.jdks\graalvm-ce-21.0.2
+
     steps:
       - uses: actions/checkout@v4
-      - uses: graalvm/setup-graalvm@v1
-        with:
-          java-version: '21'
-          distribution: 'graalvm'
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          native-image-job-reports: 'true'
+      # - uses: graalvm/setup-graalvm@v1
+      #   with:
+      #     java-version: '21'
+      #     distribution: 'graalvm'
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #     native-image-job-reports: 'true'
       - name: call gradle to run tests and then compile
         run: ./gradlew test nativeCompile
       - name: upload binary

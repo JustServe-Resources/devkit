@@ -12,6 +12,7 @@ import static org.spockframework.runtime.model.parallel.ExecutionMode.SAME_THREA
 
 @Execution(SAME_THREAD)
 @Retry
+
 class GetTempPasswordSpec extends BaseCommandSpec {
     @Shared
     TestUser readOnlyUser
