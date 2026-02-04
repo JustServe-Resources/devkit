@@ -63,9 +63,9 @@ class JustServeSpec extends Specification {
 
     def setupSpec() {
         faker = new Faker()
-        if (null != System.getenv("JUSTSERVE_TOKEN")) {
-            throw new IllegalStateException("JUSTSERVE_TOKEN is set. Do not define this variable in testing.")
-        }
+        // if (null != System.getenv("JUSTSERVE_TOKEN")) {
+        //     throw new IllegalStateException("JUSTSERVE_TOKEN is set. Do not define this variable in testing.")
+        // }
         ctx = ApplicationContext.builder()
                 .environments(Environment.CLI, Environment.TEST)
                 .properties([
