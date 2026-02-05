@@ -75,4 +75,35 @@ class MakeOrgAdminSpec extends BaseCommandSpec {
         "-o"    | 1        | "--user" | ctx     | "as an authorized user successfully makes the changes" | _
     }
 
+
+
+    def "can make a user an admin to #orgCount where at least one org Slug does not exist on JustServe"() {
+        given:
+        UUID userID = createUser().body().id
+        String orgs
+        def fakeSlug = faker.internet().slug().toString()
+        if (orgCount == 1) {
+            orgs = fakeSlug
+        } else {
+            orgs=authOrgClient.searchByLocation(createSearchRequestForElkGrove()).body().getOrganizations().url.take(orgCount - 1).join(",")+","+fakeSlug
+        }
+
+        when:
+        def (outputStream, errorStream) = executeCommand(context as ApplicationContext, ["makeOrgAdmin", orgFlag, orgs, userFlag, userID] as String[])
+
+        then:
+        verifyAll {
+            (outputStream as String).contains("successfully reassigned ${orgCount - 1 } orgs to user ${userID}")
+            (errorStream as String).contains("Error The org '${fakeSlug}' is not found on JustServe")
+        }
+
+        where:
+        orgFlag | orgCount | userFlag | context | title                                                  | _
+        "-o"    | 3        | "-u"     | ctx     | "as an authorized user successfully makes the changes" | _
+        "--org" | 3        | "-u"     | ctx     | "as an authorized user successfully makes the changes" | _
+        "-o"    | 3        | "--user" | ctx     | "as an authorized user successfully makes the changes" | _
+        "-o"    | 1        | "-u"     | ctx     | "as an authorized user successfully makes the changes" | _
+        "--org" | 1        | "-u"     | ctx     | "as an authorized user successfully makes the changes" | _
+        "-o"    | 1        | "--user" | ctx     | "as an authorized user successfully makes the changes" | _
+    }
 }
