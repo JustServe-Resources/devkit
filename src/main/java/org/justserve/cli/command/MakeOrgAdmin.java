@@ -45,24 +45,22 @@ public class MakeOrgAdmin extends BaseCommand implements Runnable {
         }
         DynamicRoutingClient dynamicRoutingClient = dynamicRoutingClientProvider.get();
         // since we allow submitting orgId's and orgUrl, convert any slugs to orgId's
-        Map<Org, @Nullable UUID> orgUuidMap = Arrays.stream(orgs).distinct().parallel()
-                .collect(Collectors.toMap(
-                        org -> org,
-                        org -> org instanceof OrgId ? ((OrgId) org).getId() : dynamicRoutingClient
-                                .getOrgIdFromSlug(((OrgSlug) org).getSlug()).body().getId()
-                ));
-        if (orgUuidMap.values().stream().anyMatch(Objects::isNull)) {
-            // provide a list of all invalid org slugs, not just the first failure
-            List<OrgSlug> invalidOrgSlugs = new ArrayList<>();
-            orgUuidMap.entrySet().stream()
-                    .filter(entry -> entry.getValue() == null)
-                    .map(entry -> (OrgSlug) entry.getKey())
-                    .forEach(invalidOrgSlugs::add);
-            printError("The following organization slugs are invalid: " + invalidOrgSlugs.stream()
-                    .map(OrgSlug::getSlug)
-                    .collect(Collectors.joining(", ")));
-            return;
-        }
+        Map<Org, UUID> orgUuidMap = Arrays.stream(orgs).distinct().parallel()
+                .map(org -> {
+                    if (org instanceof OrgId) {
+                        return new AbstractMap.SimpleEntry<>(org, ((OrgId) org).getId());
+                    }
+                    try {
+                        return new AbstractMap.SimpleEntry<>(org, dynamicRoutingClient
+                                .getOrgIdFromSlug(((OrgSlug) org).getSlug()).body().getId());
+                    } catch (NullPointerException noOrgFound) {
+                        err(String.format("The org '%s' is not found on JustServe", ((OrgSlug) org).getSlug()));
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
         log.atTrace().log("Finished converting any slugs to org id's.");
         BoundaryPermissionClient boundaryPermissionClient = boundaryPermissionClientProvider.get();
         Map<Org, @Nullable UUID> successfulReassignments = new HashMap<>();
