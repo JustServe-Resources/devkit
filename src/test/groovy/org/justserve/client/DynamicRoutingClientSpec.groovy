@@ -11,16 +11,19 @@ class DynamicRoutingClientSpec extends JustServeSpec {
     @Shared
     DynamicRoutingClient noAuthClient, authClient
 
+    @Shared
+    String realOrgSlug
+
 
     def setupSpec() {
         noAuthClient = noAuthCtx.getBean(DynamicRoutingClient)
         authClient = ctx.getBean(DynamicRoutingClient)
+        realOrgSlug = authOrgClient.searchByLocation(createSearchRequestForElkGrove()).body().getOrganizations().url.first().toString()
     }
 
     def "get orgId for #url"() {
         when:
         HttpResponse<DynamicRoutingDataResponse> response = client.getOrgIdFromSlug(url)
-
         then:
         response.status() == expectedStatus
         if (expectedStatus == HttpStatus.OK) {
@@ -28,10 +31,10 @@ class DynamicRoutingClientSpec extends JustServeSpec {
         }
 
         where:
-        url                        | expectedStatus       | client
-        "accessleisure_sacramento" | HttpStatus.OK        | authClient //TODO add actual orgs, not hardtyped ones
-        "accessleisure_sacramento" | HttpStatus.OK        | noAuthClient
-        "1234"                     | HttpStatus.NOT_FOUND | authClient
-        "1234"                     | HttpStatus.NOT_FOUND | noAuthClient
+        url         | expectedStatus       | client
+        realOrgSlug | HttpStatus.OK        | authClient
+        realOrgSlug | HttpStatus.OK        | noAuthClient
+        "1234"      | HttpStatus.NOT_FOUND | authClient
+        "1234"      | HttpStatus.NOT_FOUND | noAuthClient
     }
 }

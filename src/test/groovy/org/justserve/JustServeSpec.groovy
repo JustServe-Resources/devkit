@@ -165,7 +165,7 @@ class JustServeSpec extends Specification {
      * @param count The number of organizations to create.
      * @return A list of UUIDs for the created organizations.
      */
-    List<UUID> createOrgs(int count) {
+    List<UUID> createTestOrgs(int count) {
         return (1..count).collect {
             createOrg()
         }
