@@ -32,7 +32,7 @@ class DynamicRoutingClientSpec extends JustServeSpec {
 
         where:
         url         | expectedStatus       | client
-        realOrgSlug | HttpStatus.OK        | authClient //TODO add actual orgs, not hardtyped ones
+        realOrgSlug | HttpStatus.OK        | authClient
         realOrgSlug | HttpStatus.OK        | noAuthClient
         "1234"      | HttpStatus.NOT_FOUND | authClient
         "1234"      | HttpStatus.NOT_FOUND | noAuthClient
