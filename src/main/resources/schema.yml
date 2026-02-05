@@ -880,8 +880,8 @@ components:
         organizationType: { $ref: '#/components/schemas/OrganizationType' }
         title: { type: string, nullable: true }
         logo: { type: string, nullable: true }
-        url: { type: string, nullable: true }
-        internalURL: { type: string, nullable: true }
+        url: { type: string, nullable: true, description: "this provides only the url slug" }
+        internalURL: { type: string, nullable: true, description: "this currently returns null when an org is searched for by location" }
         website: { type: string, nullable: true }
         description: { type: string, nullable: true }
         contactName: { type: string, nullable: true }
