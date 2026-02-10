@@ -329,6 +329,14 @@ paths:
         '404':
           description: Not Found
           content: { application/json: { schema: { $ref: '#/components/schemas/ProblemDetails' } } }
+  /api/v1/churchGeographies/{unitIdOrChurchGeographyId}/upsert:
+    put:
+      tags:
+        - ChurchGeography
+      parameters: [ { name: unitIdOrChurchGeographyId, in: path, required: true, schema: { type: string } } ]
+      responses:
+        '200':
+          description: OK
 
 components:
   schemas:
