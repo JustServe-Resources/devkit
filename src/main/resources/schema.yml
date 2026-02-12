@@ -278,6 +278,39 @@ paths:
           description: Bad Request
         '500':
           description: Internal Server Error
+  /api/v1/users/{userId}/bounded:
+    get:
+      tags:
+        - User
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: showLeads
+          in: query
+          schema:
+            type: boolean
+            default: true
+        - name: showFull
+          in: query
+          schema:
+            type: boolean
+            default: true
+        - name: levels
+          in: query
+          schema:
+            type: integer
+            format: int32
+            default: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResultBounded"
   /api/v1/users/securitycontext/bearer:
     get:
       description: "Retrieves the admin context for a given user (ie org ID's, church unit id's, role levels, etc). if no user is provided, it will return the context for the currently authenticated user"
@@ -658,6 +691,34 @@ components:
         userid:
           type: string
           description: "The unique ID of the user."
+      additionalProperties: false
+    UserResultBounded:
+      type: object
+      properties:
+        id:
+          type: string
+          nullable: true
+        firstName:
+          type: string
+          nullable: true
+        lastName:
+          type: string
+          nullable: true
+        role:
+          $ref: '#/components/schemas/Role'
+        isLead:
+          type: boolean
+        email:
+          type: string
+          nullable: true
+        phone:
+          type: string
+          nullable: true
+        keywords:
+          type: string
+          nullable: true
+        isActive:
+          type: boolean
       additionalProperties: false
     UserSearchRequest:
       description: |
