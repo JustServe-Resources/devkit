@@ -59,15 +59,16 @@ tasks.withType<ProcessResources> {
     }
 }
 
-tasks.withType<Test> {
-    testLogging {
-        events("passed", "skipped", "failed")
-        showStandardStreams = true
-        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
-    }
-    // Exclude EmailParserSpec until we can provide test .eml files without PII data
-    exclude("**/EmailParserSpec.class")
-}
+
+//tasks.withType<Test> {
+//    testLogging {
+//        events("passed", "skipped", "failed")
+//        showStandardStreams = true
+//        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+//    }
+////     Exclude EmailParserSpec until we can provide test .eml files without PII data
+//    exclude("**/EmailParserSpec.class")
+//}
 
 micronaut {
     testRuntime("spock2")
