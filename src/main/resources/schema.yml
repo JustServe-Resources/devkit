@@ -280,6 +280,7 @@ paths:
           description: Internal Server Error
   /api/v1/users/{userId}/bounded:
     get:
+      operationId: getAllInfo
       tags:
         - User
       parameters:
@@ -288,6 +289,7 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
         - name: showLeads
           in: query
           schema:
@@ -697,6 +699,7 @@ components:
       properties:
         id:
           type: string
+          format: uuid
           nullable: true
         firstName:
           type: string

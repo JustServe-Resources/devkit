@@ -1,11 +1,15 @@
 package org.justserve.client
 
+import io.micronaut.http.HttpResponse
+import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.exceptions.HttpClientResponseException
+import io.micronaut.http.exceptions.HttpException
 import net.datafaker.Faker
 import org.apache.commons.lang3.RandomStringUtils
 import org.justserve.JustServeSpec
 import org.justserve.TestUser
 import org.justserve.model.UserHashRequestByEmail
+import org.justserve.model.UserResultBounded
 
 import static io.micronaut.http.HttpStatus.UNAUTHORIZED
 
@@ -20,7 +24,7 @@ class UserClientSpec extends JustServeSpec {
         client.createUser(
                 user.firstName,
                 user.lastName,
-                RandomStringUtils.insecure().nextAlphanumeric(20)+ "@fake.com",
+                RandomStringUtils.insecure().nextAlphanumeric(20) + "@fake.com",
                 user.password,
                 user.zipcode,
                 user.locale,
@@ -68,8 +72,26 @@ class UserClientSpec extends JustServeSpec {
         exception.status == expectedError
 
         where:
-        expectedError         | client           | _
-        null                  | userClient       | _
-        UNAUTHORIZED          | noAuthUserClient | _
+        expectedError | client           | _
+        null          | userClient       | _
+        UNAUTHORIZED  | noAuthUserClient | _
+    }
+
+    def "Should be able to get details for a specific user without facing errors"(UserClient client, HttpStatus expectedError) {
+        when:
+        HttpResponse<UserResultBounded> response = client.getAllInfo(readOnlyUser.uuid, true, true, 1)
+
+        then:
+        if (!expectedError) {
+            response.body() != null
+            return
+        }
+        def exception = thrown(HttpClientResponseException)
+        exception.status == expectedError
+
+        where:
+        expectedError | client           | _
+        null          | userClient       | _
+        UNAUTHORIZED  | noAuthUserClient | _
     }
 }
