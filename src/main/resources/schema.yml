@@ -331,9 +331,12 @@ paths:
           content: { application/json: { schema: { $ref: '#/components/schemas/ProblemDetails' } } }
   /api/v1/churchGeographies/{unitIdOrChurchGeographyId}/upsert:
     put:
+      operationId: updateChurchUnit
+      description: |
+        Adds or creates a church unit in JustServe
       tags:
         - ChurchGeography
-      parameters: [ { name: unitIdOrChurchGeographyId, in: path, required: true, schema: { type: string } } ]
+      parameters: [ { name: unitId, description: "CDOL-id for that church unit", in: path, required: true, schema: { type: string } } ]
       responses:
         '200':
           description: OK
@@ -745,7 +748,7 @@ components:
     ProjectSlimResponse:
       type: object
       properties:
-        id: { type: string, format: uuid}
+        id: { type: string, format: uuid }
         title: { type: string, nullable: true }
         description: { type: string, nullable: true }
         projectExpired: { type: boolean }
@@ -1078,16 +1081,16 @@ components:
         projectOwnerLocation:
           type: object
           properties:
-            mapId: {}
+            mapId: { }
             fullDisplayAddress:
               type: string
-            address: {}
-            suite: {}
+            address: { }
+            suite: { }
             city:
               type: string
             civicCityId:
               type: string
-            neighborhood: {}
+            neighborhood: { }
             county:
               type: string
             state:
@@ -1122,7 +1125,7 @@ components:
               type: number
             geoCodeOverride:
               type: boolean
-            timezone: {}
+            timezone: { }
           required:
             - mapId
             - fullDisplayAddress
@@ -1151,7 +1154,7 @@ components:
             - timezone
         ownerLog:
           type: array
-          items: {}
+          items: { }
         projectType:
           type: number
         status:
@@ -1172,10 +1175,10 @@ components:
           type: string
         attachments:
           type: array
-          items: {}
+          items: { }
         attachmentInfo:
           type: array
-          items: {}
+          items: { }
         applicant:
           type: object
           properties:
@@ -1219,9 +1222,9 @@ components:
         contact:
           type: object
           properties:
-            name: {}
-            phone: {}
-            email: {}
+            name: { }
+            phone: { }
+            email: { }
           required:
             - name
             - phone
@@ -1245,9 +1248,9 @@ components:
         representative:
           type: object
           properties:
-            name: {}
-            email: {}
-            userId: {}
+            name: { }
+            email: { }
+            userId: { }
           required:
             - name
             - email
@@ -1257,17 +1260,17 @@ components:
           properties:
             authorization:
               type: boolean
-            organizationAuthorization: {}
-            name: {}
-            description: {}
-            url: {}
-            internalUrl: {}
+            organizationAuthorization: { }
+            name: { }
+            description: { }
+            url: { }
+            internalUrl: { }
             organizationId: { type: string, format: uuid }
-            reviewedBy: {}
-            reviewedOn: {}
+            reviewedBy: { }
+            reviewedOn: { }
             linked:
               type: boolean
-            logo: {}
+            logo: { }
           required:
             - authorization
             - organizationAuthorization
@@ -1304,22 +1307,22 @@ components:
           type: string
         skills:
           type: array
-          items: {}
+          items: { }
         interests:
           type: array
-          items: {}
+          items: { }
         tools:
           type: array
-          items: {}
+          items: { }
         projectSkills:
           type: array
-          items: {}
+          items: { }
         projectInterests:
           type: array
-          items: {}
+          items: { }
         projectTools:
           type: array
-          items: {}
+          items: { }
         externalVolunteerURL:
           type: string
         isExternalProject:
@@ -1340,14 +1343,14 @@ components:
           type: boolean
         daysOfWeek:
           type: array
-          items: {}
+          items: { }
         timesOfDay:
           type: array
-          items: {}
-        waiverURL: {}
+          items: { }
+        waiverURL: { }
         dtl:
           type: array
-          items: {}
+          items: { }
         onGoing:
           type: array
           items:
@@ -1365,13 +1368,13 @@ components:
                 type: string
               scheduleLanguage:
                 type: object
-                properties: {}
-                required: []
-              specialDirections: {}
+                properties: { }
+                required: [ ]
+              specialDirections: { }
               specialDirectionsLanguage:
                 type: object
-                properties: {}
-                required: []
+                properties: { }
+                required: [ ]
               locationName:
                 type: string
               locationLink:
@@ -1379,27 +1382,27 @@ components:
               location:
                 type: object
                 properties:
-                  mapId: {}
+                  mapId: { }
                   fullDisplayAddress:
                     type: string
-                  address: {}
-                  suite: {}
+                  address: { }
+                  suite: { }
                   city:
                     type: string
-                  civicCityId: {}
-                  neighborhood: {}
-                  county: {}
-                  state: {}
-                  postal: {}
+                  civicCityId: { }
+                  neighborhood: { }
+                  county: { }
+                  state: { }
+                  postal: { }
                   country:
                     type: string
-                  countryCode: {}
+                  countryCode: { }
                   locationVisibilityId:
                     type: number
-                  missionId: {}
-                  ccId: {}
-                  stakeId: {}
-                  areaId: {}
+                  missionId: { }
+                  ccId: { }
+                  stakeId: { }
+                  areaId: { }
                   latitude:
                     type: number
                   longitude:
@@ -1444,7 +1447,7 @@ components:
                   - timezone
               interested:
                 type: array
-                items: {}
+                items: { }
               contacts:
                 type: array
                 items:
@@ -1462,7 +1465,7 @@ components:
                     - email
               boundaries:
                 type: array
-                items: {}
+                items: { }
             required:
               - id
               - start
@@ -1478,9 +1481,9 @@ components:
               - interested
               - contacts
               - boundaries
-        recurring: {}
-        lastChangeReason: {}
-        escalated: {}
+        recurring: { }
+        lastChangeReason: { }
+        escalated: { }
         created:
           type: string
         updated:
@@ -1489,8 +1492,8 @@ components:
           type: string
         deleted:
           type: boolean
-        deletedOn: {}
-        deletedBy: {}
+        deletedOn: { }
+        deletedBy: { }
         firstStartDateTimeOffset:
           type: string
         lastEndDateTimeOffset:
@@ -1507,7 +1510,7 @@ components:
           type: string
         volunteerCentersData:
           type: array
-          items: {}
+          items: { }
         relativityScore:
           type: number
         projectOwnerName:
