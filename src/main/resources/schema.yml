@@ -60,7 +60,7 @@ paths:
   /api/v1/organizations/{organizationId}/owners:
     get:
       tags: [ Organization ]
-      description: get the owners for a given organization
+      description: Get the partially obfuscated email for the owners of a given organization.
       operationId: getOrgOwners
       parameters:
         - name: organizationId
