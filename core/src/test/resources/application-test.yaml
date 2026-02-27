@@ -1,0 +1,8 @@
+micronaut:
+  http:
+    services:
+      justserve:
+        url: https://stage.justserve.org
+logger:
+  levels:
+    io.micronaut.http.client: DEBUG
