@@ -5,6 +5,7 @@ import io.micronaut.context.env.Environment
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.exceptions.HttpClientResponseException
+import io.micronaut.http.client.multipart.MultipartBody
 import io.micronaut.test.extensions.spock.annotation.MicronautTest
 import net.datafaker.Faker
 import org.apache.commons.lang3.RandomStringUtils
@@ -52,7 +53,7 @@ class JustServeSpec extends Specification {
     OrganizationClient authOrgClient
 
     @Shared
-    UserClient userClient
+    UserClient adminUserClient
 
     @Shared
     TestUser readOnlyUser
@@ -85,13 +86,14 @@ class JustServeSpec extends Specification {
         authOrgClient = ctx.getBean(OrganizationClient)
         authBoundaryPermissionClient = ctx.getBean(BoundaryPermissionClient)
         authDynamicRoutingClient = ctx.getBean(DynamicRoutingClient)
-        userClient = ctx.getBean(UserClient)
+        adminUserClient = ctx.getBean(UserClient)
         readOnlyUser = new TestUser(new Faker(Locale.of("en-us")))
         projectClient = ctx.getBean(ProjectClient)
 
         //        TODO: validate the user does not already exist (use the admin client user search)
-        String customRandomEmail=RandomStringUtils.insecure().nextAlphanumeric(20)+ "@fake.com"
+        String customRandomEmail = RandomStringUtils.insecure().nextAlphanumeric(20) + "@fake.com"
         readOnlyUser.uuid = createUserFromFaker(noAuthUserClient, readOnlyUser, customRandomEmail).body().getId()
+        readOnlyUser.email = customRandomEmail
         searchResults = getProjectsByLocation(faker.location().toString())
     }
 
@@ -112,19 +114,26 @@ class JustServeSpec extends Specification {
                 // This user likely already exists, so we'll loop and try a new one.
             }
         }
+        if (null == response) {
+            throw new IllegalStateException("failed to create a test user after five attempts")
+        }
         return response
     }
 
-    private static def createUserFromFaker(UserClient client, TestUser user, String uniqueEmailInput=null) {
-        return client.createUser(
-                user.firstName,
-                user.lastName,
-                (uniqueEmailInput ?: user.email) as String, //in the case that we provide our own custom email, to avoid the same email being repeated
-                user.password,
-                user.zipcode,
-                user.locale,
-                user.country,
-                user.countryCode)
+    private static def createUserFromFaker(UserClient client, TestUser user, String uniqueEmailInput = null) {
+        String email = uniqueEmailInput ?: RandomStringUtils.insecure().nextAlphanumeric(20) + "@fake.com"
+        MultipartBody requestBody = MultipartBody.builder()
+                .addPart("firstName", user.firstName)
+                .addPart("lastName", user.lastName)
+                .addPart("email", email)
+                .addPart("password", "JustServe2026")
+                .addPart("postal", user.zipcode)
+                .addPart("language", user.locale)
+                .addPart("countryCode", user.countryCode)
+                .addPart("country", user.country)
+                .addPart("termsChecked", "true")
+                .build()
+        client.createUser(requestBody)
     }
 
     List<ProjectCard> getProjectsByLocation(String location) {

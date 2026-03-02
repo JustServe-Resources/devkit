@@ -179,52 +179,33 @@ paths:
       operationId: createUser
       tags:
         - User
-      parameters:
-        - name: FirstName
-          in: query
-          required: true
-          schema:
-            maxLength: 50
-            minLength: 1
-            type: string
-        - name: LastName
-          in: query
-          required: true
-          schema:
-            maxLength: 50
-            minLength: 1
-            type: string
-        - name: Email
-          in: query
-          required: true
-          schema:
-            pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}$"
-            type: string
-        - name: Password
-          in: query
-          required: true
-          schema:
-            maxLength: 100
-            minLength: 8
-            type: string
-            format: password
-        - name: Postal
-          in: query
-          schema:
-            type: string
-        - name: Language
-          description: language locale, ie 'en-us'
-          in: query
-          schema:
-            type: string
-        - name: Country
-          in: query
-          schema:
-            type: string
-        - name: CountryCode
-          in: query
-          schema:
-            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                FirstName:
+                  maxLength: 50
+                  minLength: 1
+                  type: string
+                LastName:
+                  maxLength: 50
+                  minLength: 1
+                  type: string
+                Email:
+                  pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}$"
+                  type: string
+                Password:
+                  maxLength: 100
+                  minLength: 8
+                  type: string
+                  format: password
+                Postal: { type: string }
+                Language: { type: string, description: "language locale, ie 'en-us'" }
+                Country: { type: string }
+                CountryCode: { type: string }
+                termsChecked: { type: boolean }
       responses:
         '200':
           description: OK

@@ -1,9 +1,11 @@
 package org.justserve
 
 import io.micronaut.http.client.exceptions.HttpClientResponseException
+import io.micronaut.http.client.multipart.MultipartBody
 import io.micronaut.test.extensions.spock.annotation.MicronautTest
 import net.datafaker.Faker
 import org.apache.commons.lang3.RandomStringUtils
+import org.justserve.client.UserClient
 import org.justserve.model.UserHashRequestByEmail
 
 import static io.micronaut.http.HttpStatus.UNAUTHORIZED
@@ -11,65 +13,83 @@ import static io.micronaut.http.HttpStatus.UNAUTHORIZED
 @MicronautTest
 class UserClientSpec extends JustServeSpec {
 
-    def "create user #{user.firstname} #{user.lastname} #{user.email} #{user.password} #{user.postal} #{user.locale} #{user.country} #{user.countryCode}"() {
-        when:
+    def setupSpec() {
+
+    }
+
+    def "create user #{user.firstName} #{user.lastName} #{user.email} #{user.password} #{user.zipcode} #{user.locale} #{user.country} #{user.countryCode}"() {
+        given:
         TestUser user = new TestUser(new Faker(Locale.of("en-us")))
+        MultipartBody requestBody = MultipartBody.builder()
+                .addPart("firstName", user.firstName)
+                .addPart("lastName", user.lastName)
+                .addPart("email", RandomStringUtils.insecure().nextAlphanumeric(20) + "@fake.com")
+                .addPart("password", "JustServe2026")
+                .addPart("postal", user.zipcode)
+                .addPart("language", user.locale)
+                .addPart("countryCode", user.countryCode)
+                .addPart("country", user.country)
+                .addPart("termsChecked", "true")
+                .build()
+        when:
+        client.createUser(requestBody)
 
         then:
-//        TODO: validate the user does not already exist (use the admin client user search)
-        client.createUser(
-                user.firstName,
-                user.lastName,
-                RandomStringUtils.insecure().nextAlphanumeric(20)+ "@fake.com",
-                user.password,
-                user.zipcode,
-                user.locale,
-                user.country,
-                user.countryCode
-        )
+        noExceptionThrown()
 
         where:
         client           | _
-        userClient       | _
+        adminUserClient  | _
         noAuthUserClient | _
     }
 
-    def "get admin context for a generated user with as an admin"() {
-        //todo: add user with admin context to testing
+    def "can get admin context for a user as an admin"(UserClient client) {
         when:
         def response = client.getAdminContext(readOnlyUser.uuid)
 
         then:
-        if (!expectedError) {
-            response.body() != null
-            return
-        }
-        def exception = thrown(HttpClientResponseException)
-        exception.status == expectedError
+        response.body() != null
 
         where:
-        expectedError | client           | _
-        null          | userClient       | _
-        UNAUTHORIZED  | noAuthUserClient | _
-
+        client          | _
+        adminUserClient | _
     }
 
-    def "get tempPassword for a previously created user"() {
-        given:
+    def "cannot get admin context for a user if not an admin"(UserClient client) {
         when:
-        def response = client.getTempPassword(new UserHashRequestByEmail(readOnlyUser.email))
+        client.getAdminContext(readOnlyUser.uuid)
 
         then:
-        if (!expectedError) {
-            response.body() != null
-            return
-        }
         def exception = thrown(HttpClientResponseException)
-        exception.status == expectedError
+        exception.status == UNAUTHORIZED
 
         where:
-        expectedError         | client           | _
-        null                  | userClient       | _
-        UNAUTHORIZED          | noAuthUserClient | _
+        client           | _
+        noAuthUserClient | _
+    }
+
+    def "can get tempPassword for a user as an admin"(UserClient client) {
+        when:
+        client.getTempPassword(new UserHashRequestByEmail(readOnlyUser.email))
+
+        then:
+        noExceptionThrown()
+
+        where:
+        client          | _
+        adminUserClient | _
+    }
+
+    def "cannot get tempPassword for a user if not an admin"(UserClient client) {
+        when:
+        client.getTempPassword(new UserHashRequestByEmail(readOnlyUser.email))
+
+        then:
+        def exception = thrown(HttpClientResponseException)
+        exception.status == UNAUTHORIZED
+
+        where:
+        client           | _
+        noAuthUserClient | _
     }
 }
