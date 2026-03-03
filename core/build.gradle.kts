@@ -38,7 +38,7 @@ java {
 micronaut {
     testRuntime("spock2")
     openapi {
-        version = "6.16.0"
+        version = "6.20.0"
         client(file("src/main/resources/schema.yml")) {
             apiPackageName = "org.justserve.client"
             modelPackageName = "org.justserve.model"
@@ -48,6 +48,7 @@ micronaut {
             clientId = "justserve"
             apiNameSuffix = "Client"
             alwaysUseGenerateHttpResponse = true
+            additionalProperties.put("retryable", "true")
         }
     }
     processing {
