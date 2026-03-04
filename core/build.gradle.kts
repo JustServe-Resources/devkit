@@ -1,7 +1,11 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+import java.util.*
+
 plugins {
     id("groovy") 
     id("io.micronaut.library") version "4.5.3"
     id("io.micronaut.openapi") version "4.5.3"
+    id("com.github.hauner.jarTest") version "1.1.0"
 }
 
 version = project.properties["justserveCliVersion"]!!
@@ -54,5 +58,13 @@ micronaut {
     processing {
         incremental(true)
         annotations("org.justserve.*")
+    }
+}
+
+tasks.withType<ProcessResources> {
+    val props = Properties()
+    file("../gradle.properties").inputStream().use { props.load(it) }
+    filesMatching("**/application.yml") {
+        filter(mapOf("tokens" to props), ReplaceTokens::class.java)
     }
 }

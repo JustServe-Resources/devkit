@@ -1,0 +1,9 @@
+micronaut:
+  application:
+    name: justserve-cli
+    version: "@justserveCliVersion@"
+justserve:
+  token: ${:i-need-to-be-defined}
+logger:
+  levels:
+#    org.justserve.auth.JustServeClientFilter: DEBUG
