@@ -15,7 +15,7 @@ micronaut:
         acquire-timeout: 30s
         max-connections: 100
 justserve:
-  token:
+  token: ${:i-need-to-be-defined}
 jackson:
   deserialization:
     ACCEPT_EMPTY_STRING_AS_NULL_OBJECT: true
