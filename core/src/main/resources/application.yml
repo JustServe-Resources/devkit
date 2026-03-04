@@ -1,7 +1,6 @@
 micronaut:
   application:
-    name: justserve-cli
-    version: "@justserveCliVersion@"
+    name: justserve devkit core
   http:
     services:
       justserve:
@@ -9,7 +8,7 @@ micronaut:
     client:
       read-timeout: 20s
 justserve:
-  token: ${:i-need-to-be-defined}
+  token:
 jackson:
   deserialization:
     ACCEPT_EMPTY_STRING_AS_NULL_OBJECT: true
