@@ -2,29 +2,20 @@ name: GraalVM Native Image Test run and build tests
 on: [pull_request, workflow_dispatch]
 jobs:
   build:
-    name: test and compile on ${{ matrix.os }}
+    name: test and compile on self-hosted
     runs-on: self-hosted
-#    runs-on: ${{ matrix.os }}
-#    strategy:
-#      matrix:
-#        os: [macos-latest, windows-latest, ubuntu-latest]
     env:
       TEST_TOKEN: ${{ secrets.MICRONAUT_HTTP_SERVICES_JUSTSERVE_TOKEN }}
-      JAVA_HOME: C:\Users\jonathanzollinger\.jdks\graalvm-ce-21.0.2
+      JAVA_HOME: ${{ secrets.JAVA_HOME }}
 
     steps:
       - uses: actions/checkout@v4
-      # - uses: graalvm/setup-graalvm@v1
-      #   with:
-      #     java-version: '21'
-      #     distribution: 'graalvm'
-      #     github-token: ${{ secrets.GITHUB_TOKEN }}
-      #     native-image-job-reports: 'true'
-      - name: call gradle to run tests and then compile
-        run: ./gradlew test nativeCompile
+      - name: Run core tests
+        run: ./gradlew :core:test
+      - name: Run cli tests and compile
+        run: ./gradlew :cli:test :cli:nativeCompile
       - name: upload binary
         uses: actions/upload-artifact@v4
         with:
-#          name: justserve-${{ matrix.os }}
           name: justserve
-          path: build/native/nativeCompile/justserve*
+          path: cli/build/native/nativeCompile/justserve*
