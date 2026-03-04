@@ -92,4 +92,16 @@ class UserClientSpec extends JustServeSpec {
         client           | _
         noAuthUserClient | _
     }
+
+    def "can get all user information for a user as an admin"(UserClient client) {
+        when:
+        client.getAllUserInformation(readOnlyUser.uuid, true, true, 1)
+
+        then:
+        noExceptionThrown()
+
+        where:
+        client          | _
+        adminUserClient | _
+    }
 }
