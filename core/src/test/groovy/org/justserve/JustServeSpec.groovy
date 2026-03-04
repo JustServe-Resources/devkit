@@ -14,6 +14,8 @@ import org.justserve.model.*
 import spock.lang.Shared
 import spock.lang.Specification
 
+import java.util.stream.Collectors
+
 import static org.justserve.model.DistanceType.MILES
 
 @MicronautTest()
@@ -175,9 +177,7 @@ class JustServeSpec extends Specification {
      * @return A list of UUIDs for the created organizations.
      */
     List<UUID> createTestOrgs(int count) {
-        return (1..count).collect {
-            createOrg()
-        }
+        return (1..count).toList().parallelStream().map(this::createOrg).collect(Collectors.toList())
     }
 
 
