@@ -43,7 +43,7 @@ dependencies {
 
 
 application {
-    mainClass = "org.justserve.CliCommand"
+    mainClass = "org.justserve.JustServeCommand"
 }
 java {
     sourceCompatibility = JavaVersion.toVersion("21")
@@ -68,4 +68,11 @@ micronaut {
 
 tasks.named<io.micronaut.gradle.docker.NativeImageDockerfile>("dockerfileNative") {
     jdkVersion = "21"
+}
+
+graalvmNative.binaries {
+    named("main") {
+        imageName.set("justserve")
+        buildArgs.add("--color=always")
+    }
 }
