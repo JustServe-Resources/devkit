@@ -1655,7 +1655,7 @@ components:
         boundaryName: { type: string, nullable: true }
         role: { $ref: '#/components/schemas/Role' }
         isLead: { type: boolean }
-        updatedDate: { type: string, format: date-time }
+        updatedDate: { type: string } # broken, returns year-zero instead of a meaningful date
       additionalProperties: false
     BoundaryPermissionBounded:
       type: object
