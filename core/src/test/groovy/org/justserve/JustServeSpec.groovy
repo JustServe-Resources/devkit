@@ -102,8 +102,8 @@ class JustServeSpec extends Specification {
         ctx.stop()
     }
 
-    def createUser(UserClient client = noAuthUserClient) {
-        HttpResponse response = null
+    HttpResponse<CreateUser200Response> createUser(UserClient client = noAuthUserClient) {
+        HttpResponse<CreateUser200Response> response = null
         def tries = 0
         while ((null == response || HttpStatus.OK != response.status()) && tries < 5) {
             try {
@@ -120,7 +120,7 @@ class JustServeSpec extends Specification {
         return response
     }
 
-    private static def createUserFromFaker(UserClient client, TestUser user, String uniqueEmailInput = null) {
+    private static HttpResponse<CreateUser200Response> createUserFromFaker(UserClient client, TestUser user, String uniqueEmailInput = null) {
         String email = uniqueEmailInput ?: RandomStringUtils.insecure().nextAlphanumeric(20) + "@fake.com"
         MultipartBody requestBody = MultipartBody.builder()
                 .addPart("firstName", user.firstName)
