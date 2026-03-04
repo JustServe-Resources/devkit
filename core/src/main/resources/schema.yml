@@ -297,6 +297,32 @@ paths:
         '500':
           description: Internal Server Error
           content: { application/json: { schema: { $ref: '#/components/schemas/ProblemDetails' } } }
+  /api/v1/users/{userId}/bounded:
+    get:
+      tags: [ User ]
+      description: Get bounded user details
+      operationId: getAllUserInformation
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: showLeads
+          in: query
+          schema: { type: boolean, default: true }
+        - name: showFull
+          in: query
+          schema: { type: boolean, default: true }
+        - name: levels
+          in: query
+          schema: { type: integer, format: int32, default: 1 }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResultBounded'
   /api/v1/routing/{url}:
     get:
       operationId: getOrgIdFromSlug
@@ -1568,3 +1594,168 @@ components:
         - projectOwnerUserId
         - projectLocationType
         - underReview
+    UserResultBounded:
+      type: object
+      properties:
+        id: { type: string, nullable: true }
+        firstName: { type: string, nullable: true }
+        lastName: { type: string, nullable: true }
+        role: { $ref: '#/components/schemas/Role' }
+        isLead: { type: boolean }
+        email: { type: string, nullable: true }
+        phone: { type: string, nullable: true }
+        keywords: { type: string, nullable: true }
+        isActive: { type: boolean }
+        updatedBy: { $ref: '#/components/schemas/UpdatedBy' }
+        permissions:
+          type: array
+          items: { $ref: '#/components/schemas/BoundaryPermissionBounded' }
+          nullable: true
+        civicBoundaries:
+          type: array
+          items: { $ref: '#/components/schemas/GeographyBounded' }
+          nullable: true
+        churchBoundaries:
+          type: array
+          items: { $ref: '#/components/schemas/GeographyBounded' }
+          nullable: true
+        organizations:
+          type: array
+          items: { $ref: '#/components/schemas/OrganizationBounded' }
+          nullable: true
+        pendingOrganizations:
+          type: array
+          items: { $ref: '#/components/schemas/ProjectBounded' }
+          nullable: true
+        pendingProjects:
+          type: array
+          items: { $ref: '#/components/schemas/ProjectBounded' }
+          nullable: true
+        activeProjects:
+          type: array
+          items: { $ref: '#/components/schemas/ProjectBounded' }
+          nullable: true
+        historicalProjects:
+          type: array
+          items: { $ref: '#/components/schemas/ProjectBounded' }
+          nullable: true
+        draftProjects:
+          type: array
+          items: { $ref: '#/components/schemas/ProjectBounded' }
+          nullable: true
+        templateProjects:
+          type: array
+          items: { $ref: '#/components/schemas/ProjectBounded' }
+          nullable: true
+      additionalProperties: false
+    UpdatedBy:
+      type: object
+      properties:
+        name: { type: string, nullable: true }
+        boundaryName: { type: string, nullable: true }
+        role: { $ref: '#/components/schemas/Role' }
+        isLead: { type: boolean }
+        updatedDate: { type: string, format: date-time }
+      additionalProperties: false
+    BoundaryPermissionBounded:
+      type: object
+      properties:
+        id: { type: string, nullable: true }
+        boundary: { type: string, nullable: true }
+        admins:
+          type: array
+          items: { $ref: '#/components/schemas/BoundaryAdminBounded' }
+          nullable: true
+      additionalProperties: false
+    BoundaryAdminBounded:
+      type: object
+      properties:
+        id: { type: string, nullable: true }
+        firstName: { type: string, nullable: true }
+        lastName: { type: string, nullable: true }
+        type: { $ref: '#/components/schemas/Role' }
+      additionalProperties: false
+    GeographyBounded:
+      type: object
+      properties:
+        id: { type: string, nullable: true }
+        name: { type: string, nullable: true }
+        type: { $ref: '#/components/schemas/GeographyType' }
+        civicCountryId: { type: string, nullable: true }
+        civicStateId: { type: string, nullable: true }
+        civicCountyId: { type: string, nullable: true }
+        civicCityId: { type: string, nullable: true }
+      additionalProperties: false
+    OrganizationBounded:
+      type: object
+      properties:
+        id: { type: string, nullable: true }
+        endorsements:
+          type: array
+          items: { $ref: '#/components/schemas/Endorsement' }
+          nullable: true
+        name: { type: string, nullable: true }
+        url: { type: string, nullable: true }
+        location: { $ref: '#/components/schemas/Location' }
+        status: { $ref: '#/components/schemas/OrganizationStatus' }
+        isLead: { type: boolean }
+        type: { $ref: '#/components/schemas/OrganizationType' }
+      additionalProperties: false
+    ProjectBounded:
+      type: object
+      properties:
+        id: { type: string, nullable: true }
+        name: { type: string, nullable: true }
+        projectOwners:
+          type: array
+          items: { $ref: '#/components/schemas/ProjectOwner' }
+          nullable: true
+        locations:
+          type: array
+          items: { $ref: '#/components/schemas/Location' }
+          nullable: true
+        status: { $ref: '#/components/schemas/ProjectStatus' }
+        organization: { $ref: '#/components/schemas/ProjectOrg' }
+        createdBy: { type: string, nullable: true }
+        cbfName: { type: string, nullable: true }
+        cblName: { type: string, nullable: true }
+        startDate: { type: string, format: date-time }
+        endDate: { type: string, format: date-time }
+        isActive: { type: boolean }
+        isUnlistedProject: { type: boolean }
+        ongoing: { type: boolean }
+        isDirectlyOwnedOrSponsored: { type: boolean }
+        isOwnedOrRepresentedViaOrganization: { type: boolean }
+        volunteersNeeded: { type: integer, format: int32 }
+        volunteersAcquired: { type: integer, format: int32 }
+        projectOwnerName: { type: string, nullable: true }
+        projectOwnerUserId: { type: string, nullable: true }
+      additionalProperties: false
+    ProjectOwner:
+      type: object
+      properties:
+        id: { type: string, nullable: true }
+        ownerType: { $ref: '#/components/schemas/OwnerType' }
+      additionalProperties: false
+    OwnerType:
+      type: integer
+      format: int32
+      enum: [ 0, 1 ]
+      x-enum-varnames:
+        - User
+        - Organization
+    ProjectOrg:
+      type: object
+      properties:
+        authorization: { type: boolean }
+        organizationAuthorization: { type: boolean, nullable: true }
+        name: { type: string, nullable: true }
+        description: { type: string, nullable: true }
+        url: { type: string, nullable: true }
+        internalUrl: { type: string, nullable: true }
+        organizationId: { type: string, nullable: true }
+        reviewedBy: { type: string, nullable: true }
+        reviewedOn: { type: string, format: date-time, nullable: true }
+        linked: { type: boolean }
+        logo: { type: string, nullable: true }
+      additionalProperties: false
