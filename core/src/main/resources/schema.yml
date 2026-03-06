@@ -12,23 +12,6 @@ info:
     - Organization
     - Project
 paths:
-  /graphql:
-    post:
-      tags: [ GraphQL ]
-      description: GraphQL API endpoint
-      operationId: graphqlEndpoint
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/GraphQLRequest'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/graphql-response+json; charset=utf-8:
-              schema:
-                $ref: '#/components/schemas/GraphQLResponse'
   /api/v1/images:
     post:
       tags: [ Image ]
@@ -356,32 +339,7 @@ paths:
 
 components:
   schemas:
-    GraphQLRequest:
-      type: object
-      properties:
-        query: { type: string }
-        variables: { type: object }
-    GraphQLResponse:
-      type: object
-      properties:
-        data:
-          type: object
-          oneOf:
-            - $ref: '#/components/schemas/GraphQLCreateEventData'
-            - $ref: '#/components/schemas/GraphQLSearchOrganizationData'
-            - $ref: '#/components/schemas/GraphQLUpdateProjectData'
-            - $ref: '#/components/schemas/GraphQLSetProjectLocationData'
-            - $ref: '#/components/schemas/GraphQLAddProjectAttachmentData'
-            - $ref: '#/components/schemas/GraphQLAddProjectOrganizationData'
-            - $ref: '#/components/schemas/GraphQLCombinedMutationUpdateProjectAddProjectTagData'
-            - $ref: '#/components/schemas/GraphQLCreateProjectData'
-            - $ref: '#/components/schemas/GraphQLPublishProjectData'
-            - $ref: '#/components/schemas/GraphQLUpdateProjectAttachmentData'
-            - $ref: '#/components/schemas/GraphQLUpdateProjectListingData'
-        errors:
-          type: array
-          items:
-            type: object
+
     GraphQLCreateEventData:
       type: object
       properties:
@@ -1988,3 +1946,228 @@ components:
         linked: { type: boolean }
         logo: { type: string, nullable: true }
       additionalProperties: false
+    GraphQLAddProjectAttachmentRequest:
+      type: object
+      properties:
+        query: { type: string }
+        variables: { $ref: '#/components/schemas/GraphQLAddProjectAttachmentVariables' }
+    GraphQLAddProjectAttachmentVariables:
+      type: object
+      properties:
+        projectId:
+          type: string
+          format: uuid
+        attachmentId:
+          type: string
+          format: uuid
+    GraphQLAddProjectOrganizationRequest:
+      type: object
+      properties:
+        query: { type: string }
+        variables: { $ref: '#/components/schemas/GraphQLAddProjectOrganizationVariables' }
+    GraphQLAddProjectOrganizationVariables:
+      type: object
+      properties:
+        organizationId:
+          type: string
+          format: uuid
+        projectId:
+          type: string
+          format: uuid
+    GraphQLCombinedMutationUpdateProjectAddProjectTagRequest:
+      type: object
+      properties:
+        query: { type: string }
+        variables: { $ref: '#/components/schemas/GraphQLCombinedMutationUpdateProjectAddProjectTagVariables' }
+    GraphQLCombinedMutationUpdateProjectAddProjectTagVariables:
+      type: object
+      properties:
+        projectId:
+          type: string
+          format: uuid
+        modify:
+          type: object
+          properties:
+            indoors:
+              type: boolean
+            longDescription:
+              type: string
+            shortDescription:
+              type: string
+            sponsorUserId:
+              type: string
+              format: uuid
+            suitableAllAges:
+              type: boolean
+            groupProjects:
+              type: boolean
+            itemDonations:
+              type: boolean
+            wheelchairAccessible:
+              type: boolean
+            sponsorType:
+              type: string
+    GraphQLCreateEventRequest:
+      type: object
+      properties:
+        query: { type: string }
+        variables: { $ref: '#/components/schemas/GraphQLCreateEventVariables' }
+    GraphQLCreateEventVariables:
+      type: object
+      properties:
+        projectId:
+          type: string
+          format: uuid
+        projectEvent:
+          type: object
+          properties:
+            contactEmail:
+              type: string
+            contactName:
+              type: string
+            contactPhone:
+              type: string
+            end:
+              type: string
+            groupCap:
+              type: boolean
+            groupLimit:
+              type: integer
+            shiftTitle:
+              type: string
+            start:
+              type: string
+            timezone:
+              type: string
+            totalVolunteersNeeded:
+              type: integer
+            volunteerCap:
+              type: boolean
+    GraphQLCreateProjectRequest:
+      type: object
+      properties:
+        query: { type: string }
+        variables: { $ref: '#/components/schemas/GraphQLCreateProjectVariables' }
+    GraphQLCreateProjectVariables:
+      type: object
+      properties:
+        title:
+          type: string
+        eventType:
+          type: string
+        locationType:
+          type: string
+        redirect:
+          type: string
+    GraphQLPublishProjectRequest:
+      type: object
+      properties:
+        query: { type: string }
+        variables: { $ref: '#/components/schemas/GraphQLPublishProjectVariables' }
+    GraphQLPublishProjectVariables:
+      type: object
+      properties:
+        projectId:
+          type: string
+          format: uuid
+    GraphQLSearchOrganizationRequest:
+      type: object
+      properties:
+        query: { type: string }
+        variables: { $ref: '#/components/schemas/GraphQLSearchOrganizationVariables' }
+    GraphQLSearchOrganizationVariables:
+      type: object
+      properties:
+        searchTerm:
+          type: string
+        includeAll:
+          type: boolean
+    GraphQLSetProjectLocationRequest:
+      type: object
+      properties:
+        query: { type: string }
+        variables: { $ref: '#/components/schemas/GraphQLSetProjectLocationVariables' }
+    GraphQLSetProjectLocationVariables:
+      type: object
+      properties:
+        projectId:
+          type: string
+          format: uuid
+        location:
+          type: string
+        locationData:
+          type: object
+          properties:
+            country:
+              type: string
+            countryCode:
+              type: string
+            state:
+              type: string
+            city:
+              type: string
+            county:
+              type: string
+            postal:
+              type: string
+            neighborhood:
+              type: string
+            latitude:
+              type: number
+            longitude:
+              type: number
+            address:
+              type: string
+            areaId:
+              type: string
+            ccId:
+              type: string
+            missionId:
+              type: string
+            stakeId:
+              type: string
+            locationDetails:
+              type: string
+            locationName:
+              type: string
+    GraphQLUpdateProjectAttachmentRequest:
+      type: object
+      properties:
+        query: { type: string }
+        variables: { $ref: '#/components/schemas/GraphQLUpdateProjectAttachmentVariables' }
+    GraphQLUpdateProjectAttachmentVariables:
+      type: object
+      properties:
+        attachmentId:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+    GraphQLUpdateProjectListingRequest:
+      type: object
+      properties:
+        query: { type: string }
+        variables: { $ref: '#/components/schemas/GraphQLUpdateProjectListingVariables' }
+    GraphQLUpdateProjectListingVariables:
+      type: object
+      properties:
+        projectId:
+          type: string
+          format: uuid
+        unlisted:
+          type: boolean
+    GraphQLUpdateProjectRequest:
+      type: object
+      properties:
+        query: { type: string }
+        variables: { $ref: '#/components/schemas/GraphQLUpdateProjectVariables' }
+    GraphQLUpdateProjectVariables:
+      type: object
+      properties:
+        projectId:
+          type: string
+          format: uuid
+        logo:
+          type: string
