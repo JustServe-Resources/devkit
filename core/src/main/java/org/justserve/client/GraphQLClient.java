@@ -15,44 +15,44 @@ import org.justserve.model.*;
 public interface GraphQLClient {
 
     @Post
-    GraphQLResponse<GraphQLAddProjectAttachmentData> addProjectAttachment(@Body GraphQLAddProjectAttachmentRequest request);
+    GraphQLResponse<GraphQLAddProjectAttachmentData> executeAddProjectAttachment(@Body GraphQLAddProjectAttachmentRequest request);
 
     @Post
-    GraphQLResponse<GraphQLAddProjectOrganizationData> addProjectOrganization(@Body GraphQLAddProjectOrganizationRequest request);
+    GraphQLResponse<GraphQLAddProjectOrganizationData> executeAddProjectOrganization(@Body GraphQLAddProjectOrganizationRequest request);
 
     @Post
-    GraphQLResponse<GraphQLCombinedMutationUpdateProjectAddProjectTagData> combinedMutationUpdateProjectAddProjectTag(@Body GraphQLCombinedMutationUpdateProjectAddProjectTagRequest request);
+    GraphQLResponse<GraphQLCombinedMutationUpdateProjectAddProjectTagData> executeCombinedMutationUpdateProjectAddProjectTag(@Body GraphQLCombinedMutationUpdateProjectAddProjectTagRequest request);
 
     @Post
-    GraphQLResponse<GraphQLCreateEventData> createEvent(@Body GraphQLCreateEventRequest request);
+    GraphQLResponse<GraphQLCreateEventData> executeCreateEvent(@Body GraphQLCreateEventRequest request);
 
     @Post
-    GraphQLResponse<GraphQLCreateProjectData> createProject(@Body GraphQLCreateProjectRequest request);
+    GraphQLResponse<GraphQLCreateProjectData> executeCreateProject(@Body GraphQLCreateProjectRequest request);
 
     @Post
-    GraphQLResponse<GraphQLPublishProjectData> publishProject(@Body GraphQLPublishProjectRequest request);
+    GraphQLResponse<GraphQLPublishProjectData> executePublishProject(@Body GraphQLPublishProjectRequest request);
 
     @Post
-    GraphQLResponse<GraphQLSearchOrganizationData> searchOrganization(@Body GraphQLSearchOrganizationRequest request);
+    GraphQLResponse<GraphQLSearchOrganizationData> executeSearchOrganization(@Body GraphQLSearchOrganizationRequest request);
 
     @Post
-    GraphQLResponse<GraphQLSetProjectLocationData> setProjectLocation(@Body GraphQLSetProjectLocationRequest request);
+    GraphQLResponse<GraphQLSetProjectLocationData> executeSetProjectLocation(@Body GraphQLSetProjectLocationRequest request);
 
     @Post
-    GraphQLResponse<GraphQLUpdateProjectAttachmentData> updateProjectAttachment(@Body GraphQLUpdateProjectAttachmentRequest request);
+    GraphQLResponse<GraphQLUpdateProjectAttachmentData> executeUpdateProjectAttachment(@Body GraphQLUpdateProjectAttachmentRequest request);
 
     @Post
-    GraphQLResponse<GraphQLUpdateProjectListingData> updateProjectListing(@Body GraphQLUpdateProjectListingRequest request);
+    GraphQLResponse<GraphQLUpdateProjectListingData> executeUpdateProjectListing(@Body GraphQLUpdateProjectListingRequest request);
 
     @Post
-    GraphQLResponse<GraphQLUpdateProjectData> updateProject(@Body GraphQLUpdateProjectRequest request);
+    GraphQLResponse<GraphQLUpdateProjectData> executeUpdateProject(@Body GraphQLUpdateProjectRequest request);
 
     default GraphQLResponse<GraphQLAddProjectAttachmentData> addProjectAttachment(GraphQLAddProjectAttachmentVariables variables) {
         String fixedQuery = "mutation ($projectId: ID!, $attachmentId: ID!) {\n        addProjectAttachment(projectId: $projectId, attachmentId: $attachmentId) {\n          attachmentId\n        }\n      }";
         GraphQLAddProjectAttachmentRequest request = new GraphQLAddProjectAttachmentRequest();
         request.setQuery(fixedQuery);
         request.setVariables(variables);
-        return this.addProjectAttachment(request);
+        return this.executeAddProjectAttachment(request);
     }
 
     default GraphQLResponse<GraphQLAddProjectOrganizationData> addProjectOrganization(GraphQLAddProjectOrganizationVariables variables) {
@@ -60,7 +60,7 @@ public interface GraphQLClient {
         GraphQLAddProjectOrganizationRequest request = new GraphQLAddProjectOrganizationRequest();
         request.setQuery(fixedQuery);
         request.setVariables(variables);
-        return this.addProjectOrganization(request);
+        return this.executeAddProjectOrganization(request);
     }
 
     default GraphQLResponse<GraphQLCombinedMutationUpdateProjectAddProjectTagData> combinedMutationUpdateProjectAddProjectTag(GraphQLCombinedMutationUpdateProjectAddProjectTagVariables variables) {
@@ -68,7 +68,7 @@ public interface GraphQLClient {
         GraphQLCombinedMutationUpdateProjectAddProjectTagRequest request = new GraphQLCombinedMutationUpdateProjectAddProjectTagRequest();
         request.setQuery(fixedQuery);
         request.setVariables(variables);
-        return this.combinedMutationUpdateProjectAddProjectTag(request);
+        return this.executeCombinedMutationUpdateProjectAddProjectTag(request);
     }
 
     default GraphQLResponse<GraphQLCreateEventData> createEvent(GraphQLCreateEventVariables variables) {
@@ -76,7 +76,7 @@ public interface GraphQLClient {
         GraphQLCreateEventRequest request = new GraphQLCreateEventRequest();
         request.setQuery(fixedQuery);
         request.setVariables(variables);
-        return this.createEvent(request);
+        return this.executeCreateEvent(request);
     }
 
     default GraphQLResponse<GraphQLCreateProjectData> createProject(GraphQLCreateProjectVariables variables) {
@@ -84,7 +84,7 @@ public interface GraphQLClient {
         GraphQLCreateProjectRequest request = new GraphQLCreateProjectRequest();
         request.setQuery(fixedQuery);
         request.setVariables(variables);
-        return this.createProject(request);
+        return this.executeCreateProject(request);
     }
 
     default GraphQLResponse<GraphQLPublishProjectData> publishProject(GraphQLPublishProjectVariables variables) {
@@ -92,7 +92,7 @@ public interface GraphQLClient {
         GraphQLPublishProjectRequest request = new GraphQLPublishProjectRequest();
         request.setQuery(fixedQuery);
         request.setVariables(variables);
-        return this.publishProject(request);
+        return this.executePublishProject(request);
     }
 
     default GraphQLResponse<GraphQLSearchOrganizationData> searchOrganization(GraphQLSearchOrganizationVariables variables) {
@@ -100,7 +100,7 @@ public interface GraphQLClient {
         GraphQLSearchOrganizationRequest request = new GraphQLSearchOrganizationRequest();
         request.setQuery(fixedQuery);
         request.setVariables(variables);
-        return this.searchOrganization(request);
+        return this.executeSearchOrganization(request);
     }
 
     default GraphQLResponse<GraphQLSetProjectLocationData> setProjectLocation(GraphQLSetProjectLocationVariables variables) {
@@ -108,7 +108,7 @@ public interface GraphQLClient {
         GraphQLSetProjectLocationRequest request = new GraphQLSetProjectLocationRequest();
         request.setQuery(fixedQuery);
         request.setVariables(variables);
-        return this.setProjectLocation(request);
+        return this.executeSetProjectLocation(request);
     }
 
     default GraphQLResponse<GraphQLUpdateProjectAttachmentData> updateProjectAttachment(GraphQLUpdateProjectAttachmentVariables variables) {
@@ -116,7 +116,7 @@ public interface GraphQLClient {
         GraphQLUpdateProjectAttachmentRequest request = new GraphQLUpdateProjectAttachmentRequest();
         request.setQuery(fixedQuery);
         request.setVariables(variables);
-        return this.updateProjectAttachment(request);
+        return this.executeUpdateProjectAttachment(request);
     }
 
     default GraphQLResponse<GraphQLUpdateProjectListingData> updateProjectListing(GraphQLUpdateProjectListingVariables variables) {
@@ -124,7 +124,7 @@ public interface GraphQLClient {
         GraphQLUpdateProjectListingRequest request = new GraphQLUpdateProjectListingRequest();
         request.setQuery(fixedQuery);
         request.setVariables(variables);
-        return this.updateProjectListing(request);
+        return this.executeUpdateProjectListing(request);
     }
 
     default GraphQLResponse<GraphQLUpdateProjectData> updateProject(GraphQLUpdateProjectVariables variables) {
@@ -132,6 +132,6 @@ public interface GraphQLClient {
         GraphQLUpdateProjectRequest request = new GraphQLUpdateProjectRequest();
         request.setQuery(fixedQuery);
         request.setVariables(variables);
-        return this.updateProject(request);
+        return this.executeUpdateProject(request);
     }
 }
