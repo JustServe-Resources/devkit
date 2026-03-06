@@ -7,7 +7,7 @@ pluginManagement {
 
 enableFeaturePreview 'TYPESAFE_PROJECT_ACCESSORS'
 
-rootProject.name="justserve"
+rootProject.name="devkit"
 
 include "core"
 include "cli"
