@@ -12,6 +12,23 @@ info:
     - Organization
     - Project
 paths:
+  /graphql:
+    post:
+      tags: [ GraphQL ]
+      description: GraphQL API endpoint
+      operationId: graphqlEndpoint
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GraphQLRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/graphql-response+json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/GraphQLResponse'
   /api/v1/images:
     post:
       tags: [ Image ]
@@ -339,6 +356,208 @@ paths:
 
 components:
   schemas:
+    GraphQLRequest:
+      type: object
+      properties:
+        query: { type: string }
+        variables: { type: object }
+    GraphQLResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          oneOf:
+            - $ref: '#/components/schemas/GraphQLCreateEventData'
+            - $ref: '#/components/schemas/GraphQLSearchOrganizationData'
+            - $ref: '#/components/schemas/GraphQLUpdateProjectData'
+            - $ref: '#/components/schemas/GraphQLSetProjectLocationData'
+            - $ref: '#/components/schemas/GraphQLAddProjectAttachmentData'
+            - $ref: '#/components/schemas/GraphQLAddProjectOrganizationData'
+            - $ref: '#/components/schemas/GraphQLCombinedMutationUpdateProjectAddProjectTagData'
+            - $ref: '#/components/schemas/GraphQLCreateProjectData'
+            - $ref: '#/components/schemas/GraphQLPublishProjectData'
+            - $ref: '#/components/schemas/GraphQLUpdateProjectAttachmentData'
+            - $ref: '#/components/schemas/GraphQLUpdateProjectListingData'
+        errors:
+          type: array
+          items:
+            type: object
+    GraphQLCreateEventData:
+      type: object
+      properties:
+        createEvent:
+          type: object
+          properties:
+            id: { type: string, format: uuid }
+            projectId: { type: string, format: uuid }
+            contactEmail: { type: string }
+            contactName: { type: string }
+            contactPhone: { type: string }
+            start: { type: string, format: date-time }
+            end: { type: string, format: date-time }
+            groupCap: { type: boolean }
+            groupLimit: { type: integer, format: int32 }
+            timezone: { type: string }
+            totalVolunteersNeeded: { type: integer, format: int32 }
+            volunteerCap: { type: boolean }
+    GraphQLSearchOrganizationData:
+      type: object
+      properties:
+        adminOrganizationSearchByTitle:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: string, format: uuid }
+              name: { type: string }
+              logo: { type: string }
+              description: { type: string }
+              contactName: { type: string }
+              contactPhone: { type: string }
+              contactEmail: { type: string }
+              url: { type: string }
+              location:
+                type: object
+                properties:
+                  displayCity: { type: string }
+                  displayState: { type: string }
+    GraphQLUpdateProjectData:
+      type: object
+      properties:
+        updateProject:
+          type: object
+          properties:
+            id: { type: string, format: uuid }
+            logo: { type: string }
+    GraphQLSetProjectLocationData:
+      type: object
+      properties:
+        setProjectLocation:
+          type: object
+          properties:
+            displayAddress: { type: string }
+            displayAddress2: { type: string, nullable: true }
+            displayCity: { type: string }
+            displayCountry: { type: string }
+            displayCountryCode: { type: string }
+            displayCounty: { type: string }
+            displayNeighborhood: { type: string, nullable: true }
+            displayPostalCode: { type: string }
+            displayState: { type: string }
+            id: { type: string, format: uuid }
+            latitude: { type: number, format: double }
+            locationDetails: { type: string, nullable: true }
+            locationName: { type: string }
+            longitude: { type: number, format: double }
+            maxLatitude: { type: number, format: double }
+            maxLongitude: { type: number, format: double }
+            minLatitude: { type: number, format: double }
+            minLongitude: { type: number, format: double }
+            timezone: { type: string }
+            civicGeography:
+              type: object
+              properties:
+                state:
+                  type: object
+                  properties:
+                    code: { type: string, nullable: true }
+            churchGeography:
+              type: object
+              properties:
+                areaUnitId: { type: string }
+                ccUnitId: { type: string }
+                missionUnitId: { type: string }
+                stakeUnitId: { type: string }
+    GraphQLAddProjectAttachmentData:
+      type: object
+      properties:
+        addProjectAttachment:
+          type: object
+          properties:
+            attachmentId: { type: string, format: uuid }
+    GraphQLAddProjectOrganizationData:
+      type: object
+      properties:
+        addProjectOrganization:
+          type: object
+          properties:
+            id: { type: string, format: uuid }
+            organizations:
+              type: array
+              items:
+                type: object
+                properties:
+                  id: { type: string, format: uuid }
+                  name: { type: string }
+    GraphQLCombinedMutationUpdateProjectAddProjectTagData:
+      type: object
+      properties:
+        updateProject:
+          type: object
+          properties:
+            id: { type: string, format: uuid }
+            wheelchairAccessible: { type: boolean }
+            itemDonations: { type: boolean }
+            indoors: { type: boolean }
+            longDescription: { type: string }
+            shortDescription: { type: string }
+            sponsorUserId: { type: string, format: uuid }
+            groupProjects: { type: boolean }
+      additionalProperties:
+        type: object
+        properties:
+          id: { type: string, format: uuid }
+          tags:
+            type: array
+            items:
+              type: object
+              properties:
+                id: { type: integer, format: int32 }
+                tagType: { type: string }
+                tagTypeId: { type: integer, format: int32 }
+                translations:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      description: { type: string, nullable: true }
+                      label: { type: string }
+                      languageId: { type: integer, format: int32 }
+    GraphQLCreateProjectData:
+      type: object
+      properties:
+        createProject:
+          type: object
+          properties:
+            id: { type: string, format: uuid }
+            title: { type: string }
+            typeId: { type: integer, format: int32 }
+            locationTypeId: { type: integer, format: int32 }
+            externalVolunteerUrl: { type: string, nullable: true }
+            statusId: { type: integer, format: int32 }
+    GraphQLPublishProjectData:
+      type: object
+      properties:
+        publishProject:
+          type: object
+          properties:
+            id: { type: string, format: uuid }
+            statusId: { type: integer, format: int32 }
+    GraphQLUpdateProjectAttachmentData:
+      type: object
+      properties:
+        updateProjectAttachment:
+          type: object
+          properties:
+            attachmentId: { type: string, format: uuid }
+    GraphQLUpdateProjectListingData:
+      type: object
+      properties:
+        updateProjectListing:
+          type: object
+          properties:
+            id: { type: string, format: uuid }
+            unlisted: { type: boolean }
     BoundaryUpdateRequest:
       type: object
       properties:
