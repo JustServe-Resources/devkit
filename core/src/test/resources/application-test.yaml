@@ -3,6 +3,8 @@ micronaut:
     services:
       justserve:
         url: https://stage.justserve.org
+justserve:
+  token: ${:i-need-to-be-defined}
 logger:
   levels:
     io.micronaut.http.client: DEBUG
