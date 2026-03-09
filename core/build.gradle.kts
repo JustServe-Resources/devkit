@@ -53,6 +53,11 @@ micronaut {
             apiNameSuffix = "Client"
             alwaysUseGenerateHttpResponse = true
             additionalProperties.put("retryable", "true")
+//            https://github.com/micronaut-projects/micronaut-openapi/discussions/1783
+            schemaMapping.put("EventType", "org.justserve.model.EventType")
+            importMapping.put("EventType", "org.justserve.model.EventType")
+            schemaMapping.put("ProjectLocationType", "org.justserve.model.ProjectLocationType")
+            importMapping.put("ProjectLocationType", "org.justserve.model.ProjectLocationType")
         }
     }
     processing {
