@@ -14,37 +14,48 @@ import org.justserve.model.*;
 @Client("/graphql")
 public interface GraphQLClient {
 
-    @Post
+    @Post("/graphql")
+    @Consumes("application/graphql-response+json")
     GraphQLResponse<GraphQLAddProjectAttachmentData> executeAddProjectAttachment(@Body GraphQLAddProjectAttachmentRequest request);
 
-    @Post
+    @Post("/graphql")
+    @Consumes("application/graphql-response+json")
     GraphQLResponse<GraphQLAddProjectOrganizationData> executeAddProjectOrganization(@Body GraphQLAddProjectOrganizationRequest request);
 
-    @Post
+    @Post("/graphql")
+    @Consumes("application/graphql-response+json")
     GraphQLResponse<GraphQLCombinedMutationUpdateProjectAddProjectTagData> executeCombinedMutationUpdateProjectAddProjectTag(@Body GraphQLCombinedMutationUpdateProjectAddProjectTagRequest request);
 
-    @Post
+    @Post("/graphql")
+    @Consumes("application/graphql-response+json")
     GraphQLResponse<GraphQLCreateEventData> executeCreateEvent(@Body GraphQLCreateEventRequest request);
 
-    @Post
+    @Post("/graphql")
+    @Consumes("application/graphql-response+json")
     GraphQLResponse<GraphQLCreateProjectData> executeCreateProject(@Body GraphQLCreateProjectRequest request);
 
-    @Post
+    @Post("/graphql")
+    @Consumes("application/graphql-response+json")
     GraphQLResponse<GraphQLPublishProjectData> executePublishProject(@Body GraphQLPublishProjectRequest request);
 
-    @Post
+    @Post("/graphql")
+    @Consumes("application/graphql-response+json")
     GraphQLResponse<GraphQLSearchOrganizationData> executeSearchOrganization(@Body GraphQLSearchOrganizationRequest request);
 
-    @Post
+    @Post("/graphql")
+    @Consumes("application/graphql-response+json")
     GraphQLResponse<GraphQLSetProjectLocationData> executeSetProjectLocation(@Body GraphQLSetProjectLocationRequest request);
 
-    @Post
+    @Post("/graphql")
+    @Consumes("application/graphql-response+json")
     GraphQLResponse<GraphQLUpdateProjectAttachmentData> executeUpdateProjectAttachment(@Body GraphQLUpdateProjectAttachmentRequest request);
 
-    @Post
+    @Post("/graphql")
+    @Consumes("application/graphql-response+json")
     GraphQLResponse<GraphQLUpdateProjectListingData> executeUpdateProjectListing(@Body GraphQLUpdateProjectListingRequest request);
 
-    @Post
+    @Post("/graphql")
+    @Consumes("application/graphql-response+json")
     GraphQLResponse<GraphQLUpdateProjectData> executeUpdateProject(@Body GraphQLUpdateProjectRequest request);
 
     default GraphQLResponse<GraphQLAddProjectAttachmentData> addProjectAttachment(GraphQLAddProjectAttachmentVariables variables) {
