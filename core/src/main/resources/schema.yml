@@ -339,7 +339,6 @@ paths:
 
 components:
   schemas:
-
     GraphQLCreateEventData:
       type: object
       properties:
@@ -348,9 +347,9 @@ components:
           properties:
             id: { type: string, format: uuid }
             projectId: { type: string, format: uuid }
-            contactEmail: { type: string }
+            contactEmail: { type: string, format: email }
             contactName: { type: string }
-            contactPhone: { type: string }
+            contactPhone: { type: string, format: phone }
             start: { type: string, format: date-time }
             end: { type: string, format: date-time }
             groupCap: { type: boolean }
@@ -371,8 +370,8 @@ components:
               logo: { type: string }
               description: { type: string }
               contactName: { type: string }
-              contactPhone: { type: string }
-              contactEmail: { type: string }
+              contactPhone: { type: string, format: phone }
+              contactEmail: { type: string, format: email }
               url: { type: string }
               location:
                 type: object
@@ -457,8 +456,8 @@ components:
             wheelchairAccessible: { type: boolean }
             itemDonations: { type: boolean }
             indoors: { type: boolean }
-            longDescription: { type: string }
-            shortDescription: { type: string }
+            longDescription: { type: string, maxLength: 2000 }
+            shortDescription: { type: string, maxLength: 300 }
             sponsorUserId: { type: string, format: uuid }
             groupProjects: { type: boolean }
       additionalProperties:
@@ -1982,8 +1981,10 @@ components:
               type: boolean
             longDescription:
               type: string
+              maxLength: 2000
             shortDescription:
               type: string
+              maxLength: 300
             sponsorUserId:
               type: string
               format: uuid
@@ -2013,12 +2014,15 @@ components:
           properties:
             contactEmail:
               type: string
+              format: email
             contactName:
               type: string
             contactPhone:
               type: string
+              format: phone
             end:
               type: string
+              format: date-time
             groupCap:
               type: boolean
             groupLimit:
@@ -2027,6 +2031,7 @@ components:
               type: string
             start:
               type: string
+              format: date-time
             timezone:
               type: string
             totalVolunteersNeeded:
