@@ -1100,16 +1100,6 @@ components:
         deletedOn: { type: string, format: date-time, nullable: true }
         deletedBy: { type: string, format: uuid, nullable: true }
       additionalProperties: false
-    EventType:
-      type: integer
-      format: int32
-      enum: [ 0, 1, 2, 3, 4 ]
-      x-enum-varnames:
-        - "None"
-        - "DTL"
-        - "Ongoing"
-        - "Recurring"
-        - "MultipleDTL"
     OrgRepresentative:
       type: object
       properties:
@@ -2054,9 +2044,9 @@ components:
         title:
           type: string
         eventType:
-          type: string
+          $ref: "EventType"
         locationType:
-          type: string
+          $ref: "ProjectLocationType"
         redirect:
           type: string
     GraphQLPublishProjectRequest:

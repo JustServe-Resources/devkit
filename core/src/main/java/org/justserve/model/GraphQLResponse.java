@@ -1,4 +1,4 @@
-package org.justserve.client;
+package org.justserve.model;
 
 import io.micronaut.serde.annotation.Serdeable;
 import lombok.AllArgsConstructor;
