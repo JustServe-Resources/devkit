@@ -11,40 +11,40 @@ import org.justserve.model.*;
 @Produces("application/json")
 @Consumes("application/graphql-response+json; charset=utf-8")
 @Retryable
-@Client("justserve")
+@Client(id = "justserve", path = "/graphql")
 public interface GraphQLClient {
 
-    @Post("/graphql")
+    @Post
     GraphQLResponse<GraphQLAddProjectAttachmentData> executeAddProjectAttachment(@Body GraphQLAddProjectAttachmentRequest request);
 
-    @Post("/graphql")
+    @Post
     GraphQLResponse<GraphQLAddProjectOrganizationData> executeAddProjectOrganization(@Body GraphQLAddProjectOrganizationRequest request);
 
-    @Post("/graphql")
+    @Post
     GraphQLResponse<GraphQLCombinedMutationUpdateProjectAddProjectTagData> executeCombinedMutationUpdateProjectAddProjectTag(@Body GraphQLCombinedMutationUpdateProjectAddProjectTagRequest request);
 
-    @Post("/graphql")
+    @Post
     GraphQLResponse<GraphQLCreateEventData> executeCreateEvent(@Body GraphQLCreateEventRequest request);
 
-    @Post("/graphql")
+    @Post
     GraphQLResponse<GraphQLCreateProjectData> executeCreateProject(@Body GraphQLCreateProjectRequest request);
 
-    @Post("/graphql")
+    @Post
     GraphQLResponse<GraphQLPublishProjectData> executePublishProject(@Body GraphQLPublishProjectRequest request);
 
-    @Post("/graphql")
+    @Post
     GraphQLResponse<GraphQLSearchOrganizationData> executeSearchOrganization(@Body GraphQLSearchOrganizationRequest request);
 
-    @Post("/graphql")
+    @Post
     GraphQLResponse<GraphQLSetProjectLocationData> executeSetProjectLocation(@Body GraphQLSetProjectLocationRequest request);
 
-    @Post("/graphql")
+    @Post
     GraphQLResponse<GraphQLUpdateProjectAttachmentData> executeUpdateProjectAttachment(@Body GraphQLUpdateProjectAttachmentRequest request);
 
-    @Post("/graphql")
+    @Post
     GraphQLResponse<GraphQLUpdateProjectListingData> executeUpdateProjectListing(@Body GraphQLUpdateProjectListingRequest request);
 
-    @Post("/graphql")
+    @Post
     GraphQLResponse<GraphQLUpdateProjectData> executeUpdateProject(@Body GraphQLUpdateProjectRequest request);
 
     default GraphQLResponse<GraphQLAddProjectAttachmentData> addProjectAttachment(GraphQLAddProjectAttachmentVariables variables) {
