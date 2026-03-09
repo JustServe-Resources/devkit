@@ -11,7 +11,7 @@ import org.justserve.model.*;
 @Produces("application/json")
 @Consumes("application/graphql-response+json; charset=utf-8")
 @Retryable
-@Client("/graphql")
+@Client("justserve")
 public interface GraphQLClient {
 
     @Post("/graphql")
