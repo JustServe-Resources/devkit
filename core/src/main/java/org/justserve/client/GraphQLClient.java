@@ -7,6 +7,7 @@ import io.micronaut.http.annotation.Produces;
 import io.micronaut.http.client.annotation.Client;
 import io.micronaut.retry.annotation.Retryable;
 import org.justserve.model.*;
+import org.justserve.model.graph.CreateEventQuery;
 import org.justserve.model.graph.GraphQLResponse;
 
 import java.lang.reflect.Field;
@@ -20,6 +21,9 @@ import java.util.stream.Collectors;
 @Retryable
 @Client(id = "justserve", path = "/graphql")
 public interface GraphQLClient {
+
+    @Post
+    GraphQLResponse<GraphQLCreateEventData> createEvent(@Body CreateEventQuery request);
 
     @Post
     GraphQLResponse<GraphQLAddProjectAttachmentData> executeAddProjectAttachment(@Body GraphQLAddProjectAttachmentRequest request);
@@ -192,7 +196,7 @@ public interface GraphQLClient {
         List<String> responseFields = new ArrayList<>();
         responseFields.add("id");
 
-        if (variables.logo() != null) {
+        if (variables.getLogo() != null) {
             responseFields.add("logo");
         }
 

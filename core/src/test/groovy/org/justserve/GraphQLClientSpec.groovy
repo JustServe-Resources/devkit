@@ -3,11 +3,14 @@ package org.justserve
 import io.micronaut.test.extensions.spock.annotation.MicronautTest
 import jakarta.inject.Inject
 import org.justserve.client.GraphQLClient
-import org.justserve.model.EventType
-import org.justserve.model.GraphQLCreateProjectVariables
-import org.justserve.model.ProjectLocationType
+import org.justserve.model.*
+import org.justserve.model.graph.CreateEventQuery
+import org.justserve.model.graph.Event
+import org.justserve.model.graph.GraphQLResponse
 import spock.lang.Shared
 import spock.lang.Specification
+
+import java.time.ZonedDateTime
 
 @MicronautTest
 class GraphQLClientSpec extends Specification {
@@ -35,14 +38,22 @@ class GraphQLClientSpec extends Specification {
     }
 
     void "can use createOngoingEvent()"() {
-//        given:
-//        GraphQLCreate event = new GraphQLCreateEventVariablesProjectEvent()
-//        GraphQLCreateEventVariables args = new GraphQLCreateEventVariables()
-//            .setProjectEvent()
-//
-//
-//        when:
-//        client.createEvent()
-//
+        given:
+        GraphQLResponse<GraphQLCreateProjectData> createProjectResponse = client.createProject(new GraphQLCreateProjectVariables()
+                .setTitle("this is a test")
+                .setEventType(EventType.Ongoing)
+                .setLocationType(ProjectLocationType.SINGLE_LOCATION)
+        )
+        Event event = new Event()
+                .setProjectId(createProjectResponse.getData().getCreateProject().getId())
+                .setEnd(ZonedDateTime.now().plusMonths(6))
+                .setStart(ZonedDateTime.now().plusMonths(1))
+
+        when:
+        GraphQLResponse<GraphQLCreateEventData> response = client.createEvent(new CreateEventQuery(event))
+
+        then:
+        noExceptionThrown()
+        !response.hasErrors()
     }
 }
