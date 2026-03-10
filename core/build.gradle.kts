@@ -58,6 +58,8 @@ micronaut {
             importMapping.put("EventType", "org.justserve.model.EventType")
             schemaMapping.put("ProjectLocationType", "org.justserve.model.ProjectLocationType")
             importMapping.put("ProjectLocationType", "org.justserve.model.ProjectLocationType")
+            schemaMapping.put("TimeZone", "org.justserve.model.TimeZone")
+            importMapping.put("TimeZone", "org.justserve.model.TimeZone")
         }
     }
     processing {
