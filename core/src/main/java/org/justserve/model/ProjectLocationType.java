@@ -3,7 +3,6 @@ package org.justserve.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.micronaut.serde.annotation.Serdeable;
-import jakarta.annotation.Generated;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Arrays;
@@ -13,9 +12,7 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Serdeable
-@Generated("io.micronaut.openapi.generator.JavaMicronautClientCodegen")
 public enum ProjectLocationType {
-//    NONE(0, "NONE"),
     SINGLE_LOCATION(1, "SINGLE_LOCATION"),
     REGIONAL(3, "REGIONAL"),
     REMOTE(4, "REMOTE");

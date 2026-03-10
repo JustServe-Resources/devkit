@@ -3,7 +3,6 @@ package org.justserve.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.micronaut.serde.annotation.Serdeable;
-import jakarta.annotation.Generated;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Arrays;
@@ -16,9 +15,7 @@ import java.util.stream.Collectors;
  */
 @RequiredArgsConstructor
 @Serdeable
-@Generated("io.micronaut.openapi.generator.JavaMicronautClientCodegen")
 public enum EventType {
-//    None(0, "None"),
     DTL(1, "DTL"),
     Ongoing(2, "ONGOING"),
     Recurring(3, "RECURRING"),
@@ -40,8 +37,10 @@ public enum EventType {
         return stringValue;
     }
 
-    // 2. RECEIVING (Response): This catches the incoming data.
-    // It can handle the Integer '1' from GraphQL, or even a String if a REST endpoint sends one.
+    /**
+     * 2. RECEIVING (Response): This catches the incoming data.
+     * It can handle the Integer '1' from GraphQL, or even a String if a REST endpoint sends one.
+     */
     @JsonCreator
     public static EventType fromValue(Object value) {
         if (value instanceof Number) {
