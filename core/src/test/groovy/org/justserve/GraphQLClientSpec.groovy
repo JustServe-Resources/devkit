@@ -25,12 +25,24 @@ class GraphQLClientSpec extends Specification {
                 .setRedirect(redirect)
 
         when:
-        client.createProject(args)
+        def response = client.createProject(args)
 
         then:
         noExceptionThrown()
 
         where:
         [eventType, locationType, redirect] << [EventType.values(), ProjectLocationType.values(), ["", null, "https://google.com"]].combinations()
+    }
+
+    void "can use createOngoingEvent()"() {
+//        given:
+//        GraphQLCreate event = new GraphQLCreateEventVariablesProjectEvent()
+//        GraphQLCreateEventVariables args = new GraphQLCreateEventVariables()
+//            .setProjectEvent()
+//
+//
+//        when:
+//        client.createEvent()
+//
     }
 }

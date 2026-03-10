@@ -1,4 +1,4 @@
-package org.justserve.model;
+package org.justserve.model.graph;
 
 import io.micronaut.serde.annotation.Serdeable;
 import lombok.AllArgsConstructor;
@@ -13,6 +13,5 @@ public class GraphQLRequest {
 
     private String query;
     
-    // This handles dynamic variable maps/objects
     private Object variables;
 }
