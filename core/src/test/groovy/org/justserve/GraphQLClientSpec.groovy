@@ -3,13 +3,15 @@ package org.justserve
 import io.micronaut.test.extensions.spock.annotation.MicronautTest
 import jakarta.inject.Inject
 import org.justserve.client.GraphQLClient
-import org.justserve.model.*
+import org.justserve.model.EventType
+import org.justserve.model.GraphQLCreateProjectVariables
+import org.justserve.model.ProjectLocationType
+import org.justserve.model.graph.CreateEventFields
 import org.justserve.model.graph.CreateEventQuery
 import org.justserve.model.graph.CreateEventVariables
-import org.justserve.model.graph.GraphQLResponse
-import org.justserve.model.graph.ProjectEvent
 import spock.lang.Shared
 import spock.lang.Specification
+import spock.lang.Unroll
 
 import java.time.ZonedDateTime
 

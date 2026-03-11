@@ -29,7 +29,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Serdeable
 @Introspected
-public class ProjectEvent extends GraphFields {
+public class CreateEventFields extends GraphFields {
     @Nullable
     @Email
     private String contactEmail;
