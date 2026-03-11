@@ -5,8 +5,9 @@ import jakarta.inject.Inject
 import org.justserve.client.GraphQLClient
 import org.justserve.model.*
 import org.justserve.model.graph.CreateEventQuery
-import org.justserve.model.graph.Event
+import org.justserve.model.graph.CreateEventVariables
 import org.justserve.model.graph.GraphQLResponse
+import org.justserve.model.graph.ProjectEvent
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -44,13 +45,17 @@ class GraphQLClientSpec extends Specification {
                 .setEventType(EventType.Ongoing)
                 .setLocationType(ProjectLocationType.SINGLE_LOCATION)
         )
-        Event event = new Event()
+        ProjectEvent event = new ProjectEvent()
+                .setStart(Date.from(ZonedDateTime.now().plusMonths(1).toInstant()))
+                .setEnd(Date.from(ZonedDateTime.now().plusMonths(6).toInstant()))
+        CreateEventVariables vars = new CreateEventVariables()
                 .setProjectId(createProjectResponse.getData().getCreateProject().getId())
-                .setEnd(ZonedDateTime.now().plusMonths(6))
-                .setStart(ZonedDateTime.now().plusMonths(1))
+                .setProjectEvent(event)
 
         when:
-        GraphQLResponse<GraphQLCreateEventData> response = client.createEvent(new CreateEventQuery(event))
+        CreateEventQuery query = new CreateEventQuery(vars)
+
+        GraphQLResponse<GraphQLCreateEventData> response = client.createEvent(query)
 
         then:
         noExceptionThrown()

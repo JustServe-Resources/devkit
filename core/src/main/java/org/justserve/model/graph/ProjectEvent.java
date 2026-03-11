@@ -1,5 +1,6 @@
 package org.justserve.model.graph;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.micronaut.core.annotation.Introspected;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.serde.annotation.Serdeable;
@@ -11,7 +12,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
-import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.UUID;
 
 /**
@@ -28,7 +29,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Serdeable
 @Introspected
-public class Event extends GraphVariables {
+public class ProjectEvent extends GraphFields {
     @Nullable
     @Email
     private String contactEmail;
@@ -47,13 +48,16 @@ public class Event extends GraphVariables {
     private UUID deletedBy;
 
     @Nullable
-    private ZonedDateTime deletedOn;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
+    private Date deletedOn;
 
     @Nullable
-    private ZonedDateTime end;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
+    private Date end;
 
     @Nullable
-    private ZonedDateTime endDateTimeOffset;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
+    private Date endDateTimeOffset;
 
     @Nullable
     private Boolean eventCapReached;
@@ -78,16 +82,14 @@ public class Event extends GraphVariables {
     private UUID projectEventLocationId;
 
     @Nullable
-    private UUID projectId;
-
-    @Nullable
     private UUID projectRecurringTimeId;
 
     @Nullable
     private String qrCodeImageLocation;
 
     @Nullable
-    private ZonedDateTime renewDate;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
+    private Date renewDate;
 
     @Nullable
     @Size(max = 300)
@@ -101,10 +103,12 @@ public class Event extends GraphVariables {
     private String specialDirections;
 
     @Nullable
-    private ZonedDateTime start;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
+    private Date start;
 
     @Nullable
-    private ZonedDateTime startDateTimeOffset;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
+    private Date startDateTimeOffset;
 
     @Nullable
     private String status;
