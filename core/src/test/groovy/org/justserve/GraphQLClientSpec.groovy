@@ -5,9 +5,9 @@ import jakarta.inject.Inject
 import net.datafaker.Faker
 import org.justserve.client.GraphQLClient
 import org.justserve.model.*
-import org.justserve.model.graph.CreateEventFields
 import org.justserve.model.graph.CreateEventQuery
 import org.justserve.model.graph.CreateEventVariables
+import org.justserve.model.graph.ProjectEvent
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -55,7 +55,7 @@ class GraphQLClientSpec extends Specification {
                 .getData()
                 .getCreateProject().getId()
 
-        def event = new CreateEventFields()
+        def event = new ProjectEvent()
                 .setContactEmail(contactEmail)
                 .setContactName(contactName)
                 .setContactPhone(contactPhone)
@@ -84,32 +84,6 @@ class GraphQLClientSpec extends Specification {
         def response = client.createEvent(query)
 
         then:
-        if (response.hasErrors()) {
-            def errorLog = """
-            ${response.errors}
-            Errors for combination:
-            contactEmail: ${contactEmail}
-            contactName: ${contactName}
-            contactPhone: ${contactPhone}
-            end: ${end}
-            hasGroupCap: ${hasGroupCap}
-            groupLimit: ${groupLimit}
-            locationLink: ${locationLink}
-            locationName: ${locationName}
-            qrCodeImageLocation: ${qrCodeImageLocation}
-            renewDate: ${renewDate}
-            schedule: ${schedule}
-            shiftTitle: ${shiftTitle}
-            specialDirections: ${specialDirections}
-            start: ${start}
-            status: ${status}
-            timezone: ${timezone}
-            totalVolunteersNeeded: ${totalVolunteersNeeded}
-            hasVolunteerCap: ${hasVolunteerCap}
-            
-            """
-            new File('build/test-errors.log').append(errorLog)
-        }
         noExceptionThrown()
         !response.hasErrors()
 
