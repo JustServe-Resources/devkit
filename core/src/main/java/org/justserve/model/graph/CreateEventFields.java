@@ -11,10 +11,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
-import org.justserve.model.ProjectStatus;
+import org.justserve.model.ProjectEventStatus;
 
 import java.util.Date;
-import java.util.UUID;
 
 /**
  * <h4>All potential variables to use with {@link CreateEventQuery}</h4>
@@ -43,25 +42,8 @@ public class CreateEventFields extends GraphFields {
     private String contactPhone;
 
     @Nullable
-    private Boolean deleted;
-
-    @Nullable
-    private UUID deletedBy;
-
-    @Nullable
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
-    private Date deletedOn;
-
-    @Nullable
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
     private Date end;
-
-    @Nullable
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
-    private Date endDateTimeOffset;
-
-    @Nullable
-    private Boolean eventCapReached;
 
     /**
      * whether a group cap is set for this event.
@@ -73,20 +55,11 @@ public class CreateEventFields extends GraphFields {
     private Integer groupLimit;
 
     @Nullable
-    private UUID id;
-
-    @Nullable
     private String locationLink;
 
     @Nullable
     @Size(max = 139)
     private String locationName;
-
-    @Nullable
-    private UUID projectEventLocationId;
-
-    @Nullable
-    private UUID projectRecurringTimeId;
 
     @Nullable
     private String qrCodeImageLocation;
@@ -111,17 +84,10 @@ public class CreateEventFields extends GraphFields {
     private Date start;
 
     @Nullable
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
-    private Date startDateTimeOffset;
-
-    @Nullable
-    private ProjectStatus status;
+    private ProjectEventStatus status;
 
     @Nullable
     private String timezone;
-
-    @Nullable
-    private UUID timeZoneEnumId;
 
     @Nullable
     private Integer totalVolunteersNeeded;
@@ -131,7 +97,4 @@ public class CreateEventFields extends GraphFields {
      */
     @Nullable
     private Boolean volunteerCap;
-
-    @Nullable
-    private Integer volunteersNeeded;
 }
