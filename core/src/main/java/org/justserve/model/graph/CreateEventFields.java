@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import org.justserve.model.ProjectStatus;
 
 import java.util.Date;
 import java.util.UUID;
@@ -62,8 +63,11 @@ public class CreateEventFields extends GraphFields {
     @Nullable
     private Boolean eventCapReached;
 
+    /**
+     * whether a group cap is set for this event.
+     */
     @Nullable
-    private Integer groupCap;
+    private Boolean groupCap;
 
     @Nullable
     private Integer groupLimit;
@@ -111,10 +115,7 @@ public class CreateEventFields extends GraphFields {
     private Date startDateTimeOffset;
 
     @Nullable
-    private String status;
-
-    @Nullable
-    private UUID statusId;
+    private ProjectStatus status;
 
     @Nullable
     private String timezone;
@@ -125,8 +126,11 @@ public class CreateEventFields extends GraphFields {
     @Nullable
     private Integer totalVolunteersNeeded;
 
+    /**
+     * whether a volunteer cap is set for this event.
+     */
     @Nullable
-    private Integer volunteerCap;
+    private Boolean volunteerCap;
 
     @Nullable
     private Integer volunteersNeeded;

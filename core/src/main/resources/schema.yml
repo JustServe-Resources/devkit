@@ -946,16 +946,17 @@ components:
         relativityScore: { type: number, format: double }
       additionalProperties: false
     ProjectStatus:
-      type: string
-      enum:
-        - None
-        - Published
-        - Submitted
-        - Draft
-        - Template
-        - OnHold
-        - Cancelled
-        - Declined
+      type: integer
+      format: int32
+      enum: [ 1, 2, 3, 4, 5, 6, 7 ]
+      x-enum-varnames:
+        - PUBLISHED
+        - SUBMITTED
+        - DRAFT
+        - TEMPLATE
+        - ON_HOLD
+        - CANCELLED
+        - DECLINED
     UserSlimSearchResult:
       description: |
         high level information for a given user

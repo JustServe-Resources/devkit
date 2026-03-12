@@ -58,6 +58,8 @@ micronaut {
             importMapping.put("EventType", "org.justserve.model.EventType")
             schemaMapping.put("ProjectLocationType", "org.justserve.model.ProjectLocationType")
             importMapping.put("ProjectLocationType", "org.justserve.model.ProjectLocationType")
+            schemaMapping.put("ProjectStatus", "org.justserve.model.ProjectStatus")
+            importMapping.put("ProjectStatus", "org.justserve.model.ProjectStatus")
             schemaMapping.put("TimeZone", "org.justserve.model.TimeZone")
             importMapping.put("TimeZone", "org.justserve.model.TimeZone")
         }
@@ -66,6 +68,11 @@ micronaut {
         incremental(true)
         annotations("org.justserve.*")
     }
+}
+
+tasks.test {
+    maxHeapSize = "6144m"
+    minHeapSize = "512m"
 }
 
 tasks.withType<ProcessResources> {
