@@ -10,7 +10,6 @@ import org.justserve.model.graph.CreateEventVariables
 import org.justserve.model.graph.ProjectEvent
 import spock.lang.Shared
 import spock.lang.Specification
-import spock.lang.Unroll
 
 import java.util.concurrent.TimeUnit
 
@@ -23,6 +22,20 @@ class GraphQLClientSpec extends Specification {
 
     @Shared
     Faker faker = new Faker()
+
+    @Shared
+    UUID projectId
+
+    def setupSpec() {
+        def project = client.createProject(new GraphQLCreateProjectVariables()
+                .setTitle("this is a test")
+                .setEventType(EventType.Ongoing)
+                .setLocationType(ProjectLocationType.SINGLE_LOCATION)
+        )
+        projectId = project
+                .getData()
+                .getCreateProject().getId()
+    }
 
     void "can create Project with EventType: #eventType, LocationType: #locationType, and Redirect: #redirect"(EventType eventType, ProjectLocationType locationType, String redirect) {
         given:
@@ -43,72 +56,237 @@ class GraphQLClientSpec extends Specification {
         [eventType, locationType, redirect] << [EventType.values(), ProjectLocationType.values(), ["", null, "https://google.com"]].combinations()
     }
 
-    @Unroll
-    void "can use createOngoingEvent() with combination of fields"(String contactEmail, String contactName, String contactPhone, Date end, Boolean hasGroupCap, Integer groupLimit, String locationLink, String locationName, String qrCodeImageLocation, Date renewDate, String schedule, String shiftTitle, String specialDirections, Date start, ProjectEventStatus status, String timezone, Integer totalVolunteersNeeded, Boolean hasVolunteerCap) {
+    def "can set contactEmail for ongoing event"() {
         given:
-        def project = client.createProject(new GraphQLCreateProjectVariables()
-                .setTitle("this is a test")
-                .setEventType(EventType.Ongoing)
-                .setLocationType(ProjectLocationType.SINGLE_LOCATION)
-        )
-        def projectId = project
-                .getData()
-                .getCreateProject().getId()
-
-        def event = new ProjectEvent()
-                .setContactEmail(contactEmail)
-                .setContactName(contactName)
-                .setContactPhone(contactPhone)
-                .setEnd(end)
-                .setGroupCap(hasGroupCap)
-                .setGroupLimit(groupLimit)
-                .setLocationLink(locationLink)
-                .setLocationName(locationName)
-                .setQrCodeImageLocation(qrCodeImageLocation)
-                .setRenewDate(renewDate)
-                .setSchedule(schedule)
-                .setShiftTitle(shiftTitle)
-                .setSpecialDirections(specialDirections)
-                .setStart(start)
-                .setStatus(status)
-                .setTimezone(timezone)
-                .setTotalVolunteersNeeded(totalVolunteersNeeded)
-                .setVolunteerCap(hasVolunteerCap)
-
-        def vars = new CreateEventVariables()
-                .setProjectId(projectId)
-                .setProjectEvent(event)
+        def event = new ProjectEvent().setContactEmail(faker.internet().emailAddress())
+        def vars = new CreateEventVariables().setProjectId(projectId).setProjectEvent(event)
 
         when:
-        def query = new CreateEventQuery(vars)
-        def response = client.createEvent(query)
+        def response = client.createEvent(new CreateEventQuery(vars))
 
         then:
         noExceptionThrown()
         !response.hasErrors()
+    }
 
-        where:
-        [contactEmail, contactName, contactPhone, end, hasGroupCap, groupLimit, locationLink, locationName, qrCodeImageLocation, renewDate, schedule, shiftTitle, specialDirections, start, status, timezone, totalVolunteersNeeded, hasVolunteerCap] << [
-                [
-                        faker.internet().emailAddress(),
-                        faker.name().fullName(),
-                        faker.phoneNumber().phoneNumber(),
-                        Date.from(faker.timeAndDate().future(365, TimeUnit.DAYS)),
-                        true,
-                        10,
-                        faker.internet().url(),
-                        faker.address().streetAddress(),
-                        faker.internet().url(),
-                        Date.from(faker.timeAndDate().future(730, TimeUnit.DAYS)),
-                        faker.lorem().sentence(),
-                        faker.lorem().word(),
-                        faker.lorem().paragraph(),
-                        Date.from(faker.timeAndDate().future(180, TimeUnit.DAYS)),
-                        ProjectEventStatus.ACTIVE,
-                        TimeZone.ARIZONA,
-                        20,
-                        true
-                ]
-        ]
+    def "can set contactName for ongoing event"() {
+        given:
+        def event = new ProjectEvent().setContactName(faker.name().fullName())
+        def vars = new CreateEventVariables().setProjectId(projectId).setProjectEvent(event)
+
+        when:
+        def response = client.createEvent(new CreateEventQuery(vars))
+
+        then:
+        noExceptionThrown()
+        !response.hasErrors()
+    }
+
+    def "can set contactPhone for ongoing event"() {
+        given:
+        def event = new ProjectEvent().setContactPhone(faker.phoneNumber().phoneNumber())
+        def vars = new CreateEventVariables().setProjectId(projectId).setProjectEvent(event)
+
+        when:
+        def response = client.createEvent(new CreateEventQuery(vars))
+
+        then:
+        noExceptionThrown()
+        !response.hasErrors()
+    }
+
+    def "can set end for ongoing event"() {
+        given:
+        def event = new ProjectEvent().setEnd(Date.from(faker.timeAndDate().future(365, TimeUnit.DAYS)))
+        def vars = new CreateEventVariables().setProjectId(projectId).setProjectEvent(event)
+
+        when:
+        def response = client.createEvent(new CreateEventQuery(vars))
+
+        then:
+        noExceptionThrown()
+        !response.hasErrors()
+    }
+
+    def "can set groupCap for ongoing event"() {
+        given:
+        def event = new ProjectEvent().setGroupCap(true)
+        def vars = new CreateEventVariables().setProjectId(projectId).setProjectEvent(event)
+
+        when:
+        def response = client.createEvent(new CreateEventQuery(vars))
+
+        then:
+        noExceptionThrown()
+        !response.hasErrors()
+    }
+
+    def "can set groupLimit for ongoing event"() {
+        given:
+        def event = new ProjectEvent().setGroupLimit(10)
+        def vars = new CreateEventVariables().setProjectId(projectId).setProjectEvent(event)
+
+        when:
+        def response = client.createEvent(new CreateEventQuery(vars))
+
+        then:
+        noExceptionThrown()
+        !response.hasErrors()
+    }
+
+    def "can set locationLink for ongoing event"() {
+        given:
+        def event = new ProjectEvent().setLocationLink(faker.internet().url())
+        def vars = new CreateEventVariables().setProjectId(projectId).setProjectEvent(event)
+
+        when:
+        def response = client.createEvent(new CreateEventQuery(vars))
+
+        then:
+        noExceptionThrown()
+        !response.hasErrors()
+    }
+
+    def "can set locationName for ongoing event"() {
+        given:
+        def event = new ProjectEvent().setLocationName(faker.address().streetAddress())
+        def vars = new CreateEventVariables().setProjectId(projectId).setProjectEvent(event)
+
+        when:
+        def response = client.createEvent(new CreateEventQuery(vars))
+
+        then:
+        noExceptionThrown()
+        !response.hasErrors()
+    }
+
+    def "can set qrCodeImageLocation for ongoing event"() {
+        given:
+        def event = new ProjectEvent().setQrCodeImageLocation(faker.internet().url())
+        def vars = new CreateEventVariables().setProjectId(projectId).setProjectEvent(event)
+
+        when:
+        def response = client.createEvent(new CreateEventQuery(vars))
+
+        then:
+        noExceptionThrown()
+        !response.hasErrors()
+    }
+
+    def "can set renewDate for ongoing event"() {
+        given:
+        def event = new ProjectEvent().setRenewDate(Date.from(faker.timeAndDate().future(730, TimeUnit.DAYS)))
+        def vars = new CreateEventVariables().setProjectId(projectId).setProjectEvent(event)
+
+        when:
+        def response = client.createEvent(new CreateEventQuery(vars))
+
+        then:
+        noExceptionThrown()
+        !response.hasErrors()
+    }
+
+    def "can set schedule for ongoing event"() {
+        given:
+        def event = new ProjectEvent().setSchedule(faker.lorem().sentence())
+        def vars = new CreateEventVariables().setProjectId(projectId).setProjectEvent(event)
+
+        when:
+        def response = client.createEvent(new CreateEventQuery(vars))
+
+        then:
+        noExceptionThrown()
+        !response.hasErrors()
+    }
+
+    def "can set shiftTitle for ongoing event"() {
+        given:
+        def event = new ProjectEvent().setShiftTitle(faker.lorem().word())
+        def vars = new CreateEventVariables().setProjectId(projectId).setProjectEvent(event)
+
+        when:
+        def response = client.createEvent(new CreateEventQuery(vars))
+
+        then:
+        noExceptionThrown()
+        !response.hasErrors()
+    }
+
+    def "can set specialDirections for ongoing event"() {
+        given:
+        def event = new ProjectEvent().setSpecialDirections(faker.lorem().paragraph())
+        def vars = new CreateEventVariables().setProjectId(projectId).setProjectEvent(event)
+
+        when:
+        def response = client.createEvent(new CreateEventQuery(vars))
+
+        then:
+        noExceptionThrown()
+        !response.hasErrors()
+    }
+
+    def "can set start for ongoing event"() {
+        given:
+        def event = new ProjectEvent().setStart(Date.from(faker.timeAndDate().future(180, TimeUnit.DAYS)))
+        def vars = new CreateEventVariables().setProjectId(projectId).setProjectEvent(event)
+
+        when:
+        def response = client.createEvent(new CreateEventQuery(vars))
+
+        then:
+        noExceptionThrown()
+        !response.hasErrors()
+    }
+
+    def "can set status for ongoing event"() {
+        given:
+        def event = new ProjectEvent().setStatus(ProjectEventStatus.ACTIVE)
+        def vars = new CreateEventVariables().setProjectId(projectId).setProjectEvent(event)
+
+        when:
+        def response = client.createEvent(new CreateEventQuery(vars))
+
+        then:
+        noExceptionThrown()
+        !response.hasErrors()
+    }
+
+    def "can set timezone for ongoing event"() {
+        given:
+        def event = new ProjectEvent().setTimezone(TimeZone.ARIZONA)
+        def vars = new CreateEventVariables().setProjectId(projectId).setProjectEvent(event)
+
+        when:
+        def response = client.createEvent(new CreateEventQuery(vars))
+
+        then:
+        noExceptionThrown()
+        !response.hasErrors()
+    }
+
+    def "can set totalVolunteersNeeded for ongoing event"() {
+        given:
+        def event = new ProjectEvent().setTotalVolunteersNeeded(20)
+        def vars = new CreateEventVariables().setProjectId(projectId).setProjectEvent(event)
+
+        when:
+        def response = client.createEvent(new CreateEventQuery(vars))
+
+        then:
+        noExceptionThrown()
+        !response.hasErrors()
+    }
+
+    def "can set volunteerCap for ongoing event"() {
+        given:
+        def event = new ProjectEvent().setVolunteerCap(true)
+        def vars = new CreateEventVariables().setProjectId(projectId).setProjectEvent(event)
+
+        when:
+        def response = client.createEvent(new CreateEventQuery(vars))
+
+        then:
+        noExceptionThrown()
+        !response.hasErrors()
     }
 }
