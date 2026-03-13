@@ -97,7 +97,7 @@ public enum TimeZone {
     BAKU(82, "(UTC+04:00) Baku", "Azerbaijan Standard Time"),
     IZHEVSK(83, "(UTC+04:00) Izhevsk", "Russia Time Zone 3"),
     PORT_LOUIS(84, "(UTC+04:00) Port Louis", "Mauritius Standard Time"),
-    SARATOV(85, "(UTC+04:00) Saratov", "Saratov Standard Time"),
+    SARATOV(85, "(UTC+04:00) Saratov", "Samara Time"),
     TBILISI(86, "(UTC+04:00) Tbilisi", "Georgian Standard Time"),
     YEREVAN(87, "(UTC+04:00) Yerevan", "Caucasus Standard Time"),
     KABUL(88, "(UTC+04:30) Kabul", "Afghanistan Standard Time"),
@@ -163,14 +163,11 @@ public enum TimeZone {
     private final String responseValue;
 
     @Override
+    @JsonValue
     public String toString() {
         return queryValue;
     }
 
-    @JsonValue
-    public String getQueryValue() {
-        return queryValue;
-    }
 
     @JsonCreator
     public static TimeZone fromValue(Object value) {
