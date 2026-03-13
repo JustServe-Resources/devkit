@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.justserve.model.Project;
 import org.justserve.model.ProjectEventStatus;
+import org.justserve.model.TimeZone;
 
 import java.util.Date;
 import java.util.List;
@@ -225,7 +226,7 @@ public class ProjectEvent extends GraphFields {
     private ProjectEventStatus status;
 
     @Nullable
-    private String timezone;
+    private TimeZone timezone;
 
     @Nullable
     private Integer totalVolunteersNeeded;
