@@ -26,7 +26,7 @@ public class GraphFields {
     }
 
     /**
-     * reflection free implementation of querying non-null fields for a bean.
+     * Reflection free implementation of querying non-null fields for a bean.
      *
      * @param bean class which is being queried
      * @param <T>  class type
