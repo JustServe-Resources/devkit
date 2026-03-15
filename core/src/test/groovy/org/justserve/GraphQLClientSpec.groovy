@@ -37,6 +37,7 @@ class GraphQLClientSpec extends Specification {
                 .getCreateProject().getId()
     }
 
+    @SuppressWarnings("GroovyAssignabilityCheck")
     void "can create Project with EventType: #eventType, LocationType: #locationType, and Redirect: #redirect"(EventType eventType, ProjectLocationType locationType, String redirect) {
         given:
         GraphQLCreateProjectVariables args = new GraphQLCreateProjectVariables()
