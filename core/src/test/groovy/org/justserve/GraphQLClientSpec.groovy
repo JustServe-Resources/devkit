@@ -30,8 +30,7 @@ class GraphQLClientSpec extends Specification {
         def project = client.createProject(new GraphQLCreateProjectVariables()
                 .setTitle("this is a test")
                 .setEventType(EventType.Ongoing)
-                .setLocationType(ProjectLocationType.SINGLE_LOCATION)
-        )
+                .setLocationType(ProjectLocationType.SINGLE_LOCATION))
         projectId = project
                 .getData()
                 .getCreateProject().getId()
