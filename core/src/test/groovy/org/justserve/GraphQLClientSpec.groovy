@@ -120,8 +120,8 @@ class GraphQLClientSpec extends Specification {
         noExceptionThrown()
         !response.hasErrors()
 
-        where:
-        eventType << [EventType.DTL, EventType.Ongoing, EventType.MultipleDTL]
+        where: // error reads "Only a multiple DTL project can have more than one event"
+        eventType << [/*EventType.DTL,*/ EventType.Ongoing, EventType.MultipleDTL]
     }
 
     @Unroll("can set location info for #eventType.name() event")
