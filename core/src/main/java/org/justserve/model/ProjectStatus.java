@@ -12,17 +12,25 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * <h4>Supported Location Types for Projects</h4>
+ * <h4>Status for a project.</h4>
  *
+ * Use{@link ProjectEventStatus} when creating a project events.
+ *
+ * @author Jonathan Zollinger
+ * @since 0.1.0
  */
 @RequiredArgsConstructor
 @Serdeable
-public enum ProjectLocationType {
-    SINGLE_LOCATION(1, "SINGLE_LOCATION"),
-    REGIONAL(3, "REGIONAL"),
-    REMOTE(4, "REMOTE");
+public enum ProjectStatus {
+    PUBLISHED(1, "PUBLISHED"),
+    SUBMITTED(2, "SUBMITTED"),
+    DRAFT(3, "DRAFT"),
+    TEMPLATE(4, "TEMPLATE"),
+    ON_HOLD(5, "ON_HOLD"),
+    CANCELLED(6, "CANCELLED"),
+    DECLINED(7, "DECLINED");
 
-    public static final Map<Integer, ProjectLocationType> VALUE_MAPPING = Map.copyOf(Arrays.stream(values())
+    public static final Map<Integer, ProjectStatus> VALUE_MAPPING = Map.copyOf(Arrays.stream(values())
             .collect(Collectors.toMap(v -> v.intValue, Function.identity())));
 
     private final Integer intValue;
@@ -46,17 +54,17 @@ public enum ProjectLocationType {
      */
     @Generated //manually placed annotation to tell jacoco coverage report to ignore this
     @JsonCreator
-    public static ProjectLocationType fromValue(Object value) {
+    public static ProjectStatus fromValue(Object value) {
         if (value instanceof Number) {
             int intVal = ((Number) value).intValue();
-            for (ProjectLocationType type : values()) {
+            for (ProjectStatus type : values()) {
                 if (type.intValue == intVal) return type;
             }
         } else if (value instanceof String strVal) {
-            for (ProjectLocationType type : values()) {
+            for (ProjectStatus type : values()) {
                 if (type.stringValue.equalsIgnoreCase(strVal)) return type;
             }
         }
-        throw new IllegalArgumentException("Unexpected value '" + value + "' for ProjectLocationType");
+        throw new IllegalArgumentException("Unexpected value '" + value + "' for ProjectStatus");
     }
 }
