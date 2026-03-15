@@ -3,6 +3,7 @@ package org.justserve.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.micronaut.serde.annotation.Serdeable;
+import lombok.Generated;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Arrays;
@@ -10,6 +11,12 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * <h4>Supported Project Event Status</h4>
+ * <p>
+ * Project Status available to project events
+ * Use {@link ProjectStatus}
+ */
 @RequiredArgsConstructor
 @Serdeable
 public enum ProjectEventStatus {
@@ -33,6 +40,13 @@ public enum ProjectEventStatus {
         return stringValue;
     }
 
+    /**
+     * Parses the incoming value to either the string or integer value, whichever the server is using.
+     *
+     * @param value the incoming value from the server
+     * @return the event type that matches the incoming value
+     */
+    @Generated //manually placed annotation to tell jacoco coverage report to ignore this
     @JsonCreator
     public static ProjectEventStatus fromValue(Object value) {
         if (value instanceof Number) {

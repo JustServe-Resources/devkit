@@ -3,6 +3,7 @@ package org.justserve.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.micronaut.serde.annotation.Serdeable;
+import lombok.Generated;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Arrays;
@@ -10,6 +11,16 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * <h4>TimeZones supported in JustServe</h4>
+ * <ul>
+ *      <li> The queryValue field reflects the options in the UI (and what is sent to the server).</li>
+ *      <li>The ResponseValue is the String which is returned from the server</li>
+ * </ul>
+ *
+ * @author Jonathan Zollinger
+ * @since 0.1.0
+ */
 @RequiredArgsConstructor
 @Serdeable
 public enum TimeZone {
@@ -158,8 +169,17 @@ public enum TimeZone {
     public static final Map<Integer, TimeZone> VALUE_MAPPING = Map.copyOf(Arrays.stream(values())
             .collect(Collectors.toMap(v -> v.intValue, Function.identity())));
 
+    /**
+     * This integer value is used for sending
+     */
     private final Integer intValue;
+    /**
+     * This string value is what is used when sending this enum TO the server
+     */
     private final String queryValue;
+    /**
+     * This string value is what is used when receiving this enum FROM the server
+     */
     private final String responseValue;
 
     @Override
@@ -168,7 +188,13 @@ public enum TimeZone {
         return queryValue;
     }
 
-
+    /**
+     * Parses the incoming value to either the one of the string or integer value, whichever the server is using.
+     *
+     * @param value the incoming value from the server
+     * @return the event type that matches the incoming value
+     */
+    @Generated //manually placed annotation to tell jacoco coverage report to ignore this
     @JsonCreator
     public static TimeZone fromValue(Object value) {
         if (value instanceof Number) {

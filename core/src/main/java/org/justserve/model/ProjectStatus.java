@@ -3,6 +3,7 @@ package org.justserve.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.micronaut.serde.annotation.Serdeable;
+import lombok.Generated;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Arrays;
@@ -11,7 +12,12 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * Gets or Sets ProjectStatus
+ * <h4>Status for a project.</h4>
+ *
+ * Use{@link ProjectEventStatus} when creating a project events.
+ *
+ * @author Jonathan Zollinger
+ * @since 0.1.0
  */
 @RequiredArgsConstructor
 @Serdeable
@@ -41,9 +47,12 @@ public enum ProjectStatus {
     }
 
     /**
-     * 2. RECEIVING (Response): This catches the incoming data.
-     * It can handle the Integer '1' from GraphQL, or even a String if a REST endpoint sends one.
+     * Parses the incoming value to either the string or integer value, whichever the server is using.
+     *
+     * @param value the incoming value from the server
+     * @return the event type that matches the incoming value
      */
+    @Generated //manually placed annotation to tell jacoco coverage report to ignore this
     @JsonCreator
     public static ProjectStatus fromValue(Object value) {
         if (value instanceof Number) {

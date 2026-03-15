@@ -70,7 +70,7 @@ public enum EventType {
      * @param value the incoming value from the server
      * @return the event type that matches the incoming value
      */
-    @Generated //manually placed annotation to tell code coverage to ignore this
+    @Generated //manually placed annotation to tell jacoco coverage report to ignore this
     @JsonCreator
     public static EventType fromValue(Object value) {
         if (value instanceof Number) {
