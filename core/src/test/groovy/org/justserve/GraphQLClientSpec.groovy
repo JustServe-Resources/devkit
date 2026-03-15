@@ -7,7 +7,6 @@ import org.justserve.client.GraphQLClient
 import org.justserve.model.*
 import org.justserve.model.graph.CreateEventQuery
 import org.justserve.model.graph.CreateEventVariables
-import org.justserve.model.graph.ProjectEvent
 import spock.lang.Shared
 import spock.lang.Specification
 

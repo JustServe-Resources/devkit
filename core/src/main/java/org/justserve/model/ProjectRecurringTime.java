@@ -1,4 +1,4 @@
-package org.justserve.model.graph;
+package org.justserve.model;
 
 import io.micronaut.core.annotation.Introspected;
 import io.micronaut.serde.annotation.Serdeable;

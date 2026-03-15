@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import io.micronaut.serde.annotation.Serdeable;
 import lombok.Generated;
 import lombok.RequiredArgsConstructor;
-import org.justserve.model.graph.ProjectEvent;
 
 import java.util.Arrays;
 import java.util.Map;

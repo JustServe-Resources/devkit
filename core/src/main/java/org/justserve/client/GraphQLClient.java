@@ -9,7 +9,6 @@ import io.micronaut.retry.annotation.Retryable;
 import org.justserve.model.*;
 import org.justserve.model.graph.CreateEventQuery;
 import org.justserve.model.graph.GraphQLResponse;
-import org.justserve.model.graph.ProjectEvent;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;

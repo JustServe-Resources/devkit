@@ -1,4 +1,4 @@
-package org.justserve.model.graph;
+package org.justserve.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.micronaut.core.annotation.Introspected;
@@ -9,10 +9,8 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.Accessors;
-import org.justserve.model.EventType;
-import org.justserve.model.Project;
-import org.justserve.model.ProjectEventStatus;
-import org.justserve.model.TimeZone;
+import org.justserve.model.graph.CreateEventQuery;
+import org.justserve.model.graph.GraphFields;
 
 import java.util.Date;
 import java.util.List;
