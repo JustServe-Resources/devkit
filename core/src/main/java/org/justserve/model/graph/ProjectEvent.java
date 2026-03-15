@@ -7,11 +7,9 @@ import io.micronaut.core.annotation.Nullable;
 import io.micronaut.serde.annotation.Serdeable;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.Accessors;
+import org.justserve.model.EventType;
 import org.justserve.model.Project;
 import org.justserve.model.ProjectEventStatus;
 import org.justserve.model.TimeZone;
@@ -20,9 +18,37 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import static java.lang.Boolean.TRUE;
+
 /**
- * <h4>All potential variables to use with {@link CreateEventQuery}</h4>
- * Null values will be omitted from the generated query.
+ * <h2>JustServe Project Event</h2>
+ * Valid to use with
+ * <ul><li>{@link EventType#Ongoing}
+ * <li>{@link EventType#DTL}
+ * <li>{@link EventType#MultipleDTL}</li>
+ * <li>{@link EventType#Recurring}</li> </ul>
+ *
+ * <h4>Creating New Events</h4>
+ * Use {@code ProjectEvent.}{@link #builder()} when adding a new event to ensure all
+ * needed fields are included. This not only checks for required fields, but double checks
+ * contradictions or invalid combinations are being submitted.
+ * <h6>Example</h6>
+ * <pre>{@code
+ * ProjectEvent newEvent = ProjectEvent.builder()
+ *     .start(startDate)
+ *     .end(endDate)
+ *     .shiftTitle("Morning Shift")
+ *     .build();
+ * }</pre>
+ *
+ * <h4>Updating Existing Events</h4>
+ * Use {@code new ProjectEvent()} (without the builder) when <i>updating</i> an event. This
+ * skips the builder's checks and lets you send partial updates to existing events.
+ * <h6>Example</h6>
+ * <pre>{@code
+ * ProjectEvent partialUpdate = new ProjectEvent()
+ *     .setShiftTitle("Afternoon Shift");
+ * }</pre>
  *
  * @author Jonathan Zollinger
  * @since 0.1.0
@@ -32,6 +58,7 @@ import java.util.UUID;
 @Accessors(chain = true)
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder(buildMethodName = "buildInternal")
 @Serdeable
 @Introspected
 public class ProjectEvent extends GraphFields {
@@ -115,11 +142,15 @@ public class ProjectEvent extends GraphFields {
     private Boolean eventCapReached;
 
     /**
-     * whether a group cap is set for this event.
+     * Whether a group cap is set for this event.
      */
     @NonNull
-    private Boolean groupCap;
+    @Builder.Default
+    private Boolean groupCap = false;
 
+    /**
+     * The max number of people which can sign up by one person
+     */
     @Nullable
     private Integer groupLimit;
 
@@ -130,7 +161,7 @@ public class ProjectEvent extends GraphFields {
      *     <li>{@link CreateEventQuery}</li>
      * </ul>
      */
-    @NonNull
+    @Nullable
     private UUID id;
 
     @Nullable
@@ -236,4 +267,22 @@ public class ProjectEvent extends GraphFields {
      */
     @Nullable
     private Boolean volunteerCap;
+
+    public static class ProjectEventBuilder {
+        public ProjectEvent build() {
+            ProjectEvent event = this.buildInternal();
+
+            if (event.getEnd() == null || event.getStart() == null) {
+                throw new IllegalStateException("Events created with the builder must have a start and end date");
+            }
+            if ((TRUE.equals(event.getGroupCap()) && event.getGroupLimit() == null)) {
+                throw new IllegalStateException("groupLimit cannot be null when groupCap is true");
+            }
+            if (TRUE.equals(event.getVolunteerCap()) && event.getTotalVolunteersNeeded() == null) {
+                throw new IllegalStateException("totalVolunteersNeeded cannot be null when volunteerCap is true");
+            }
+
+            return event;
+        }
+    }
 }
