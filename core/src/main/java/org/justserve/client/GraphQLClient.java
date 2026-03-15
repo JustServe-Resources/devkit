@@ -10,11 +10,8 @@ import org.justserve.model.*;
 import org.justserve.model.graph.CreateEventQuery;
 import org.justserve.model.graph.GraphQLResponse;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Produces("application/json")
 @Consumes("application/graphql-response+json; charset=utf-8")
@@ -33,9 +30,6 @@ public interface GraphQLClient {
 
     @Post
     GraphQLResponse<GraphQLCombinedMutationUpdateProjectAddProjectTagData> executeCombinedMutationUpdateProjectAddProjectTag(@Body GraphQLCombinedMutationUpdateProjectAddProjectTagRequest request);
-
-    @Post
-    GraphQLResponse<GraphQLCreateEventData> executeCreateEvent(@Body GraphQLCreateEventRequest request);
 
     @Post
     GraphQLResponse<GraphQLCreateProjectData> executeCreateProject(@Body GraphQLCreateProjectRequest request);
@@ -80,66 +74,6 @@ public interface GraphQLClient {
         request.setQuery(fixedQuery);
         request.setVariables(variables);
         return this.executeCombinedMutationUpdateProjectAddProjectTag(request);
-    }
-
-    default GraphQLResponse<GraphQLCreateEventData> createEvent(GraphQLCreateEventVariables variables) {
-        String queryFormat = """
-            mutation createEvent($projectId: ID!, $projectEvent: UpdateProjectEventInput!) {
-                  createEvent(
-                    projectId: $projectId
-                    projectEvent: $projectEvent
-                  ) {
-                    %s
-                  }
-                }
-            """;
-
-        List<String> fields = new ArrayList<>(List.of("id", "projectId"));
-        Object projectEvent = variables.getProjectEvent();
-
-        if (projectEvent != null) {
-            String dynamicFields = Arrays.stream(projectEvent.getClass().getDeclaredFields())
-                    .filter(field -> {
-                        try {
-                            field.setAccessible(true);
-                            return field.get(projectEvent) != null;
-                        } catch (IllegalAccessException e) {
-                            return false;
-                        }
-                    })
-                    .map(Field::getName)
-                    .collect(Collectors.joining("\n"));
-            if (!dynamicFields.isEmpty()) {
-                fields.add(dynamicFields);
-            }
-        }
-
-        GraphQLCreateEventRequest request = new GraphQLCreateEventRequest();
-        request.setQuery(String.format(queryFormat, String.join("\n", fields)));
-        request.setVariables(variables);
-        return this.executeCreateEvent(request);
-    }
-
-    /**
-     * {@summary Add the dates for an ongoing event.} Only use this on projects whose type is set to {@link EventType#Ongoing}.
-     * @param variables provide the {@link GraphQLCreateEventVariables#projectId} and {@link GraphQLCreateEventVariables#projectEvent}
-     * @return the {@link GraphQLCreateEventData} response wrapped in a {@link GraphQLResponse}
-     */
-    default GraphQLResponse<GraphQLCreateEventData> createOngoingEvent(GraphQLCreateEventVariables variables) {
-        String fixedQuery = """
-                mutation updateEvent($id: ID!, $projectEvent: UpdateProjectEventInput!) {
-                      updateEvent(
-                        id: $id
-                        projectEvent: $projectEvent
-                      ) {
-                        id
-                      }
-                    }
-                """;
-        GraphQLCreateEventRequest request = new GraphQLCreateEventRequest();
-        request.setQuery(fixedQuery);
-        request.setVariables(variables);
-        return this.executeCreateEvent(request);
     }
 
     default GraphQLResponse<GraphQLCreateProjectData> createProject(GraphQLCreateProjectVariables variables) {
