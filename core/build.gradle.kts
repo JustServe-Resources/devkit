@@ -70,11 +70,6 @@ micronaut {
     }
 }
 
-tasks.test {
-    maxHeapSize = "6144m"
-    minHeapSize = "512m"
-}
-
 tasks.withType<ProcessResources> {
     val props = Properties()
     file("../gradle.properties").inputStream().use { props.load(it) }
