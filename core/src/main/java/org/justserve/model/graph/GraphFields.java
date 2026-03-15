@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class GraphFields {
 
     @JsonIgnore
-    String getMutationFields() {
+    protected String getMutationFields() {
         return getFieldsForBean(this);
     }
 

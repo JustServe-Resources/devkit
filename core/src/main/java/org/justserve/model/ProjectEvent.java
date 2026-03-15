@@ -23,8 +23,8 @@ import static java.lang.Boolean.TRUE;
  * Valid to use with
  * <ul><li>{@link EventType#Ongoing}
  * <li>{@link EventType#DTL}
- * <li>{@link EventType#MultipleDTL}</li>
- * <li>{@link EventType#Recurring}</li> </ul>
+ * <li>{@link EventType#MultipleDTL}</li> </ul>
+ * (Not valid to use with{@link EventType#Recurring} events
  *
  * <h4>Creating New Events</h4>
  * Use {@code ProjectEvent.}{@link #builder()} when adding a new event to ensure all
@@ -232,6 +232,13 @@ public class ProjectEvent extends GraphFields {
     @Nullable
     private String qrCodeImageLocation;
 
+    /**
+     * <h4>The date the event is set to renew.</h4>
+     * Only Usable In:
+     * <ul>
+     *     <li>{@link EventType#MultipleDTL}</li>
+     * </ul>
+     */
     @Nullable
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
     private Date renewDate;
