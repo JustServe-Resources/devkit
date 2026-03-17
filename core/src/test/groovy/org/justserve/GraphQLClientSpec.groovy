@@ -5,8 +5,7 @@ import jakarta.inject.Inject
 import net.datafaker.Faker
 import org.justserve.client.GraphQLClient
 import org.justserve.model.*
-import org.justserve.model.graph.CreateEventMutation
-import org.justserve.model.graph.CreateEventVariables
+import org.justserve.model.graph.*
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -246,6 +245,57 @@ class GraphQLClientSpec extends Specification {
         EventType.MultipleDTL | false
     }
 
+    def "can create multiple events at once for Multi-DTL projects using createEvents mutation"() {
+        given:
+        def event1 = baseEventBuilder()
+                .shiftTitle("Morning Shift")
+                .build()
+        def event2 = baseEventBuilder()
+                .shiftTitle("Afternoon Shift")
+                .build()
+        def event3 = baseEventBuilder()
+                .shiftTitle("Evening Shift")
+                .build()
+        def vars = new CreateEventsVariables(projectIds[EventType.MultipleDTL], event1, event2, event3)
+        def mutation = new CreateEventsMutation(vars)
+
+        when:
+        def response = client.createEvents(mutation)
+
+        then:
+        noExceptionThrown()
+        !response.hasErrors()
+
+        and: "the response data should contain the newly created events"
+        null != response.getData()
+    }
+
+    def "can create multiple recurring events at once for Recurring projects using createRecurringEvents mutation"() {
+        given:
+        def time1 = new ProjectRecurringTime()
+                .setStartTime("10:00")
+                .setEndTime("12:00")
+                .setRecurringType(RecurringType.WEEKLY)
+                .setMonday(true)
+        def time2 = new ProjectRecurringTime()
+                .setStartTime("14:00")
+                .setEndTime("16:00")
+                .setRecurringType(RecurringType.MONTHLY)
+                .setThirdWeek(true)
+        def vars = new CreateRecurringEventsVariables(projectIds[EventType.Recurring], time1, time2)
+        def mutation = new CreateRecurringEventsMutation(vars)
+
+        when:
+        def response = client.createRecurringEvents(mutation)
+
+        then:
+        noExceptionThrown()
+        !response.hasErrors()
+
+        and: "the response data should contain the newly created recurring events"
+        null != response.getData()
+    }
+
     def "cannot create event without start and end dates"() {
         when:
         ProjectEvent.builder().build()
@@ -268,5 +318,53 @@ class GraphQLClientSpec extends Specification {
 
         then:
         thrown(IllegalStateException)
+    }
+
+    def "cannot set volunteersCapped without volunteersNeeded on ProjectRecurringTime"() {
+        when:
+        ProjectRecurringTime.builder().volunteersCapped(true).build()
+
+        then:
+        thrown(IllegalStateException)
+    }
+
+    def "can set all info for ProjectRecurringTime"() {
+        given:
+        def time1 = ProjectRecurringTime.builder()
+                .contactEmail(faker.internet().emailAddress())
+                .contactName(faker.name().fullName())
+                .contactPhone(faker.phoneNumber().phoneNumber())
+                .startTime("10:00")
+                .endTime("12:00")
+                .firstWeek(true)
+                .secondWeek(true)
+                .thirdWeek(true)
+                .fourthWeek(true)
+                .fifthWeek(true)
+                .lastWeek(true)
+                .groupLimit(10)
+                .recurringType(RecurringType.WEEKLY)
+                .recurringDaysOfMonths([1, 15, 28])
+                .specialDirections(faker.lorem().paragraph())
+                .volunteersCapped(true)
+                .volunteersNeeded(5)
+                .monday(true)
+                .tuesday(true)
+                .wednesday(true)
+                .thursday(true)
+                .friday(true)
+                .saturday(true)
+                .sunday(true)
+                .build()
+
+        def vars = new CreateRecurringEventsVariables(projectIds[EventType.Recurring], time1)
+        def mutation = new CreateRecurringEventsMutation(vars)
+
+        when:
+        def response = client.createRecurringEvents(mutation)
+
+        then:
+        noExceptionThrown()
+        !response.hasErrors()
     }
 }
