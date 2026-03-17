@@ -4,6 +4,8 @@ import net.datafaker.Faker
 import org.justserve.TestUser
 import org.justserve.model.ProjectCard
 
+import java.util.concurrent.TimeUnit
+
 class TestEmailGenerator {
 
     static String generateMockValidEmlContent(List<ProjectCard> projects, TestUser recipient) {
@@ -18,7 +20,7 @@ class TestEmailGenerator {
         String phoneNumber = faker.phoneNumber().phoneNumber()
 
         sb.append("Return-Path: <").append(senderEmail).append(">\n")
-        sb.append("Date: ").append(faker.date().past(1, java.util.concurrent.TimeUnit.DAYS)).append("\n")
+        sb.append("Date: ").append(faker.date().past(1, TimeUnit.DAYS)).append("\n")
         sb.append("From: ").append(senderName).append(" <").append(senderEmail).append(">\n")
         sb.append("To: JustServeSupport <support@justserve.org>\n")
         sb.append("Subject: Fwd: Project Reassignment\n")
@@ -175,7 +177,7 @@ class TestEmailGenerator {
         String senderEmail = faker.internet().emailAddress()
 
         sb.append("Return-Path: <").append(senderEmail).append(">\n")
-        sb.append("Date: ").append(faker.date().past(1, java.util.concurrent.TimeUnit.DAYS)).append("\n")
+        sb.append("Date: ").append(faker.timeAndDate().past(1, java.util.concurrent.TimeUnit.DAYS)).append("\n")
         sb.append("From: ").append(senderName).append(" <").append(senderEmail).append(">\n")
         sb.append("To: JustServeSupport <support@justserve.org>\n")
         sb.append("Subject: Random user email without JS content\n")
@@ -188,6 +190,93 @@ class TestEmailGenerator {
         sb.append("Thanks,\n")
         sb.append(senderName).append("\n")
         
+        return sb.toString()
+    }
+
+    static String generateMockZendeskEmlContent(List<ProjectCard> projects, TestUser recipient) {
+        StringBuilder sb = new StringBuilder()
+        Faker faker = new Faker()
+                
+        String senderName = faker.name().fullName()
+        String senderEmail = faker.internet().emailAddress()
+        String recipientName = recipient.firstName + " " + recipient.lastName
+        String recipientEmail = recipient.email
+        String boundary = "000000000000" + faker.internet().uuid().replace("-", "").substring(0, 16)
+
+        sb.append("Return-Path: <").append(senderEmail).append(">\n")
+        sb.append("Date: ").append(faker.timeAndDate().past(1, java.util.concurrent.TimeUnit.DAYS)).append("\n")
+        sb.append("From: ").append(senderName).append(" <").append(senderEmail).append(">\n")
+        sb.append("To: JustServeSupport <support@justserve.zendesk.com>\n")
+        sb.append("Subject: Fwd: Project Reassignment\n")
+        sb.append("Mime-Version: 1.0\n")
+        sb.append("Content-Type: multipart/alternative; boundary=\"").append(boundary).append("\"\n\n")
+
+        // Plain text part
+        sb.append("--").append(boundary).append("\n")
+        sb.append("Content-Type: text/plain; charset=\"UTF-8\"\n")
+        sb.append("Content-Transfer-Encoding: quoted-printable\n\n")
+
+        sb.append("CCJSS ").append(faker.name().fullName()).append(" reassigned ").append(projects.size()).append(" projects to their lead JSS account, ").append(recipientName).append(".\n\n")
+        sb.append("---------- Forwarded message ---------\n")
+        sb.append("From: JustServe.org <noreply-js@mail.justserve.org>\n")
+        sb.append("Date: Thu, Mar 12, 2026 at 1:43 PM\n")
+        sb.append("Subject: Project Reassignment\n")
+        sb.append("To: <").append(recipientEmail).append(">\n\n")
+        sb.append("Project Reassignment\n\n")
+        sb.append("The following projects have been reassigned from ").append(faker.name().fullName()).append(", to ").append(recipientName).append(", by ").append(senderName).append(":\n\n")
+
+        projects.each { project ->
+            sb.append("   - ").append(project.title).append("\n")
+            sb.append("   <https://v6q93rxd.r.us-east-1.awstrack.me/L0/https:%2F%2Fwww.justserve.org%2Fprojects%2F").append(project.id).append("/1/0100019ce325c14c>\n")
+        }
+
+        sb.append("\n").append(recipientName).append(" can now access these projects in their manage projects page for editing.\n\n")
+        
+        // HTML part
+        sb.append("--").append(boundary).append("\n")
+        sb.append("Content-Type: text/html; charset=\"UTF-8\"\n")
+        sb.append("Content-Transfer-Encoding: quoted-printable\n\n")
+
+        String htmlTemplateStart = """<div dir="ltr"><div class="gmail_default" style="font-family:arial,helvetica,sans-serif;font-size:small">CCJSS ${faker.name().fullName()} reassigned ${projects.size()} projects to their lead JSS account, <a href="https://www.justserve.org/admin/users?tab=detail&amp;userId=${recipient.uuid}">${recipientName}</a>.</div><br><div class="gmail_quote gmail_quote_container"><div dir="ltr" class="gmail_attr">---------- Forwarded message ---------<br>From: <strong class="gmail_sendername" dir="auto">JustServe.org</strong> <span dir="auto">&lt;<a href="mailto:noreply-js@mail.justserve.org" target="_blank">noreply-js@mail.justserve.org</a>&gt;</span><br>Date: Thu, Mar 12, 2026 at 1:43&#8239;PM<br>Subject: Project Reassignment<br>To:  &lt;<a href="mailto:${recipientEmail}" target="_blank">${recipientEmail}</a>&gt;<br></div><br><br><div><u></u>
+        <div style="margin:0px">
+        <table aria-describedby="table" style="background-color:#e5e3e3;border-collapse:collapse;width:100%" role="presentation">
+            <tbody>
+                <tr>
+                    <td></td>
+                    <td style="background-color:#fff;padding:0px;width:600px">
+                        <table aria-describedby="table" border="0" style="width:100%;border-collapse:collapse;margin:0 auto" role="presentation">
+                            <tbody>
+                                <tr>
+                                    <th colspan="3" style="padding-bottom:50px;padding-top:50px" scope="row">
+                                        <img src="https://static-assets.justserve.org/images/static/email/justserve-logo-title.gif" alt="Logo Title" style="width:135px">
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <td style="padding-top:20px;padding-bottom:60px;font-family:' Helvetica Light','Helvetica','Arial',sans-serif;font-weight:lighter;font-weight:100;font-size:18px;color:#64686c">
+                                        <ul>"""
+
+        String htmlTemplateEnd = """</ul>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+        </div></div></div></div>"""
+
+        sb.append(htmlTemplateStart)
+
+        projects.each { project ->
+            String uglyUrl = "https://v6q93rxd.r.us-east-1.awstrack.me/L0/https:%2F%2Fwww.justserve.org%2Fprojects%2F" + project.id + "/1/0100019ce325c14c"
+            sb.append("<li><a href=\"").append(uglyUrl).append("\" rel=\"noopener\" style=\"color:#45a2c4;text-decoration:none\" target=\"_blank\">").append(project.title).append("</a></li>")
+        }
+
+        sb.append(htmlTemplateEnd)
+        
+        sb.append("\n--").append(boundary).append("--\n")
         return sb.toString()
     }
 }

@@ -3,7 +3,10 @@ package org.justserve.util
 import io.micronaut.core.io.ResourceResolver
 import io.micronaut.test.extensions.spock.annotation.MicronautTest
 import jakarta.inject.Inject
+import net.datafaker.Faker
 import org.jsoup.nodes.Document
+import org.justserve.TestUser
+import org.justserve.model.ProjectCard
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -26,7 +29,7 @@ class EmailParserSpec extends Specification {
 
     def setupSpec() {
         testEmails = new HashMap<>()
-        
+
         Faker faker = new Faker()
         TestUser recipient = new TestUser(faker)
         List<ProjectCard> mockProjects = [
@@ -35,6 +38,7 @@ class EmailParserSpec extends Specification {
         ]
         
         testEmails.put("test-with-automated-email", TestEmailGenerator.generateMockValidEmlContent(mockProjects, recipient))
+        testEmails.put("test-with-automated-email-zendesk", TestEmailGenerator.generateMockZendeskEmlContent(mockProjects, recipient))
         testEmails.put("test-without-automated-email", TestEmailGenerator.generateInvalidMockEmlContent())
 
         testTrackingUrls = new HashMap<>()
@@ -63,7 +67,7 @@ class EmailParserSpec extends Specification {
             return
         }
         def error = thrown(JustServeEmailParserError)
-        error.message == "Email is not a JustServe generated email."
+        error.message == "Email does not contain an HTML body."
 
 
         where:
@@ -112,7 +116,7 @@ class EmailParserSpec extends Specification {
             return
         }
         def error = thrown(JustServeEmailParserError)
-        error.message == "Email is not a JustServe generated email."
+        error.message == "Email does not contain an HTML body."
 
         where:
         [title, fileContent] << testEmails.collect { key, value -> [key, value] }
