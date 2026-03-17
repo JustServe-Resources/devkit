@@ -339,6 +339,8 @@ paths:
 
 components:
   schemas:
+    TimeZone:
+      type: string
     GraphQLCreateEventData:
       type: object
       properties:
@@ -354,7 +356,7 @@ components:
             end: { type: string, format: date-time }
             groupCap: { type: boolean }
             groupLimit: { type: integer, format: int32 }
-            timezone: { type: string }
+            timezone: { $ref: '#/components/schemas/TimeZone' }
             totalVolunteersNeeded: { type: integer, format: int32 }
             volunteerCap: { type: boolean }
     GraphQLSearchOrganizationData:
@@ -944,16 +946,17 @@ components:
         relativityScore: { type: number, format: double }
       additionalProperties: false
     ProjectStatus:
-      type: string
-      enum:
-        - None
-        - Published
-        - Submitted
-        - Draft
-        - Template
-        - OnHold
-        - Cancelled
-        - Declined
+      type: integer
+      format: int32
+      enum: [ 1, 2, 3, 4, 5, 6, 7 ]
+      x-enum-varnames:
+        - PUBLISHED
+        - SUBMITTED
+        - DRAFT
+        - TEMPLATE
+        - ON_HOLD
+        - CANCELLED
+        - DECLINED
     UserSlimSearchResult:
       description: |
         high level information for a given user
@@ -2003,10 +2006,16 @@ components:
       properties:
         query: { type: string }
         variables: { $ref: '#/components/schemas/GraphQLCreateEventVariables' }
+    GraphQLCreateOngoingEventRequest:
+      type: object
+      properties:
+        query: { type: string }
+        variables: { $ref: '#/components/schemas/GraphQLCreateOngoingEventVariables' }
     GraphQLCreateEventVariables:
       type: object
       properties:
-        projectId:
+        id:
+          description: ID for the overall project
           type: string
           format: uuid
         projectEvent:
@@ -2033,11 +2042,39 @@ components:
               type: string
               format: date-time
             timezone:
-              type: string
+              $ref: '#/components/schemas/TimeZone'
             totalVolunteersNeeded:
               type: integer
             volunteerCap:
               type: boolean
+    GraphQLCreateOngoingEventVariables:
+      type: object
+      properties:
+        id:
+          description: ID for the overall project
+          type: string
+          format: uuid
+        projectEvent:
+          type: object
+          properties:
+            contactEmail:
+              type: string
+              format: email
+              maxLength: 200
+            contactName:
+              type: string
+              maxLength: 200
+            contactPhone:
+              type: string
+              format: phone
+              maxLength: 139
+            schedule:
+              type: string
+              maxLength: 100 # will be corrected to 300
+            shiftTitle:
+              type: string
+              maxLength: 100 # will be corrected to 300
+
     GraphQLCreateProjectRequest:
       type: object
       properties:

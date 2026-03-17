@@ -7,12 +7,25 @@ import io.micronaut.http.annotation.Produces;
 import io.micronaut.http.client.annotation.Client;
 import io.micronaut.retry.annotation.Retryable;
 import org.justserve.model.*;
+import org.justserve.model.graph.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Produces("application/json")
 @Consumes("application/graphql-response+json; charset=utf-8")
 @Retryable
 @Client(id = "justserve", path = "/graphql")
 public interface GraphQLClient {
+
+    @Post
+    GraphQLResponse<ProjectEvent> createEvent(@Body CreateEventMutation request);
+
+    @Post
+    GraphQLResponse<CreateEventsData> createEvents(@Body CreateEventsMutation request);
+
+    @Post
+    GraphQLResponse<CreateRecurringEventsData> createRecurringEvents(@Body CreateRecurringEventsMutation request);
 
     @Post
     GraphQLResponse<GraphQLAddProjectAttachmentData> executeAddProjectAttachment(@Body GraphQLAddProjectAttachmentRequest request);
@@ -22,9 +35,6 @@ public interface GraphQLClient {
 
     @Post
     GraphQLResponse<GraphQLCombinedMutationUpdateProjectAddProjectTagData> executeCombinedMutationUpdateProjectAddProjectTag(@Body GraphQLCombinedMutationUpdateProjectAddProjectTagRequest request);
-
-    @Post
-    GraphQLResponse<GraphQLCreateEventData> executeCreateEvent(@Body GraphQLCreateEventRequest request);
 
     @Post
     GraphQLResponse<GraphQLCreateProjectData> executeCreateProject(@Body GraphQLCreateProjectRequest request);
@@ -69,14 +79,6 @@ public interface GraphQLClient {
         request.setQuery(fixedQuery);
         request.setVariables(variables);
         return this.executeCombinedMutationUpdateProjectAddProjectTag(request);
-    }
-
-    default GraphQLResponse<GraphQLCreateEventData> createEvent(GraphQLCreateEventVariables variables) {
-        String fixedQuery = "mutation createEvent($projectId: ID!, $projectEvent: UpdateProjectEventInput!) {\n      createEvent(\n        projectId: $projectId\n        projectEvent: $projectEvent\n      ) {\n        id\n        projectId\n        contactEmail\n        contactName\n        contactPhone\n        start\n        end\n        groupCap\n        groupLimit\n        timezone\n        totalVolunteersNeeded\n        volunteerCap\n      }\n    }";
-        GraphQLCreateEventRequest request = new GraphQLCreateEventRequest();
-        request.setQuery(fixedQuery);
-        request.setVariables(variables);
-        return this.executeCreateEvent(request);
     }
 
     default GraphQLResponse<GraphQLCreateProjectData> createProject(GraphQLCreateProjectVariables variables) {
@@ -128,9 +130,20 @@ public interface GraphQLClient {
     }
 
     default GraphQLResponse<GraphQLUpdateProjectData> updateProject(GraphQLUpdateProjectVariables variables) {
-        String fixedQuery = "mutation ($projectId: ID!, $logo: String!) {\n      updateProject(id: $projectId, modify: { logo: $logo }) {\n        id\n        logo\n      }\n    }";
+        String mutationFormat = "mutation ($projectId: ID!, $logo: String!) {\n      updateProject(id: $projectId, modify: { logo: $logo }) {\n        %s\n      }\n    }";
+
+        List<String> responseFields = new ArrayList<>();
+        responseFields.add("id");
+
+        if (variables.getLogo() != null) {
+            responseFields.add("logo");
+        }
+
+        String fieldsString = String.join("\n", responseFields);
+        String dynamicQuery = String.format(mutationFormat, fieldsString);
+
         GraphQLUpdateProjectRequest request = new GraphQLUpdateProjectRequest();
-        request.setQuery(fixedQuery);
+        request.setQuery(dynamicQuery);
         request.setVariables(variables);
         return this.executeUpdateProject(request);
     }
