@@ -26,16 +26,16 @@ class EmailParserSpec extends Specification {
 
     def setupSpec() {
         testEmails = new HashMap<>()
-        Stream.of("sara-anderson-email.eml", "test-with-automated-email.eml", "test-without-automated-email.eml").forEach { file ->
-            def resource = resourceResolver.getResourceAsStream("classpath:$file")
-            resource.ifPresent { stream ->
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
-                    testEmails.put(file.replace(".eml", ""), reader.lines().collect(Collectors.joining(System.lineSeparator())))
-                } catch (IOException e) {
-                    throw new RuntimeException("Failed to read test file: $file", e)
-                }
-            }
-        }
+        
+        Faker faker = new Faker()
+        TestUser recipient = new TestUser(faker)
+        List<ProjectCard> mockProjects = [
+            new ProjectCard(id: UUID.randomUUID(), title: faker.book().title()),
+            new ProjectCard(id: UUID.randomUUID(), title: faker.book().title())
+        ]
+        
+        testEmails.put("test-with-automated-email", TestEmailGenerator.generateMockValidEmlContent(mockProjects, recipient))
+        testEmails.put("test-without-automated-email", TestEmailGenerator.generateInvalidMockEmlContent())
 
         testTrackingUrls = new HashMap<>()
         def yamlResource = resourceResolver.getResourceAsStream("classpath:projects.yaml")
