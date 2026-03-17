@@ -13,9 +13,9 @@ import io.micronaut.serde.annotation.Serdeable;
  */
 @Serdeable
 @JsonPropertyOrder({"query", "variables"})
-public class CreateEventQuery extends GraphQuery {
+public class CreateEventMutation extends GraphMutation {
 
-    public CreateEventQuery(CreateEventVariables variables) {
+    public CreateEventMutation(CreateEventVariables variables) {
         this.query = """
             mutation createEvent($projectId: ID!, $projectEvent: UpdateProjectEventInput!) {
                   createEvent(

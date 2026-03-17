@@ -17,7 +17,7 @@ import org.justserve.client.GraphQLClient;
 @Serdeable
 @Getter
 @JsonPropertyOrder({"query", "variables"})
-public abstract class GraphQuery {
+public abstract class GraphMutation {
     /**
      * <h4>Mutation Query String</h4>formatted to receive a (@code \n) delimited string of variable names.<br>
      * The query is to include the mutation's signature, as well as its opening and closing curly braces.<br>

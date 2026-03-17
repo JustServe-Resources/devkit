@@ -3,7 +3,7 @@ package org.justserve.model.graph;
 import io.micronaut.serde.annotation.Serdeable;
 
 /**
- * Parent class to any variables to be used in a{@link GraphQuery#variables} setting.
+ * Parent class to any variables to be used in a{@link GraphMutation#variables} setting.
  *
  * @author Jonathan Zollinger
  * @since 0.1.0

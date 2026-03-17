@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 /**
  * <h4>Fields used in a graphql mutation.</h4>
- * These are the fields used in{@link GraphQuery#query} fields.
+ * These are the fields used in{@link GraphMutation#query} fields.
  *
  * @author Jonathan Zollinger
  * @since 0.1.0

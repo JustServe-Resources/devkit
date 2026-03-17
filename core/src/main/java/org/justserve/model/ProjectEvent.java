@@ -9,7 +9,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.Accessors;
-import org.justserve.model.graph.CreateEventQuery;
+import org.justserve.model.graph.CreateEventMutation;
 import org.justserve.model.graph.GraphFields;
 
 import java.util.Date;
@@ -75,7 +75,7 @@ public class ProjectEvent extends GraphFields {
      * <h4>Whether the project event has been deleted.</h4>
      * Not Usable In:
      * <ul>
-     *     <li>{@link CreateEventQuery}</li>
+     *     <li>{@link CreateEventMutation}</li>
      * </ul>
      */
     @Nullable
@@ -86,7 +86,7 @@ public class ProjectEvent extends GraphFields {
      * See{@link #deletedByNavigation}<br>
      * Not Usable In:
      * <ul>
-     *     <li>{@link CreateEventQuery}</li>
+     *     <li>{@link CreateEventMutation}</li>
      * </ul>
      */
     @Nullable
@@ -97,7 +97,7 @@ public class ProjectEvent extends GraphFields {
      * See{@link #deletedBy}<br>
      * Not Usable In:
      * <ul>
-     *     <li>{@link CreateEventQuery}</li>
+     *     <li>{@link CreateEventMutation}</li>
      * </ul>
      */
     @Nullable
@@ -107,7 +107,7 @@ public class ProjectEvent extends GraphFields {
      * <h4>The date and time the project event was deleted.</h4>
      * Not Usable In:
      * <ul>
-     *     <li>{@link CreateEventQuery}</li>
+     *     <li>{@link CreateEventMutation}</li>
      * </ul>
      */
     @Nullable
@@ -122,7 +122,7 @@ public class ProjectEvent extends GraphFields {
      * <h4>The end date and time of the event with timezone offset.</h4>
      * Not Usable In:
      * <ul>
-     *     <li>{@link CreateEventQuery}</li>
+     *     <li>{@link CreateEventMutation}</li>
      * </ul>
      */
     @Nullable
@@ -133,7 +133,7 @@ public class ProjectEvent extends GraphFields {
      * <h4>Indicates if the event capacity has been reached.</h4>
      * Not Usable In:
      * <ul>
-     *     <li>{@link CreateEventQuery}</li>
+     *     <li>{@link CreateEventMutation}</li>
      * </ul>
      */
     @Nullable
@@ -156,7 +156,7 @@ public class ProjectEvent extends GraphFields {
      * <h4>The unique identifier for the project event.</h4>
      * Not Usable In:
      * <ul>
-     *     <li>{@link CreateEventQuery}</li>
+     *     <li>{@link CreateEventMutation}</li>
      * </ul>
      */
     @Nullable
@@ -173,7 +173,7 @@ public class ProjectEvent extends GraphFields {
      * <h4>The project this event belongs to.</h4>
      * Not Usable In:
      * <ul>
-     *     <li>{@link CreateEventQuery}</li>
+     *     <li>{@link CreateEventMutation}</li>
      * </ul>
      */
     @Nullable
@@ -183,7 +183,7 @@ public class ProjectEvent extends GraphFields {
      * <h4>The location of the project event.</h4>
      * Not Usable In:
      * <ul>
-     *     <li>{@link CreateEventQuery}</li>
+     *     <li>{@link CreateEventMutation}</li>
      * </ul>
      */
     @Nullable
@@ -193,7 +193,7 @@ public class ProjectEvent extends GraphFields {
      * <h4>The ID of the project event location.</h4>
      * Not Usable In:
      * <ul>
-     *     <li>{@link CreateEventQuery}</li>
+     *     <li>{@link CreateEventMutation}</li>
      * </ul>
      */
     @Nullable
@@ -203,7 +203,7 @@ public class ProjectEvent extends GraphFields {
      * <h4>The regions associated with the project event.</h4>
      * Not Usable In:
      * <ul>
-     *     <li>{@link CreateEventQuery}</li>
+     *     <li>{@link CreateEventMutation}</li>
      * </ul>
      */
     @Nullable
@@ -213,7 +213,7 @@ public class ProjectEvent extends GraphFields {
      * <h4>The ID of the project this event belongs to.</h4>
      * Not Usable In:
      * <ul>
-     *     <li>{@link CreateEventQuery}</li>
+     *     <li>{@link CreateEventMutation}</li>
      * </ul>
      */
     @Nullable
@@ -223,7 +223,7 @@ public class ProjectEvent extends GraphFields {
      * <h4>Information about the recurring schedule of the project event.</h4>
      * Not Usable In:
      * <ul>
-     *     <li>{@link CreateEventQuery}</li>
+     *     <li>{@link CreateEventMutation}</li>
      * </ul>
      */
     @Nullable

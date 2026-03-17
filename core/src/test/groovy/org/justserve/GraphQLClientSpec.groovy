@@ -5,7 +5,7 @@ import jakarta.inject.Inject
 import net.datafaker.Faker
 import org.justserve.client.GraphQLClient
 import org.justserve.model.*
-import org.justserve.model.graph.CreateEventQuery
+import org.justserve.model.graph.CreateEventMutation
 import org.justserve.model.graph.CreateEventVariables
 import spock.lang.Shared
 import spock.lang.Specification
@@ -75,7 +75,7 @@ class GraphQLClientSpec extends Specification {
         def vars = new CreateEventVariables().setProjectId(projectIds[eventType]).setProjectEvent(event)
 
         when:
-        def response = client.createEvent(new CreateEventQuery(vars))
+        def response = client.createEvent(new CreateEventMutation(vars))
 
         then:
         noExceptionThrown()
@@ -94,7 +94,7 @@ class GraphQLClientSpec extends Specification {
         def vars = new CreateEventVariables().setProjectId(projectIds[eventType]).setProjectEvent(event)
 
         when:
-        def response = client.createEvent(new CreateEventQuery(vars))
+        def response = client.createEvent(new CreateEventMutation(vars))
 
         then:
         noExceptionThrown()
@@ -114,7 +114,7 @@ class GraphQLClientSpec extends Specification {
         def vars = new CreateEventVariables().setProjectId(projectIds[eventType]).setProjectEvent(event)
 
         when:
-        def response = client.createEvent(new CreateEventQuery(vars))
+        def response = client.createEvent(new CreateEventMutation(vars))
 
         then:
         noExceptionThrown()
@@ -134,7 +134,7 @@ class GraphQLClientSpec extends Specification {
         def vars = new CreateEventVariables().setProjectId(projectIds[eventType]).setProjectEvent(event)
 
         when:
-        def response = client.createEvent(new CreateEventQuery(vars))
+        def response = client.createEvent(new CreateEventMutation(vars))
 
         then:
         noExceptionThrown()
@@ -155,7 +155,7 @@ class GraphQLClientSpec extends Specification {
         def vars = new CreateEventVariables().setProjectId(projectIds[eventType]).setProjectEvent(event)
 
         when:
-        def response = client.createEvent(new CreateEventQuery(vars))
+        def response = client.createEvent(new CreateEventMutation(vars))
 
         then:
         noExceptionThrown()
@@ -175,7 +175,7 @@ class GraphQLClientSpec extends Specification {
         def vars = new CreateEventVariables().setProjectId(projectIds[eventType]).setProjectEvent(event)
 
         when:
-        def response = client.createEvent(new CreateEventQuery(vars))
+        def response = client.createEvent(new CreateEventMutation(vars))
 
         then:
         noExceptionThrown()
@@ -197,7 +197,7 @@ class GraphQLClientSpec extends Specification {
         def vars = new CreateEventVariables().setProjectId(projectIds[eventType]).setProjectEvent(event)
 
         when:
-        def response = client.createEvent(new CreateEventQuery(vars))
+        def response = client.createEvent(new CreateEventMutation(vars))
 
         then:
         noExceptionThrown()
@@ -214,7 +214,7 @@ class GraphQLClientSpec extends Specification {
         def vars = new CreateEventVariables().setProjectId(projectIds[eventType]).setProjectEvent(event)
 
         when:
-        def response = client.createEvent(new CreateEventQuery(vars))
+        def response = client.createEvent(new CreateEventMutation(vars))
 
         then:
         response.hasErrors()
@@ -232,8 +232,8 @@ class GraphQLClientSpec extends Specification {
         def secondVars = new CreateEventVariables().setProjectId(projectIds[eventType]).setProjectEvent(secondEvent)
 
         when:
-        client.createEvent(new CreateEventQuery(firstVars))
-        def secondResponse = client.createEvent(new CreateEventQuery(secondVars))
+        client.createEvent(new CreateEventMutation(firstVars))
+        def secondResponse = client.createEvent(new CreateEventMutation(secondVars))
 
         then:
         secondResponse.hasErrors() == shouldFail
