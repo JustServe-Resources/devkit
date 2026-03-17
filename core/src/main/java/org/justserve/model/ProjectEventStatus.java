@@ -12,17 +12,19 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * <h4>Supported Location Types for Projects</h4>
- *
+ * <h4>Supported Project Event Status</h4>
+ * <p>
+ * Project Status available to project events
+ * Use {@link ProjectStatus}
  */
 @RequiredArgsConstructor
 @Serdeable
-public enum ProjectLocationType {
-    SINGLE_LOCATION(1, "SINGLE_LOCATION"),
-    REGIONAL(3, "REGIONAL"),
-    REMOTE(4, "REMOTE");
+public enum ProjectEventStatus {
+    ACTIVE(1, "ACTIVE"),
+    CANCELLED(2, "CANCELLED"),
+    ON_HOLD(3, "ON_HOLD");
 
-    public static final Map<Integer, ProjectLocationType> VALUE_MAPPING = Map.copyOf(Arrays.stream(values())
+    public static final Map<Integer, ProjectEventStatus> VALUE_MAPPING = Map.copyOf(Arrays.stream(values())
             .collect(Collectors.toMap(v -> v.intValue, Function.identity())));
 
     private final Integer intValue;
@@ -46,17 +48,17 @@ public enum ProjectLocationType {
      */
     @Generated //manually placed annotation to tell jacoco coverage report to ignore this
     @JsonCreator
-    public static ProjectLocationType fromValue(Object value) {
+    public static ProjectEventStatus fromValue(Object value) {
         if (value instanceof Number) {
             int intVal = ((Number) value).intValue();
-            for (ProjectLocationType type : values()) {
+            for (ProjectEventStatus type : values()) {
                 if (type.intValue == intVal) return type;
             }
         } else if (value instanceof String strVal) {
-            for (ProjectLocationType type : values()) {
+            for (ProjectEventStatus type : values()) {
                 if (type.stringValue.equalsIgnoreCase(strVal)) return type;
             }
         }
-        throw new IllegalArgumentException("Unexpected value '" + value + "' for ProjectLocationType");
+        throw new IllegalArgumentException("Unexpected value '" + value + "' for ProjectEventStatus");
     }
 }
