@@ -2111,8 +2111,12 @@ components:
       type: object
       properties:
         searchTerm:
+          minLength: 3
+          maxLength: 100
+          description: must not be null, and must be at least three characters long to avoid an exception
           type: string
         includeAll:
+          description: must not be null
           type: boolean
     GraphQLSetProjectLocationRequest:
       type: object
