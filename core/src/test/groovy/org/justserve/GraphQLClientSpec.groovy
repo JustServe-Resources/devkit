@@ -367,4 +367,23 @@ class GraphQLClientSpec extends Specification {
         noExceptionThrown()
         !response.hasErrors()
     }
+
+    def "test searchOrganization parses the input correctly"(String searchTerm, Boolean includesAll) {
+        given:
+
+        GraphQLSearchOrganizationVariables inputData = new GraphQLSearchOrganizationVariables()
+                .setSearchTerm(searchTerm)
+                .setIncludeAll(includesAll)
+
+        when:
+        GraphQLResponse<GraphQLSearchOrganizationData> response = client.searchOrganization(inputData)
+
+        then:
+        noExceptionThrown()
+        !response.hasErrors()
+
+        where:
+        [includesAll, searchTerm] << [[true, false], ["the"]].combinations()
+
+    }
 }
