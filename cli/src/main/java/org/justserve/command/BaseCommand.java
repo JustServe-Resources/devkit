@@ -24,7 +24,7 @@ public class BaseCommand implements ConsoleOutput {
     String token;
 
     boolean isTokenInvalid() {
-        if ("i-need-to-be-defined".equals(token) || null == token) {
+        if ("i-need-to-be-defined".equals(token) || null == token || token.isEmpty()) {
             printError(("NO AUTHENTICATION PROVIDED" + System.lineSeparator() +
                     "The Authentication token is not assigned as an environment variable." + System.lineSeparator() +
                     "Please define the environment variable \"JUSTSERVE_TOKEN\" and try again."));
