@@ -25,7 +25,7 @@ class TestEmailGenerator {
         String phoneNumber = faker.phoneNumber().phoneNumber()
 
         sb.append("Return-Path: <").append(senderEmail).append(">\n")
-        sb.append("Date: ").append(faker.date().past(1, DAYS)).append("\n")
+        sb.append("Date: ").append(faker.timeAndDate().past(1, DAYS)).append("\n")
         sb.append("From: ").append(senderName).append(" <").append(senderEmail).append(">\n")
         sb.append("To: JustServeSupport <support@justserve.org>\n")
         sb.append("Subject: Fwd: Project Reassignment\n")
