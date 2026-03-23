@@ -78,6 +78,7 @@ class JustServeSpec extends Specification {
                 .builder()
                 .environments(Environment.CLI, Environment.TEST)
                 .environmentVariableExcludes("JUSTSERVE_TOKEN")
+                .properties(["justserve.token": ""])
                 .build()
                 .start()
         noAuthUserClient = noAuthCtx.getBean(UserClient)
