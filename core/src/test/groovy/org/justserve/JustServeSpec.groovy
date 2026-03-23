@@ -71,9 +71,7 @@ class JustServeSpec extends Specification {
         // }
         ctx = ApplicationContext.builder()
                 .environments(Environment.CLI, Environment.TEST)
-                .properties([
-                        "justserve.token": System.getenv("TEST_TOKEN")
-                ])
+                .properties(["justserve.token": System.getenv("TEST_TOKEN")])
                 .build()
                 .start()
         noAuthCtx = ApplicationContext
@@ -107,14 +105,13 @@ class JustServeSpec extends Specification {
     HttpResponse<CreateUser200Response> createUser(UserClient client = noAuthUserClient) {
         HttpResponse<CreateUser200Response> response = null
         def tries = 0
-        while ((null == response || HttpStatus.OK != response.status()) && tries < 5) {
+        while ((null == response || ![HttpStatus.OK, HttpStatus.CREATED].contains(response.status())) && tries < 5) {
             try {
                 // A new user is generated on each loop iteration to avoid collisions
                 response = createUserFromFaker(client, new TestUser(new Faker(Locale.of("en-us"))))
             } catch (HttpClientResponseException ignored) {
-                tries++
-                // This user likely already exists, so we'll loop and try a new one.
             }
+            tries++
         }
         if (null == response) {
             throw new IllegalStateException("failed to create a test user after five attempts")
@@ -161,7 +158,7 @@ class JustServeSpec extends Specification {
                 .setContactPhone(faker.phoneNumber().phoneNumber())
                 .setDescription(faker.zelda().game())
                 .setLocationString(knownWorkingLocation)
-                .setLogo(getUploadedImageFileName())
+                .setLogo(null)
                 .setName(faker.zelda().character())
                 .set_public(null)
                 .setUrl(getUniqueSlug())
@@ -196,9 +193,7 @@ class JustServeSpec extends Specification {
      * @return The file name of the uploaded image.
      */
     String getUploadedImageFileName() {
-        HttpResponse<ImageUploadResponse> profileImage = authImageClient.uploadImage(
-                new ImageUploadRequest(faker.image().base64JPG().split(",")[1], 256, 256, false, 0, 0)
-        )
+        HttpResponse<ImageUploadResponse> profileImage = authImageClient.uploadImage(new ImageUploadRequest(faker.image().base64JPG().split(",")[1], 256, 256, false, 0, 0))
         return profileImage.body().displayFileName
     }
 
@@ -209,7 +204,7 @@ class JustServeSpec extends Specification {
     String getUniqueSlug() {
         String urlSlug = null
         while (null == urlSlug) {
-            def potentialSlug = faker.word().noun()
+            def potentialSlug = faker.word().noun() + System.currentTimeMillis()
             def response = authDynamicRoutingClient.getOrgIdFromSlug(potentialSlug)
             if (response.status() == HttpStatus.NOT_FOUND) {
                 urlSlug = potentialSlug
