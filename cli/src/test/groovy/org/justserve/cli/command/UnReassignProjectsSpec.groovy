@@ -19,7 +19,7 @@ class UnReassignProjectsSpec extends BaseCommandSpec {
     File tempEmlFile
 
     @Shared
-    Map<String, String> testEmails
+    Map<String, List> testEmails
 
     @Shared
     List<ProjectCard> testProjects
@@ -29,19 +29,19 @@ class UnReassignProjectsSpec extends BaseCommandSpec {
         def newReadOnlyUser = new TestUser(faker)
         newReadOnlyUser.uuid = createUser().body().id
         testEmails = new HashMap<>()
-        testEmails.put("forwarded-reassignment-email", TestEmailGenerator.generateMockValidEmlContent(testProjects, readOnlyUser))
-        testEmails.put("automated-reassignment-email", TestEmailGenerator.generateMockValidEmlContent(testProjects, newReadOnlyUser))
-        testEmails.put("email-without-justserve-content", TestEmailGenerator.generateInvalidMockEmlContent())
+        testEmails.put("forwarded-reassignment-email", [TestEmailGenerator.generateMockValidEmlContent(testProjects, readOnlyUser), readOnlyUser])
+        testEmails.put("automated-reassignment-email", [TestEmailGenerator.generateMockValidEmlContent(testProjects, newReadOnlyUser), newReadOnlyUser])
+        testEmails.put("email-without-justserve-content", [TestEmailGenerator.generateInvalidMockEmlContent(), readOnlyUser])
     }
 
-    def "can make reassignments from #title to a user"(String title, String fileContent) {
+    def "can make reassignments from #title to a user"(String title, String fileContent, TestUser user) {
         given:
         if (title.contains("without")) {
             return
         }
         tempEmlFile = File.createTempFile(title, ".eml")
         tempEmlFile.write(fileContent)
-        def args = ["unReassignProjects", "-u", readOnlyUser.uuid.toString(), "-f", tempEmlFile.absolutePath]
+        def args = ["unReassignProjects", "-u", user.uuid.toString(), "-f", tempEmlFile.absolutePath]
         def projectCount = EmailParser.getProjects(fileContent).values().flatten().size()
 
         when:
@@ -49,10 +49,9 @@ class UnReassignProjectsSpec extends BaseCommandSpec {
 
         then:
         errorStream.matches(blankRegex)
-        testProjects.each { project ->
-            outputStream.contains(project.id.toString())
+        testProjects.each { project -> outputStream.contains(project.id.toString())
         }
-        outputStream.contains("Successfully reassigned ${projectCount} projects to user ${readOnlyUser.uuid}")
+        outputStream.contains("Successfully reassigned ${projectCount} projects to user ${user.uuid}")
 
         cleanup:
         try {
@@ -61,7 +60,7 @@ class UnReassignProjectsSpec extends BaseCommandSpec {
         }
 
         where:
-        [title, fileContent] << testEmails.collect { key, value -> [key, value] }
+        [title, fileContent, user] << testEmails.collect { key, value -> [key, value[0], value[1]] }
     }
 
     def "shows error when project ID is invalid"() {
