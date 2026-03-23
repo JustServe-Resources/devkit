@@ -175,7 +175,7 @@ class JustServeSpec extends Specification {
      * @return A list of UUIDs for the created organizations.
      */
     List<UUID> createTestOrgs(int count) {
-        return (1..count).toList().parallelStream().map(this::createOrg).collect(Collectors.toList())
+        return (1..count).toList().parallelStream().map({ _ -> createOrg() }).collect(Collectors.toList())
     }
 
 
