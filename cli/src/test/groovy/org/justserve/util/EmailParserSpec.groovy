@@ -7,11 +7,12 @@ import net.datafaker.Faker
 import org.jsoup.nodes.Document
 import org.justserve.TestUser
 import org.justserve.model.ProjectCard
+import org.justserve.util.TestEmailGenerator.UrlStyle
 import spock.lang.Shared
 import spock.lang.Specification
+import spock.lang.Unroll
 
 import java.util.stream.Collectors
-import java.util.stream.Stream
 
 @MicronautTest
 class EmailParserSpec extends Specification {
@@ -120,5 +121,27 @@ class EmailParserSpec extends Specification {
 
         where:
         [title, fileContent] << testEmails.collect { key, value -> [key, value] }
+    }
+
+    @Unroll
+    def "Can parse project URLs with different encoding styles"(UrlStyle urlStyle) {
+        given:
+        Faker faker = new Faker()
+        TestUser recipient = new TestUser(faker)
+        List<ProjectCard> myMockProjects = [
+                new ProjectCard(id: UUID.randomUUID(), title: faker.book().title()),
+                new ProjectCard(id: UUID.randomUUID(), title: faker.book().title())
+        ]
+        String emailContent = TestEmailGenerator.generateMockValidEmlContent(myMockProjects, recipient, urlStyle)
+
+        when:
+        Map<String, Set<UUID>> projects = EmailParser.getProjects(emailContent)
+
+        then:
+        projects.size() == 2
+        myMockProjects.every { mock -> projects.values().flatten().contains(mock.id) }
+
+        where:
+        urlStyle << UrlStyle.values()
     }
 }

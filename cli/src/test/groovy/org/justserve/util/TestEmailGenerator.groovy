@@ -4,23 +4,28 @@ import net.datafaker.Faker
 import org.justserve.TestUser
 import org.justserve.model.ProjectCard
 
-import java.util.concurrent.TimeUnit
+import static java.util.concurrent.TimeUnit.DAYS
 
 class TestEmailGenerator {
 
-    static String generateMockValidEmlContent(List<ProjectCard> projects, TestUser recipient) {
+    enum UrlStyle {
+        CLEAN,
+        ENCODED_DEFENSE,
+        ENCODED_AWS
+    }
+
+    static String generateMockValidEmlContent(List<ProjectCard> projects, TestUser recipient, UrlStyle urlStyle = UrlStyle.ENCODED_AWS) {
         StringBuilder sb = new StringBuilder()
         Faker faker = new Faker()
         
         String recipientName = recipient.firstName + " " + recipient.lastName
-        String recipientEmail = recipient.email
         String senderName = faker.name().fullName()
         String senderEmail = faker.internet().emailAddress()
         String boundary = "000000000000" + faker.internet().uuid().replace("-", "").substring(0, 16)
         String phoneNumber = faker.phoneNumber().phoneNumber()
 
         sb.append("Return-Path: <").append(senderEmail).append(">\n")
-        sb.append("Date: ").append(faker.date().past(1, TimeUnit.DAYS)).append("\n")
+        sb.append("Date: ").append(faker.date().past(1, DAYS)).append("\n")
         sb.append("From: ").append(senderName).append(" <").append(senderEmail).append(">\n")
         sb.append("To: JustServeSupport <support@justserve.org>\n")
         sb.append("Subject: Fwd: Project Reassignment\n")
@@ -153,14 +158,25 @@ class TestEmailGenerator {
         </table>
     <img alt="" src="https://v6q93rxd.r.us-east-1.awstrack.me/I0/0100019b27fd352e-a7b03409-4c41-4863-b76a-524b7f84f180-000000/0VWWA7YvKa9FfrLaMMKp3rR1oDg=3D457" style="display:none;width:1px;height:1px">
 </div>
-</div></div><div><br clear="all"></div><div><br></div><span class="gmail_signature_prefix">-- </span><br><div dir="ltr" class="gmail_signature" data-smartmail="gmail_signature"><div dir="ltr"><div dir="ltr"><div dir="ltr"><div dir="ltr"><div dir="ltr"><div dir="ltr"><div dir="ltr"><div dir="ltr"><b><font face="arial, sans-serif">${senderName}</font></b><div><b><font face="arial, sans-serif">JustServe Assistant Area Director</font></b></div><div><b><font face="arial, sans-serif">${faker.address().state()}&#160;</font></b></div><div><a href="mailto:${senderEmail}" target="_blank"><b><font face="arial, sans-serif">${senderEmail}</font></b></a></div><div><b>${phoneNumber}&#160; Cell and Text</b></div><div><img width="96" height="18" src="https://ci3.googleusercontent.com/mail-sig/AIorK4wJeWvxbOS3XqsZ1DA3J23Gh7uNCzgQ6SpwewsMU45y1Duz0tZ6rui996Py7Cjcauq4TxTixnCyfrnM"><br></div><div><br></div><div><span></span><span></span><span></span><span></span><span></span><span></span><br></div></div></div></div></div></div></div></div></div></div></div>
+</div></div><div><br clear="all"></div><div><br></div><span class="gmail_signature_prefix">-- </span><br><div dir="ltr" class="gmail_signature" data-smartmail="gmail_signature"><div dir="ltr"><div dir="ltr"><div dir="ltr"><div dir="ltr"><div dir="ltr"><div dir="ltr"><div dir="ltr"><div dir="ltr"><b><font face="arial, sans-serif">${senderName}</font></b><div><b><font face="arial, sans-serif">JustServe Assistant Area Director</font></b></div><div><b><font face="arial, sans-serif">${faker.address().state()}&#160;</font></b></div><div><a href="mailto:${senderEmail}" target="_blank"><b><font face="arial, sans-serif">${senderEmail}</font></b></a></div><div><b>${phoneNumber}&#160; Cell and Text</b></div><div><img width="96" height="18" src="https://ci3.googleusercontent.com/mail-sig/AIorK4wJeWvxbOS3XqsZ1DA3J23Gh7uNCzgQ6SpwewsMU45y1Duz0tZ6rui996Py7Cjcauq4TxTixnCyfrnM"><br></div><div><br></div><div><span></span><span></span><span></span><span></span><span></span><span></span><br></div></div></div></div></div></div></div></div></div></div></div></div>
 """
 
         sb.append(htmlTemplateStart)
 
         projects.each { project ->
-            String uglyUrl = "https://urldefense.com/v3/__https://v6q93rxd.r.us-east-1.awstrack.me/L0/https:*2F*2Fwww.justserve.org*2Fprojects*2F" + project.id + "/1/0100019b27fd352e-a7b03409-4c41-4863-b76a-524b7f84f180-000000/DNbIEdheshbb39W79A1Ru2ox05c=3D457__;JSUlJQ!!Oz_3W2l6Vjs!5dejAA5tmpGXmMs_vdlbrwn4wHWu5ytbEcsfO4rx9OUup3ka-dRHFZEinoeDKzwDHUqRP5WvSOsZ5sS1l875dafyqVS6\$"
-            sb.append("<li><a href=\"").append(uglyUrl).append("\" rel=\"noopener\" style=\"color:#45a2c4;text-decoration:none\" target=\"_blank\">").append(project.title).append("</a></li>")
+            String url
+            switch (urlStyle) {
+                case UrlStyle.ENCODED_DEFENSE:
+                    url = "https://urldefense.com/v3/__https://www.justserve.org*2Fprojects*2F" + project.id + "/1/0100019cd9daccde-30d2f0ce-ca96-45a1-bd36-1cccc809eb61-000000/"
+                    break
+                case UrlStyle.ENCODED_AWS:
+                    url = "https://v6q93rxd.r.us-east-1.awstrack.me/L0/https:%2F%2Fwww.justserve.org%2Fprojects%2F" + project.id + "/1/0100019ce325c14c"
+                    break
+                default: // UrlStyle.CLEAN
+                    url = "https://www.justserve.org/projects/" + project.id
+                    break
+            }
+            sb.append("<li><a href=\"").append(url).append("\" rel=\"noopener\" style=\"color:#45a2c4;text-decoration:none\" target=\"_blank\">").append(project.title).append("</a></li>")
         }
 
         sb.append(htmlTemplateEnd)
@@ -177,7 +193,7 @@ class TestEmailGenerator {
         String senderEmail = faker.internet().emailAddress()
 
         sb.append("Return-Path: <").append(senderEmail).append(">\n")
-        sb.append("Date: ").append(faker.timeAndDate().past(1, java.util.concurrent.TimeUnit.DAYS)).append("\n")
+        sb.append("Date: ").append(faker.timeAndDate().past(1, DAYS)).append("\n")
         sb.append("From: ").append(senderName).append(" <").append(senderEmail).append(">\n")
         sb.append("To: JustServeSupport <support@justserve.org>\n")
         sb.append("Subject: Random user email without JS content\n")
@@ -204,7 +220,7 @@ class TestEmailGenerator {
         String boundary = "000000000000" + faker.internet().uuid().replace("-", "").substring(0, 16)
 
         sb.append("Return-Path: <").append(senderEmail).append(">\n")
-        sb.append("Date: ").append(faker.timeAndDate().past(1, java.util.concurrent.TimeUnit.DAYS)).append("\n")
+        sb.append("Date: ").append(faker.timeAndDate().past(1, DAYS)).append("\n")
         sb.append("From: ").append(senderName).append(" <").append(senderEmail).append(">\n")
         sb.append("To: JustServeSupport <support@justserve.zendesk.com>\n")
         sb.append("Subject: Fwd: Project Reassignment\n")
@@ -280,4 +296,3 @@ class TestEmailGenerator {
         return sb.toString()
     }
 }
-

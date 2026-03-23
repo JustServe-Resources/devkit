@@ -162,12 +162,15 @@ public class EmailParser {
     static UUID getProjectIDFromUglyUrl(String uglyUrl) {
         String startAsterisk = "www.justserve.org*2Fprojects*2F";
         String startPercent = "www.justserve.org%2Fprojects%2F";
-        String splitString = "";
+        String startSlash = "www.justserve.org/projects/";
+        String splitString;
         
         if (uglyUrl.contains(startAsterisk)) {
             splitString = startAsterisk;
         } else if (uglyUrl.contains(startPercent)) {
             splitString = startPercent;
+        } else if (uglyUrl.contains(startSlash)) {
+            splitString = startSlash;
         } else {
             return null;
         }
