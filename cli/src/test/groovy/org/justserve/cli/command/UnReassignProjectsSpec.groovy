@@ -1,14 +1,13 @@
 package org.justserve.cli.command
 
-import io.micronaut.core.io.ResourceResolver
+
 import io.micronaut.test.extensions.spock.annotation.MicronautTest
-import jakarta.inject.Inject
+import org.justserve.TestUser
+import org.justserve.model.ProjectCard
 import org.justserve.util.EmailParser
+import org.justserve.util.TestEmailGenerator
 import spock.lang.Execution
 import spock.lang.Shared
-
-import java.util.stream.Collectors
-import java.util.stream.Stream
 
 import static org.spockframework.runtime.model.parallel.ExecutionMode.SAME_THREAD
 
@@ -16,28 +15,23 @@ import static org.spockframework.runtime.model.parallel.ExecutionMode.SAME_THREA
 @MicronautTest
 class UnReassignProjectsSpec extends BaseCommandSpec {
 
-    @Inject
-    @Shared
-    ResourceResolver resourceResolver
-
     @Shared
     File tempEmlFile
 
     @Shared
     Map<String, String> testEmails
 
+    @Shared
+    List<ProjectCard> testProjects
+
     def setupSpec() {
+        testProjects = getProjectsByLocation(faker.location().toString())
+        def newReadOnlyUser = new TestUser(faker)
+        newReadOnlyUser.uuid = createUser().body().id
         testEmails = new HashMap<>()
-        Stream.of("sara-anderson-email.eml", "test-with-automated-email.eml", "test-without-automated-email.eml").forEach { file ->
-            def resource = resourceResolver.getResourceAsStream("classpath:$file")
-            resource.ifPresent { stream ->
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
-                    testEmails.put(file.replace(".eml", ""), reader.lines().collect(Collectors.joining(System.lineSeparator())))
-                } catch (IOException e) {
-                    throw new RuntimeException("Failed to read test file: $file", e)
-                }
-            }
-        }
+        testEmails.put("forwarded-reassignment-email", TestEmailGenerator.generateMockValidEmlContent(testProjects, readOnlyUser))
+        testEmails.put("automated-reassignment-email", TestEmailGenerator.generateMockValidEmlContent(testProjects, newReadOnlyUser))
+        testEmails.put("email-without-justserve-content", TestEmailGenerator.generateInvalidMockEmlContent())
     }
 
     def "can make reassignments from #title to a user"(String title, String fileContent) {
@@ -45,8 +39,9 @@ class UnReassignProjectsSpec extends BaseCommandSpec {
         if (title.contains("without")) {
             return
         }
-        String testFile = new File(resourceResolver.getResource("classpath:${title}.eml").get().toURI()).absolutePath
-        def args = ["unReassignProjects", "-u", readOnlyUser.uuid.toString(), "-f", testFile]
+        tempEmlFile = File.createTempFile(title, ".eml")
+        tempEmlFile.write(fileContent)
+        def args = ["unReassignProjects", "-u", readOnlyUser.uuid.toString(), "-f", tempEmlFile.absolutePath]
         def projectCount = EmailParser.getProjects(fileContent).values().flatten().size()
 
         when:
@@ -54,12 +49,40 @@ class UnReassignProjectsSpec extends BaseCommandSpec {
 
         then:
         errorStream.matches(blankRegex)
-        projects.each { project ->
+        testProjects.each { project ->
             outputStream.contains(project.id.toString())
         }
         outputStream.contains("Successfully reassigned ${projectCount} projects to user ${readOnlyUser.uuid}")
 
+        cleanup:
+        try {
+            tempEmlFile.delete()
+        } catch (Exception ignored) {
+        }
+
         where:
         [title, fileContent] << testEmails.collect { key, value -> [key, value] }
+    }
+
+    def "shows error when project ID is invalid"() {
+        given:
+        def invalidProject = new ProjectCard().setId(UUID.randomUUID()).setTitle("Surprised by Joy")
+        def emailContent = TestEmailGenerator.generateMockValidEmlContent([invalidProject], readOnlyUser)
+        tempEmlFile = File.createTempFile("invalid-project", ".eml")
+        tempEmlFile.write(emailContent)
+        def args = ["unReassignProjects", "-u", readOnlyUser.uuid.toString(), "-f", tempEmlFile.absolutePath]
+
+        when:
+        def (outputStream, errorStream) = executeCommand(ctx, args as String[])
+
+        then:
+        errorStream.contains("Failed to get project 'Surprised by Joy' (${invalidProject.id})")
+        outputStream.contains("Successfully reassigned 0 projects")
+
+        cleanup:
+        try {
+            tempEmlFile.delete()
+        } catch (Exception ignored) {
+        }
     }
 }

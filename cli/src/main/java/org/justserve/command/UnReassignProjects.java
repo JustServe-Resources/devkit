@@ -90,6 +90,11 @@ public class UnReassignProjects extends BaseCommand implements Runnable {
                     log.atError().setCause(e).log("Error getting project");
                     continue;
                 }
+                if (null == project) {
+                    printError("Failed to get project '" + projectName + "' (" + projectId + ")");
+                    log.atError().log("Project {} not found", projectId);
+                    continue;
+                }
                 if (null == project.getProjectOwnerUserId()) {
                     warning(String.format("Project %s (%s) has no owner", projectName, projectId));
                     log.warn("Project {} ({}) has no owner", projectName, projectId);
