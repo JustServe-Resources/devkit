@@ -65,7 +65,7 @@ public class EmailParser {
      * Extracts project names and their corresponding UUIDs for project ids on JustServe.
      * The Document is expected to represent an HTML email body from an automated JustServe email regarding reassigned projects
      *
-     * @param doc The Jsoup Document containing the HTML structure of the email.
+     * @param doc The Jsoup Document containing the HTML structure of the email. This is to be the html from the automated email and does not contain any other parts of the email.
      * @return A map where keys are project names (String) and values are project UUIDs.
      * @throws JustServeEmailParserError If the HTML structure does not conform to the expected format for extracting projects.
      */
@@ -160,11 +160,22 @@ public class EmailParser {
      * not contain the 'www.justserve.org*2Fprojects*2F' string.
      */
     static UUID getProjectIDFromUglyUrl(String uglyUrl) {
-        String start = "www.justserve.org*2Fprojects*2F";
-        if (!uglyUrl.contains(start)) {
+        String startAsterisk = "www.justserve.org*2Fprojects*2F";
+        String startPercent = "www.justserve.org%2Fprojects%2F";
+        String startSlash = "www.justserve.org/projects/";
+        String splitString;
+        
+        if (uglyUrl.contains(startAsterisk)) {
+            splitString = startAsterisk;
+        } else if (uglyUrl.contains(startPercent)) {
+            splitString = startPercent;
+        } else if (uglyUrl.contains(startSlash)) {
+            splitString = startSlash;
+        } else {
             return null;
         }
-        String uuid = uglyUrl.split(Pattern.quote(start))[1].split(Pattern.quote("/"))[0];
+        
+        String uuid = uglyUrl.split(Pattern.quote(splitString))[1].split(Pattern.quote("/"))[0];
         return UUID.fromString(uuid);
     }
 }
