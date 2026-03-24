@@ -2,6 +2,10 @@ micronaut:
   application:
     name: justserve-cli
     version: "@justserveCliVersion@"
+  http:
+    services:
+      justserve:
+        url: https://www.justserve.org
 justserve:
   token: ${:i-need-to-be-defined}
 logger:

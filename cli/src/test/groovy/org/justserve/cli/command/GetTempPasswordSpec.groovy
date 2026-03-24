@@ -12,7 +12,7 @@ import static org.spockframework.runtime.model.parallel.ExecutionMode.SAME_THREA
 
 class GetTempPasswordSpec extends BaseCommandSpec {
 
-    @Unroll("getting temp password with '#flag' and '#email' returns ")
+    @Unroll("getting temp password with '#flag' and '#email' #expectation")
     def "commands to query temporary password should behave as expected with or without authentication"() {
         when:
         def (outputStream, errorStream) = executeCommand(context as ApplicationContext, ["getTempPassword", flag, email] as String[])

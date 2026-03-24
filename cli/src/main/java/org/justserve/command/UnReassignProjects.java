@@ -90,6 +90,11 @@ public class UnReassignProjects extends BaseCommand implements Runnable {
                     log.atError().setCause(e).log("Error getting project");
                     continue;
                 }
+                if (null == project) {
+                    printError("Failed to get project '" + projectName + "' (" + projectId + ")");
+                    log.atError().log("Project {} not found", projectId);
+                    continue;
+                }
                 if (null == project.getProjectOwnerUserId()) {
                     warning(String.format("Project %s (%s) has no owner", projectName, projectId));
                     log.warn("Project {} ({}) has no owner", projectName, projectId);
@@ -99,24 +104,26 @@ public class UnReassignProjects extends BaseCommand implements Runnable {
                     log.warn("Project {} ({}) is already assigned to user {}", projectName, projectId, userID);
                     continue;
                 }
+                ReassignProjectRequest reassignProjectRequest = new ReassignProjectRequest(userID, project.getProjectOwnerUserId());
+                log.atTrace().log("Reassigning project {} ({}) to user {}", projectName, projectId, userID);
+                HttpResponse<Object> reassignResponse = null;
                 try {
-                    ReassignProjectRequest reassignProjectRequest = new ReassignProjectRequest(userID, project.getProjectOwnerUserId());
-                    log.atTrace().log("Reassigning project {} ({}) to user {}", projectName, projectId, userID);
-                    HttpResponse<Object> reassignResponse = client.reassignProject(projectId, reassignProjectRequest);
-                    if (reassignResponse.status() == HttpStatus.OK) {
-                        printNormal("Successfully reassigned project %s (%s) to user %s", projectName, projectId, userID);
-                        log.atTrace().log("received api response status: {}", reassignResponse.status());
-                        successCount++;
-                        continue;
-                    }
-                    printError("Failed to reassign project " + projectName + " (" + projectId + ") to user " + userID +
-                            ". Expected HTTP Status 'OK', but got " + reassignResponse.status());
-                    log.atError().log("Failed to reassign project {} ({}) to user {}. Expected HTTP Status 'OK', but got {}",
-                            projectName, projectId, userID, reassignResponse.status());
+                    reassignResponse = client.reassignProject(projectId, reassignProjectRequest);
                 } catch (HttpClientResponseException e) {
                     printError("Failed to reassign project " + projectName + " (" + projectId + ") to user " + userID);
                     log.atError().setCause(e).log("Error response from API: {}", e.getResponse().body());
                 }
+                if (null != reassignResponse && reassignResponse.status() == HttpStatus.OK) {
+                    printNormal("Successfully reassigned project %s (%s) to user %s", projectName, projectId, userID);
+                    log.atTrace().log("received api response status: {}", reassignResponse.status());
+                    successCount++;
+                    continue;
+                }
+                String reason = reassignResponse == null ? "response is null" : reassignResponse.status().toString();
+                printError("Failed to reassign project " + projectName + " (" + projectId + ") to user " + userID +
+                        ". Expected HTTP Status 'OK', but got " + reason);
+                log.atError().log("Failed to reassign project {} ({}) to user {}. Expected HTTP Status 'OK', but got {}",
+                        projectName, projectId, userID, reason);
             }
         }
         printNormal("Successfully reassigned %d projects to user %s", successCount, userID);

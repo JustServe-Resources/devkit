@@ -90,16 +90,6 @@ class MakeOrgAdminSpec extends BaseCommandSpec {
         if (orgCount == 1) {
             orgs = fakeSlug
         } else {
-            // We can't easily get slugs for the sharedOrgs since they are just UUIDs in the list.
-            // However, the original test was searching for orgs by location to get slugs.
-            // To keep it fast, we can just fetch one set of slugs in setupSpec if needed,
-            // or just do the search once here if we really need slugs.
-            // But wait, createTestOrgs returns UUIDs.
-            // The original test used: authOrgClient.searchByLocation(...).getOrganizations().url
-            // Let's just do that search once in the test method, but limit it.
-            // Actually, better yet, let's just use the search here but only call it if orgCount > 1.
-            // Since we are optimizing, let's try to reuse the search result if possible, but for now
-            // let's stick to the original logic for the slug part but reuse the user.
             orgs = authOrgClient.searchByLocation(createSearchRequestForElkGrove()).body().getOrganizations().url.take(orgCount - 1).join(",") + "," + fakeSlug
         }
 
