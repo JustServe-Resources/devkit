@@ -386,4 +386,19 @@ class GraphQLClientSpec extends Specification {
         [includesAll, searchTerm] << [[true, false], ["the"]].combinations()
 
     }
+
+    void "can add a project to an organization with"(UUID projectId, UUID organizationId) {
+        given:
+        GraphQLAddProjectOrganizationVariables vars = new GraphQLAddProjectOrganizationVariables()
+                .setProjectId(projectId)
+                .setOrganizationId(organizationId)
+
+        when:
+        GraphQLResponse<GraphQLAddProjectOrganizationData> response = client.addProjectOrganization(vars)
+
+        then:
+        noExceptionThrown()
+        !response.hasErrors()
+    }
+
 }
