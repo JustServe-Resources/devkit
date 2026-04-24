@@ -7,7 +7,6 @@ import net.datafaker.Faker
 import org.justserve.client.GraphQLClient
 import org.justserve.model.*
 import org.justserve.model.graph.*
-import spock.lang.PendingFeature
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -24,11 +23,10 @@ class GraphQLClientSpec extends Specification {
     @Shared
     Faker faker = new Faker()
 
-    @Shared
     Map<EventType, UUID> projectIds = [:]
 
 
-    def setupSpec() {
+    def setup() {
         EventType.values().each { type ->
             def project = client.createProject(new GraphQLCreateProjectVariables()
                     .setTitle("Test Project - ${type.name()}")
@@ -151,7 +149,7 @@ class GraphQLClientSpec extends Specification {
         def vars = new CreateEventVariables().setProjectId(projectIds[eventType]).setProjectEvent(event)
 
         when:
-        def response = client.createEvent(new CreateEventMutation(vars))
+        client.createEvent(new CreateEventMutation(vars))
 
         then:
         noExceptionThrown()
@@ -160,7 +158,6 @@ class GraphQLClientSpec extends Specification {
         eventType << [EventType.DTL, EventType.Ongoing, EventType.MultipleDTL]
     }
 
-    @PendingFeature //defect JSOPS-12
     @Unroll("can set volunteer info for #eventType.name() event")
     def "can set volunteer info for #eventType event"() {
         given:
