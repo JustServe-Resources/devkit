@@ -24,6 +24,7 @@ dependencies {
     implementation("io.micronaut:micronaut-retry")
     implementation("org.simplejavamail:simple-java-mail:8.12.6")
     implementation("org.jsoup:jsoup:1.21.2")
+    implementation("io.micronaut.reactor:micronaut-reactor")
     compileOnly("io.micronaut:micronaut-http-client")
     compileOnly("io.micronaut.openapi:micronaut-openapi-annotations")
     compileOnly("org.projectlombok:lombok")
