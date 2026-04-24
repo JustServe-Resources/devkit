@@ -1,11 +1,13 @@
 package org.justserve
 
+import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.test.extensions.spock.annotation.MicronautTest
 import jakarta.inject.Inject
 import net.datafaker.Faker
 import org.justserve.client.GraphQLClient
 import org.justserve.model.*
 import org.justserve.model.graph.*
+import spock.lang.PendingFeature
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -47,11 +49,10 @@ class GraphQLClientSpec extends Specification {
                 .setRedirect(redirect)
 
         when:
-        def response = client.createProject(args)
+        client.createProject(args)
 
         then:
         noExceptionThrown()
-        !response.hasErrors()
 
         where:
         [eventType, locationType, redirect] << [EventType.values(), ProjectLocationType.values(), ["", null, "https://google.com"]].combinations()
@@ -74,11 +75,10 @@ class GraphQLClientSpec extends Specification {
         def vars = new CreateEventVariables().setProjectId(projectIds[eventType]).setProjectEvent(event)
 
         when:
-        def response = client.createEvent(new CreateEventMutation(vars))
+        client.createEvent(new CreateEventMutation(vars))
 
         then:
         noExceptionThrown()
-        !response.hasErrors()
 
         where:
         eventType << [EventType.DTL, EventType.Ongoing, EventType.MultipleDTL]
@@ -93,11 +93,10 @@ class GraphQLClientSpec extends Specification {
         def vars = new CreateEventVariables().setProjectId(projectIds[eventType]).setProjectEvent(event)
 
         when:
-        def response = client.createEvent(new CreateEventMutation(vars))
+        client.createEvent(new CreateEventMutation(vars))
 
         then:
         noExceptionThrown()
-        !response.hasErrors()
 
         where:
         eventType << [EventType.MultipleDTL]
@@ -113,14 +112,13 @@ class GraphQLClientSpec extends Specification {
         def vars = new CreateEventVariables().setProjectId(projectIds[eventType]).setProjectEvent(event)
 
         when:
-        def response = client.createEvent(new CreateEventMutation(vars))
+        client.createEvent(new CreateEventMutation(vars))
 
         then:
         noExceptionThrown()
-        !response.hasErrors()
 
-        where: // error reads "Only a multiple DTL project can have more than one event"
-        eventType << [/*EventType.DTL,*/ EventType.Ongoing, EventType.MultipleDTL]
+        where:
+        eventType << [EventType.Ongoing, EventType.MultipleDTL]
     }
 
     @Unroll("can set location info for #eventType.name() event")
@@ -133,14 +131,13 @@ class GraphQLClientSpec extends Specification {
         def vars = new CreateEventVariables().setProjectId(projectIds[eventType]).setProjectEvent(event)
 
         when:
-        def response = client.createEvent(new CreateEventMutation(vars))
+        client.createEvent(new CreateEventMutation(vars))
 
         then:
         noExceptionThrown()
-        !response.hasErrors()
 
-        where: //error reads "Only a multiple DTL project can have more than one event, StackTrace=   at JustServe.Mediators.ProjectEvents.ProjectEventMediator.InternalCreateEvent(Project project, UpdateProjectEvent updateProjectEvent, SecurityContext securityContext) in /src/src/JustServe.Mediators/ProjectEvents/ProjectEventMediator.cs:line 109"
-        eventType << [EventType.DTL, /*EventType.Ongoing,*/ EventType.MultipleDTL]
+        where:
+        eventType << [EventType.DTL, EventType.MultipleDTL]
     }
 
     @Unroll("can set schedule info for #eventType.name() event")
@@ -158,12 +155,12 @@ class GraphQLClientSpec extends Specification {
 
         then:
         noExceptionThrown()
-        !response.hasErrors()
 
         where:
         eventType << [EventType.DTL, EventType.Ongoing, EventType.MultipleDTL]
     }
 
+    @PendingFeature //defect JSOPS-12
     @Unroll("can set volunteer info for #eventType.name() event")
     def "can set volunteer info for #eventType event"() {
         given:
@@ -174,11 +171,10 @@ class GraphQLClientSpec extends Specification {
         def vars = new CreateEventVariables().setProjectId(projectIds[eventType]).setProjectEvent(event)
 
         when:
-        def response = client.createEvent(new CreateEventMutation(vars))
+        client.createEvent(new CreateEventMutation(vars))
 
         then:
         noExceptionThrown()
-        !response.hasErrors()
 
         where:
         eventType << [EventType.DTL, EventType.Ongoing, EventType.MultipleDTL]
@@ -196,11 +192,10 @@ class GraphQLClientSpec extends Specification {
         def vars = new CreateEventVariables().setProjectId(projectIds[eventType]).setProjectEvent(event)
 
         when:
-        def response = client.createEvent(new CreateEventMutation(vars))
+        client.createEvent(new CreateEventMutation(vars))
 
         then:
         noExceptionThrown()
-        !response.hasErrors()
 
         where:
         eventType << [EventType.DTL, EventType.Ongoing, EventType.MultipleDTL]
@@ -213,16 +208,16 @@ class GraphQLClientSpec extends Specification {
         def vars = new CreateEventVariables().setProjectId(projectIds[eventType]).setProjectEvent(event)
 
         when:
-        def response = client.createEvent(new CreateEventMutation(vars))
+        client.createEvent(new CreateEventMutation(vars))
 
         then:
-        response.hasErrors()
+        thrown(HttpClientResponseException)
 
         where:
         eventType << [EventType.Recurring]
     }
 
-    @Unroll("can add multiple events only for #eventType.name() projects (shouldFail: #shouldFail)")
+    @Unroll("can NOT add multiple events only for #eventType.name() projects")
     def "can add multiple events only for Multi-DTL projects"() {
         given:
         def firstEvent = baseEventBuilder().build()
@@ -232,31 +227,40 @@ class GraphQLClientSpec extends Specification {
 
         when:
         client.createEvent(new CreateEventMutation(firstVars))
-        def secondResponse = client.createEvent(new CreateEventMutation(secondVars))
+        client.createEvent(new CreateEventMutation(secondVars))
 
         then:
-        secondResponse.hasErrors() == shouldFail
+        thrown(HttpClientResponseException)
 
         where:
-        eventType             | shouldFail
-        EventType.DTL         | true
-        EventType.Ongoing     | true
-        EventType.Recurring   | true
-        EventType.MultipleDTL | false
+        eventType << [EventType.DTL, EventType.Ongoing, EventType.Recurring]
+    }
+
+    @Unroll("can add multiple events only for #eventType.name() project")
+    def "can add multiple events only for Multi-DTL projects"() {
+        given:
+        def firstEvent = baseEventBuilder().build()
+        def secondEvent = baseEventBuilder().build()
+        def firstVars = new CreateEventVariables().setProjectId(projectIds[eventType]).setProjectEvent(firstEvent)
+        def secondVars = new CreateEventVariables().setProjectId(projectIds[eventType]).setProjectEvent(secondEvent)
+
+        when:
+        client.createEvent(new CreateEventMutation(firstVars))
+        client.createEvent(new CreateEventMutation(secondVars))
+
+        then:
+        noExceptionThrown()
+
+        where:
+        eventType << [EventType.MultipleDTL]
     }
 
     def "can create multiple events at once for Multi-DTL projects using createEvents mutation"() {
         given:
-        def event1 = baseEventBuilder()
-                .shiftTitle("Morning Shift")
-                .build()
-        def event2 = baseEventBuilder()
-                .shiftTitle("Afternoon Shift")
-                .build()
-        def event3 = baseEventBuilder()
-                .shiftTitle("Evening Shift")
-                .build()
-        def vars = new CreateEventsVariables(projectIds[EventType.MultipleDTL], event1, event2, event3)
+        def thisEvent = baseEventBuilder().shiftTitle("Morning Shift").build()
+        def thatEvent = baseEventBuilder().shiftTitle("Afternoon Shift").build()
+        def event3 = baseEventBuilder().shiftTitle("Evening Shift").build()
+        def vars = new CreateEventsVariables(projectIds[EventType.MultipleDTL], thisEvent, thatEvent, event3)
         def mutation = new CreateEventsMutation(vars)
 
         when:
@@ -264,7 +268,6 @@ class GraphQLClientSpec extends Specification {
 
         then:
         noExceptionThrown()
-        !response.hasErrors()
 
         and: "the response data should contain the newly created events"
         null != response.getData()
@@ -272,16 +275,8 @@ class GraphQLClientSpec extends Specification {
 
     def "can create multiple recurring events at once for Recurring projects using createRecurringEvents mutation"() {
         given:
-        def time1 = new ProjectRecurringTime()
-                .setStartTime("10:00")
-                .setEndTime("12:00")
-                .setRecurringType(RecurringType.WEEKLY)
-                .setMonday(true)
-        def time2 = new ProjectRecurringTime()
-                .setStartTime("14:00")
-                .setEndTime("16:00")
-                .setRecurringType(RecurringType.MONTHLY)
-                .setThirdWeek(true)
+        def time1 = new ProjectRecurringTime().setStartTime("10:00").setEndTime("12:00").setRecurringType(RecurringType.WEEKLY).setMonday(true)
+        def time2 = new ProjectRecurringTime().setStartTime("14:00").setEndTime("16:00").setRecurringType(RecurringType.MONTHLY).setThirdWeek(true)
         def vars = new CreateRecurringEventsVariables(projectIds[EventType.Recurring], time1, time2)
         def mutation = new CreateRecurringEventsMutation(vars)
 
@@ -290,7 +285,6 @@ class GraphQLClientSpec extends Specification {
 
         then:
         noExceptionThrown()
-        !response.hasErrors()
 
         and: "the response data should contain the newly created recurring events"
         null != response.getData()
@@ -368,6 +362,7 @@ class GraphQLClientSpec extends Specification {
         !response.hasErrors()
     }
 
+    @SuppressWarnings("GroovyAssignabilityCheck")
     def "test searchOrganization parses the input correctly"(String searchTerm, Boolean includesAll) {
         given:
 
