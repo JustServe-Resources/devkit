@@ -22,16 +22,16 @@ dependencies {
     annotationProcessor("io.micronaut.serde:micronaut-serde-processor")
     implementation("io.micronaut.serde:micronaut-serde-jackson")
     implementation("io.micronaut:micronaut-retry")
-    implementation("org.simplejavamail:simple-java-mail:8.12.6")
-    implementation("org.jsoup:jsoup:1.21.2")
+    implementation("org.simplejavamail:simple-java-mail:${project.properties["simpleJavaMailVersion"]}")
+    implementation("org.jsoup:jsoup:${project.properties["jsoupVersion"]}")
     implementation("io.micronaut.reactor:micronaut-reactor")
     compileOnly("io.micronaut:micronaut-http-client")
     compileOnly("io.micronaut.openapi:micronaut-openapi-annotations")
     compileOnly("org.projectlombok:lombok")
     runtimeOnly("ch.qos.logback:logback-classic")
     runtimeOnly("org.yaml:snakeyaml")
-    testImplementation("net.datafaker:datafaker:2.5.1")
-    testImplementation("org.apache.commons:commons-lang3:3.20.0")
+    testImplementation("net.datafaker:datafaker:${project.properties["datafakerVersion"]}")
+    testImplementation("org.apache.commons:commons-lang3:${project.properties["commonsLang3Version"]}")
     testImplementation("io.micronaut:micronaut-http-client")
 }
 
@@ -43,7 +43,7 @@ java {
 micronaut {
     testRuntime("spock2")
     openapi {
-        version = "6.20.0"
+        version = project.properties["micronautOpenapiSpecVersion"] as String
         client(file("src/main/resources/schema.yml")) {
             apiPackageName = "org.justserve.client"
             modelPackageName = "org.justserve.model"
