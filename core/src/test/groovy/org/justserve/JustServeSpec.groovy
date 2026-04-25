@@ -95,8 +95,9 @@ class JustServeSpec extends Specification {
     }
 
     void cleanupSpec() {
-        noAuthCtx.stop()
-        ctx.stop()
+        [noAuthCtx, ctx].each { context ->
+            try { context?.stop() } catch (Exception ignored) {}
+        }
     }
 
     HttpResponse<CreateUser200Response> createUser(UserClient client = noAuthUserClient) {
