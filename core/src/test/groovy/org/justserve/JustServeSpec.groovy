@@ -6,6 +6,7 @@ import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.http.client.multipart.MultipartBody
+import io.micronaut.retry.annotation.Retryable
 import io.micronaut.test.extensions.spock.annotation.MicronautTest
 import net.datafaker.Faker
 import org.apache.commons.lang3.RandomStringUtils
@@ -66,12 +67,9 @@ class JustServeSpec extends Specification {
 
     def setupSpec() {
         faker = new Faker()
-        // if (null != System.getenv("JUSTSERVE_TOKEN")) {
-        //     throw new IllegalStateException("JUSTSERVE_TOKEN is set. Do not define this variable in testing.")
-        // }
         ctx = ApplicationContext.builder()
                 .environments(Environment.CLI, Environment.TEST)
-                .properties(["justserve.token": System.getenv("TEST_TOKEN")])
+                .properties(["justserve.token": System.getProperty("justserve.token") ?: System.getenv("JUSTSERVE_TOKEN")])
                 .build()
                 .start()
         noAuthCtx = ApplicationContext
@@ -90,8 +88,6 @@ class JustServeSpec extends Specification {
         adminUserClient = ctx.getBean(UserClient)
         readOnlyUser = new TestUser(new Faker(Locale.of("en-us")))
         projectClient = ctx.getBean(ProjectClient)
-
-        //        TODO: validate the user does not already exist (use the admin client user search)
         String customRandomEmail = RandomStringUtils.insecure().nextAlphanumeric(20) + "@fake.com"
         readOnlyUser.uuid = createUserFromFaker(noAuthUserClient, readOnlyUser, customRandomEmail).body().getId()
         readOnlyUser.email = customRandomEmail
@@ -120,6 +116,7 @@ class JustServeSpec extends Specification {
         return response
     }
 
+    @Retryable
     private static HttpResponse<CreateUser200Response> createUserFromFaker(UserClient client, TestUser user, String uniqueEmailInput = null) {
         String email = uniqueEmailInput ?: RandomStringUtils.insecure().nextAlphanumeric(20) + "@fake.com"
         MultipartBody requestBody = MultipartBody.builder()
