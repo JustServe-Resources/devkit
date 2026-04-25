@@ -21,9 +21,6 @@ class GraphQLErrorClientFilterSpec extends Specification {
     @Inject
     GraphQLClient client
 
-    @Shared
-    Faker faker = new Faker()
-
     @SuppressWarnings("GroovyAssignabilityCheck")
     void "can create Project with EventType: #eventType, LocationType: #locationType, and Redirect: #redirect"(EventType eventType, ProjectLocationType locationType, String redirect) {
         given:
@@ -34,7 +31,7 @@ class GraphQLErrorClientFilterSpec extends Specification {
                 .setRedirect(redirect)
 
         when:
-        def response = client.createProject(args)
+        def response = client.createProject(args).block()
 
         then:
         noExceptionThrown()

@@ -32,7 +32,7 @@ class UserClientSpec extends JustServeSpec {
                 .addPart("termsChecked", "true")
                 .build()
         when:
-        client.createUser(requestBody)
+        client.createUser(requestBody).block()
 
         then:
         noExceptionThrown()
@@ -45,10 +45,10 @@ class UserClientSpec extends JustServeSpec {
 
     def "can get admin context for a user as an admin"(UserClient client) {
         when:
-        def response = client.getAdminContext(readOnlyUser.uuid)
+        def response = client.getAdminContext(readOnlyUser.uuid).block()
 
         then:
-        response.body() != null
+        response != null
 
         where:
         client          | _
@@ -57,7 +57,7 @@ class UserClientSpec extends JustServeSpec {
 
     def "cannot get admin context for a user if not an admin"(UserClient client) {
         when:
-        client.getAdminContext(readOnlyUser.uuid)
+        client.getAdminContext(readOnlyUser.uuid).block()
 
         then:
         def exception = thrown(HttpClientResponseException)
@@ -70,7 +70,7 @@ class UserClientSpec extends JustServeSpec {
 
     def "can get tempPassword for a user as an admin"(UserClient client) {
         when:
-        client.getTempPassword(new UserHashRequestByEmail(readOnlyUser.email))
+        client.getTempPassword(new UserHashRequestByEmail(readOnlyUser.email)).block()
 
         then:
         noExceptionThrown()
@@ -82,7 +82,7 @@ class UserClientSpec extends JustServeSpec {
 
     def "cannot get tempPassword for a user if not an admin"(UserClient client) {
         when:
-        client.getTempPassword(new UserHashRequestByEmail(readOnlyUser.email))
+        client.getTempPassword(new UserHashRequestByEmail(readOnlyUser.email)).block()
 
         then:
         def exception = thrown(HttpClientResponseException)
@@ -95,7 +95,7 @@ class UserClientSpec extends JustServeSpec {
 
     def "can get all user information for a user as an admin"(UserClient client) {
         when:
-        client.getAllUserInformation(readOnlyUser.uuid, true, true, 1)
+        client.getAllUserInformation(readOnlyUser.uuid, true, true, 1).block()
 
         then:
         noExceptionThrown()

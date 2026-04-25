@@ -1,11 +1,11 @@
 package org.justserve.client;
 
-import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Put;
 import io.micronaut.http.client.annotation.Client;
 import io.micronaut.retry.annotation.Retryable;
 import jakarta.validation.constraints.NotNull;
+import reactor.core.publisher.Mono;
 
 import java.util.UUID;
 
@@ -25,7 +25,7 @@ public interface BoundaryPermissionClient {
      */
     @Retryable
     @Put("/api/v1/boundaries/rep/{userId}/org/{orgId}")
-    HttpResponse<Object> makeAdminForOrg(
+    Mono<Object> makeAdminForOrg(
         @PathVariable("orgId") @NotNull UUID orgId,
         @PathVariable("userId") @NotNull UUID userId
     );

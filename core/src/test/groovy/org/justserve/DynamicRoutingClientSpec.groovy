@@ -1,10 +1,9 @@
 package org.justserve
 
-import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
+import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.test.extensions.spock.annotation.MicronautTest
 import org.justserve.client.DynamicRoutingClient
-import org.justserve.model.DynamicRoutingDataResponse
 import spock.lang.Shared
 
 @MicronautTest
@@ -20,17 +19,20 @@ class DynamicRoutingClientSpec extends JustServeSpec {
     def setupSpec() {
         noAuthClient = noAuthCtx.getBean(DynamicRoutingClient)
         authClient = ctx.getBean(DynamicRoutingClient)
-        realOrgSlug = authOrgClient.searchByLocation(createSearchRequestForElkGrove()).body().getOrganizations().url.first().toString()
+        realOrgSlug = authOrgClient.searchByLocation(createSearchRequestForElkGrove()).block().getOrganizations().url.first().toString()
     }
 
     def "get orgId for #url"() {
         when:
-        HttpResponse<DynamicRoutingDataResponse> response = client.getOrgIdFromSlug(url)
+        def response = client.getOrgIdFromSlug(url).block()
+
         then:
-        response.status() == expectedStatus
         if (expectedStatus == HttpStatus.OK) {
-            response.body().id != null
+            response.id != null
+        } else {
+            thrown(HttpClientResponseException)
         }
+
 
         where:
         url         | expectedStatus       | client

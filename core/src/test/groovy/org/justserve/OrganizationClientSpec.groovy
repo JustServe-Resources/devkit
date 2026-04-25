@@ -25,36 +25,34 @@ class OrganizationClientSpec extends JustServeSpec {
     def "using searchByLocation() should work when using #title"() {
         when:
         def search = createSearchRequestForElkGrove()
-        def response = client.searchByLocation(search)
+        def response = client.searchByLocation(search).block()
 
         then:
-        response.status() == expectedStatus
-        if (expectedStatus == HttpStatus.OK) {
-            response.body() != null
-            response.body().organizations.size() > 0
-        }
+        response != null
+        response.organizations.size() > 0
+
 
         where:
-        expectedStatus | client        | title
-        HttpStatus.OK  | authOrgClient | "auth client"
-        HttpStatus.OK  | noAuthClient  | "no auth client"
+        client        | title
+        authOrgClient | "auth client"
+        noAuthClient  | "no auth client"
     }
 
     def "get admins for a given org with no error"() {
         given:
         def search = createSearchRequestForElkGrove()
-        UUID orgID = client.searchByLocation(search).body().organizations.first.id
+        UUID orgID = client.searchByLocation(search).block().organizations.first.id
 
         when:
-        client.getOrgOwners(orgID)
+        client.getOrgOwners(orgID).block()
 
         then:
         noExceptionThrown()
 
         where:
-        expectedStatus | client        | title
-        HttpStatus.OK  | authOrgClient | "auth client"
-        HttpStatus.OK  | noAuthClient  | "no auth client"
+        client        | title
+        authOrgClient | "auth client"
+        noAuthClient  | "no auth client"
     }
 
     def "create an org with no error"() {
@@ -72,7 +70,7 @@ class OrganizationClientSpec extends JustServeSpec {
                 .setVolunteerCenterInfo(null)
                 .setWebsite(faker.internet().url())
         when:
-        authOrgClient.createOrganization(orgRequest)
+        authOrgClient.createOrganization(orgRequest).block()
 
         then:
         noExceptionThrown()
@@ -90,11 +88,11 @@ class OrganizationClientSpec extends JustServeSpec {
                 .setUrl(getUniqueSlug())
 
         when:
-        def response = client.createOrganization(orgCreationRequest)
+        client.createOrganization(orgCreationRequest).block()
 
         then:
         if (expectedStatus == HttpStatus.CREATED) {
-            null == response
+            noExceptionThrown()
             return
         }
         def exception = thrown(HttpClientResponseException)

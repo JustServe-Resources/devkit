@@ -1,6 +1,5 @@
 package org.justserve
 
-import io.micronaut.http.HttpResponse
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.test.extensions.spock.annotation.MicronautTest
 import org.justserve.client.BoundaryPermissionClient
@@ -21,16 +20,15 @@ class BoundaryPermissionSpec extends JustServeSpec {
 
     def "can reassign organizations #title"() {
         given:
-        UUID userID = createUser().body().id
+        UUID userID = createUser().getId()
 
         when:
-        HttpResponse<Object> response = authBoundaryPermissionClient.makeAdminForOrg(orgID, userID)
+        authBoundaryPermissionClient.makeAdminForOrg(orgID, userID).block()
 
         then:
         if (!expectedError) {
             verifyAll {
-                null == response.body()
-                authOrgClient.getOrgOwners(orgID).body().stream().anyMatch { user -> (user.id == userID) }
+                authOrgClient.getOrgOwners(orgID).block().stream().anyMatch { user -> (user.id == userID) }
             }
             return
         }
