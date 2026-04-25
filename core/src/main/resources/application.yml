@@ -10,6 +10,7 @@ micronaut:
       connect-timeout: 5s
       request-timeout: 30s
       retryAttempts: 3
+      retry-timeout: 1s
       pool:
         enabled: true
         acquire-timeout: 30s
