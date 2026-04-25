@@ -5,7 +5,7 @@ jobs:
     name: test and compile on self-hosted
     runs-on: self-hosted
     env:
-      TEST_TOKEN: ${{ secrets.MICRONAUT_HTTP_SERVICES_JUSTSERVE_TOKEN }}
+      JUSTSERVE_TOKEN: ${{ secrets.MICRONAUT_HTTP_SERVICES_JUSTSERVE_TOKEN }}
       JAVA_HOME: ${{ secrets.JAVA_HOME }}
 
     steps:
