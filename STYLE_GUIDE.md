@@ -33,15 +33,39 @@ The name of the game is readability and [testability]. The following styling spe
 
 ### Testing
 
+- Tests should never run against production. 
+- Use your development environment's auth token assigned to the `JUSTSERVE_TOKEN` environment variable in tests. 
 - Methods and Features are to have [adequate] unit and integration tests written before any pull request can be accepted. 
 - Because we use lombok, we don't need to test setters and getters. Using getters and setters is the preferred way to access class fields. 
 - Unit test count is to scale appropriately according to the complexity of the method.
 - Features are to have [adequate] integration and end-to-end tests.
 - Fixes are to have [adequate] unit, integration and end-to-end tests included with the fix for the sake of [regression testing].
 - Tests should only test one thing
-    - e.g. `Set store location with zip code.`
-    - e.g. `Fail to set store location using invalid zip code`
-    - e.g. `Set store location by city name`
+    - e.g. `Set project owner.`
+    - e.g. `Can NOT to set project owner with invalid UUID`
+    - e.g. `Can update an Org description`
+- Use data-driven testing to validate logic across all permutations of documented behavior like all `EventType` variants below.
+    ```groovy
+        @Unroll("can set contact info for #eventType.name() event")
+        def "can set contact info for #eventType event"() {
+            given:
+            def event = baseEventBuilder()
+                    .contactEmail(faker.internet().emailAddress())
+                    .contactName(faker.name().fullName())
+                    .contactPhone(faker.phoneNumber().phoneNumber())
+                    .build()
+            def vars = new CreateEventVariables().setProjectId(projectIds[eventType]).setProjectEvent(event)
+    
+            when:
+            client.createEvent(new CreateEventMutation(vars))
+    
+            then:
+            noExceptionThrown()
+    
+            where:
+            eventType << [EventType.DTL, EventType.Ongoing, EventType.MultipleDTL]
+        }    
+    ```
 
 #### Adequate Testing Coverage
 Adequate testing is determined by the method's documentation (this is why all methods require docs). Testing is surgical and specific; test exactly what is documented, no more and no less. If it's in the docs, then [test it]! The only exception to this is that [branches of code] should be covered in testing, which may not be documented.

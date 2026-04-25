@@ -16,16 +16,16 @@ Prerequisites:
 clone the codebase, then cd into the repo and install the dependencies with gradle
 
 ```sh
-git clone git@github.com:JustServe-Resources/cli.git
+git clone git@github.com:JustServe-Resources/devkit.git
 
 ./gradlew assemble
 ```
 
 ## Branch off of main
 
-It's a good practice not to put your changes in the main branch. Branch naming conventions aren't enforced, naming my branches with a `tag`/`task` convention are suggested, similar to [Conventional Commits] naming strategy.
+Don't make any changes to the main branch - these will be denied even if you try to. Branch naming conventions aren't enforced, though naming branches with a `my-last-name`/`task-name` convention isn't a bad idea.
 
-See our [style guide](https://github.com/Graqr#general-styling-guide) for supported coding practices. This project enforces [Conventional Commits], which is checked with each commit. 
+Most importantly, see our [style guide](https://github.com/Graqr#general-styling-guide) for our coding standards. This project enforces [Conventional Commits], which is checked with each commit. 
 ## Test your change
 
 Adequate acceptance testing is to be included with pull requests for new code. See our [style guide] for our testing standards. A portion of the codebase is generated during the build process. Using gradle's `build` task will both assemble and run tests. 
@@ -35,12 +35,13 @@ Adequate acceptance testing is to be included with pull requests for new code. S
 ```
 
 ## Validate this builds properly
-This project compiles to a native executable specific to your OS. This is different from a normal java build process. Compiling this repo into an executable is not a short process. See [graal's docs] for options like quick build mode
+This Micronaut application supports AOT (Ahead-of-Time) compilation to a GraalVM Native Image. This process produces a platform-specific binary with instant startup and lower memory overhead, though the compilation itself is resource-intensive. See [graal's docs] for optimization flags like quick build mode.
+Running the test suite prior to the native build allows GraalVM to leverage profile-guided data for a more performant executable.
 ```sh
-./gradlew nativeCompile
+./gradlew :cli:test :cli:nativeCompile
 ```
 > [!NOTE]
-> This build may pass on your OS but may fail on the other OS for which this cli compiles. These will be built and tested during PR checks 
+> This build may pass on your OS but may fail on another OS for which this cli compiles. These will be built and tested during PR checks 
 
 
 ## Submit a pull request
