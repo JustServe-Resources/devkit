@@ -1,8 +1,22 @@
-## JustServe Cli Tool
+# JustServe Resources
 
-The JustServe Cli tool is an admin tool for JustServe Specialists and administrators.
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=JustServe-Resources_cli&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=JustServe-Resources_cli)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=JustServe-Resources_cli&metric=coverage)](https://sonarcloud.io/summary/new_code?id=JustServe-Resources_cli)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=JustServe-Resources_cli&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=JustServe-Resources_cli)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=JustServe-Resources_cli&metric=bugs)](https://sonarcloud.io/summary/new_code?id=JustServe-Resources_cli)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=JustServe-Resources_cli&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=JustServe-Resources_cli)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=JustServe-Resources_cli&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=JustServe-Resources_cli)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=JustServe-Resources_cli&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=JustServe-Resources_cli)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=JustServe-Resources_cli&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=JustServe-Resources_cli)
 
-This tool is very much under development and whose api is subject to change with each release. Standard versioning is used for this project to delineate breaking releases.
+This repository is architected as a modular, multi-module Micronaut project. At its center is the `core` module, a
+reusable library providing a thoroughly tested HTTP client for the JustServe API.
+
+Other modules leverage the `core` library to build specific applications. The `cli` module, for instance, is a GraalVM native command-line application that consumes the `core` client to provide administrative tooling.
+
+As the project evolves, we adhere to semantic versioning. The API is subject to change, and any breaking modifications will be clearly communicated through major version increments.
+
+## Cli Tool
 
 ### Install
 
@@ -37,7 +51,7 @@ echo $env:java_home
 </ol>
 </details>
 
-To generate the executable for your system, run `./gradlew nativeCompile`. The executable will be generated in the build directory (`\build\native\nativeCompile\`).
+To generate the executable for your system, run `./gradlew :cli:nativeCompile`. The executable will be generated in the build directory (`cli/build/native/nativeCompile/`).
 
 ### Authenticate
 
