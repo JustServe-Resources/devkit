@@ -13,7 +13,7 @@ class MakeOrgAdminSpec extends BaseCommandSpec {
     List<UUID> sharedOrgs
 
     def setupSpec() {
-        sharedUserID = createUser().body().id
+        sharedUserID = createUser().id
         sharedOrgs = createTestOrgs(3)
     }
 

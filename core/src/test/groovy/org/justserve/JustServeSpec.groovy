@@ -95,7 +95,10 @@ class JustServeSpec extends Specification {
 
     void cleanupSpec() {
         [noAuthCtx, ctx].each { context ->
-            try { context?.stop() } catch (Exception ignored) {}
+            try {
+                context?.stop()
+            } catch (Exception ignored) {
+            }
         }
     }
 

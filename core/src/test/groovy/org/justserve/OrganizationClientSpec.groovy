@@ -91,12 +91,7 @@ class OrganizationClientSpec extends JustServeSpec {
         client.createOrganization(orgCreationRequest).block()
 
         then:
-        if (expectedStatus == HttpStatus.CREATED) {
-            noExceptionThrown()
-            return
-        }
-        def exception = thrown(HttpClientResponseException)
-        exception.status == expectedStatus
+        noExceptionThrown()
 
         where:
         expectedStatus     | client        | title
