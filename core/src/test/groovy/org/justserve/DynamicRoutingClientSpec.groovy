@@ -41,6 +41,6 @@ class DynamicRoutingClientSpec extends JustServeSpec {
         thrown(HttpClientResponseException)
 
         where:
-        [url, client] <<  [realOrgSlug, [authClient, noAuthClient]].combinations()
+        [url, client] <<  ["thisisafakeurl", [authClient, noAuthClient]].combinations()
     }
 }

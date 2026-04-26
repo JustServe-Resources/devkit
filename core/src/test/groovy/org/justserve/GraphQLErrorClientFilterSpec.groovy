@@ -38,7 +38,12 @@ class GraphQLErrorClientFilterSpec extends Specification {
 
         when: "create an incompatible event"
         response.getData().getCreateProject()
-        client.createRecurringEvents(new CreateRecurringEventsMutation(new CreateRecurringEventsVariables(response.getData().getCreateProject().getId(), new ProjectRecurringTime().setEndTime("whenever"))))
+        client.createRecurringEvents(
+                new CreateRecurringEventsMutation(
+                        new CreateRecurringEventsVariables(
+                                response.getData().getCreateProject().getId(),
+                                new ProjectRecurringTime().setEndTime("whenever"))))
+                .block()
 
         then:
         HttpClientResponseException error = thrown(HttpClientResponseException)
