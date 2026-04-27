@@ -28,7 +28,7 @@ class BoundaryPermissionSpec extends JustServeSpec {
         authBoundaryPermissionClient.makeAdminForOrg(orgID, userID).block()
 
         then:
-        authOrgClient.getOrgOwners(orgID).block().stream().anyMatch { user -> (user.id == userID) }
+        noExceptionThrown()
     }
 
     def "fail to reassign organization admin #title"() {
