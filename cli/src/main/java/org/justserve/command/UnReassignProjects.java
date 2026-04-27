@@ -109,6 +109,7 @@ public class UnReassignProjects extends BaseCommand implements Runnable {
                 log.atTrace().log("Reassigning project {} ({}) to user {}", projectName, projectId, userID);
                 try {
                     client.reassignProject(projectId, reassignProjectRequest).block();
+                    successCount ++;
                 } catch (HttpClientResponseException e) {
                     printError("Failed to reassign project " + projectName + " (" + projectId + ") to user " + userID);
                     log.atError().setCause(e).log("Error response from API: {}", e.getResponse().body());
