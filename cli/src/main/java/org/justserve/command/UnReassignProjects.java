@@ -83,15 +83,16 @@ public class UnReassignProjects extends BaseCommand implements Runnable {
             for (UUID projectId : projectIds) {
                 GetProjectRequest getProjectRequest = new GetProjectRequest();
                 Project project;
+                String failedToGetError = ("Failed to get project '" + projectName + "' (" + projectId + ")");
                 try {
                     project = client.getProject(projectId, " ", getProjectRequest).block();
                 } catch (HttpClientResponseException | NullPointerException e) {
-                    printError("Failed to get project " + projectName + " (" + projectId + ")");
+                    printError(failedToGetError);
                     log.atError().setCause(e).log("Error getting project");
                     continue;
                 }
                 if (null == project) {
-                    printError("Failed to get project '" + projectName + "' (" + projectId + ")");
+                    printError(failedToGetError);
                     log.atError().log("Project {} not found", projectId);
                     continue;
                 }
