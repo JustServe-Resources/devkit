@@ -2,7 +2,6 @@ package org.justserve
 
 import io.micronaut.context.ApplicationContext
 import io.micronaut.context.env.Environment
-import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.http.client.multipart.MultipartBody
@@ -89,21 +88,24 @@ class JustServeSpec extends Specification {
         readOnlyUser = new TestUser(new Faker(Locale.of("en-us")))
         projectClient = ctx.getBean(ProjectClient)
         String customRandomEmail = RandomStringUtils.insecure().nextAlphanumeric(20) + "@fake.com"
-        readOnlyUser.uuid = createUserFromFaker(noAuthUserClient, readOnlyUser, customRandomEmail).body().getId()
+        readOnlyUser.uuid = createUserFromFaker(noAuthUserClient, readOnlyUser, customRandomEmail).getId()
         readOnlyUser.email = customRandomEmail
         searchResults = getProjectsByLocation(faker.location().toString())
     }
 
     void cleanupSpec() {
         [noAuthCtx, ctx].each { context ->
-            try { context?.stop() } catch (Exception ignored) {}
+            try {
+                context?.stop()
+            } catch (Exception ignored) {
+            }
         }
     }
 
-    HttpResponse<CreateUser200Response> createUser(UserClient client = noAuthUserClient) {
-        HttpResponse<CreateUser200Response> response = null
+    CreateUser200Response createUser(UserClient client = noAuthUserClient) {
+        CreateUser200Response response = null
         def tries = 0
-        while ((null == response || ![HttpStatus.OK, HttpStatus.CREATED].contains(response.status())) && tries < 5) {
+        while (null == response && tries < 5) {
             try {
                 // A new user is generated on each loop iteration to avoid collisions
                 response = createUserFromFaker(client, new TestUser(new Faker(Locale.of("en-us"))))
@@ -118,7 +120,7 @@ class JustServeSpec extends Specification {
     }
 
     @Retryable
-    private static HttpResponse<CreateUser200Response> createUserFromFaker(UserClient client, TestUser user, String uniqueEmailInput = null) {
+    private static CreateUser200Response createUserFromFaker(UserClient client, TestUser user, String uniqueEmailInput = null) {
         String email = uniqueEmailInput ?: RandomStringUtils.insecure().nextAlphanumeric(20) + "@fake.com"
         MultipartBody requestBody = MultipartBody.builder()
                 .addPart("firstName", user.firstName)
@@ -131,7 +133,7 @@ class JustServeSpec extends Specification {
                 .addPart("country", user.country)
                 .addPart("termsChecked", "true")
                 .build()
-        client.createUser(requestBody)
+        client.createUser(requestBody).block()
     }
 
     List<ProjectCard> getProjectsByLocation(String location) {
@@ -142,7 +144,7 @@ class JustServeSpec extends Specification {
         return projectClient.searchProjects(new ProjectSearchRequest().setPage(Integer.valueOf(page))
                 .setSize(size).setKeywords(keyword).setLocation(location).setRadiusType(MILES).setVolunteerFromAnywhere(false)
                 .setIncludeOrgInfo(true).setLanguage(locale).setBrowserLocale(locale).setPublishedOnly(false)
-                .setIncludeFilledProjects(true).setDisasterRecoveryProjectsOnly(false).setTimesOfDay(null)).body().getItems()
+                .setIncludeFilledProjects(true).setDisasterRecoveryProjectsOnly(false).setTimesOfDay(null)).block().getItems()
 
     }
 
@@ -163,8 +165,8 @@ class JustServeSpec extends Specification {
                 .setUrl(getUniqueSlug())
                 .setVolunteerCenterInfo(null)
                 .setWebsite(faker.internet().url())
-        authOrgClient.createOrganization(orgRequest)
-        return authDynamicRoutingClient.getOrgIdFromSlug(orgRequest.url).body().id
+        authOrgClient.createOrganization(orgRequest).block()
+        return authDynamicRoutingClient.getOrgIdFromSlug(orgRequest.url).block().id
     }
 
     /**
@@ -192,8 +194,8 @@ class JustServeSpec extends Specification {
      * @return The file name of the uploaded image.
      */
     String getUploadedImageFileName() {
-        HttpResponse<ImageUploadResponse> profileImage = authImageClient.uploadImage(new ImageUploadRequest(faker.image().base64JPG().split(",")[1], 256, 256, false, 0, 0))
-        return profileImage.body().displayFileName
+        ImageUploadResponse profileImage = authImageClient.uploadImage(new ImageUploadRequest(faker.image().base64JPG().split(",")[1], 256, 256, false, 0, 0)).block()
+        return profileImage.displayFileName
     }
 
     /**
@@ -204,9 +206,14 @@ class JustServeSpec extends Specification {
         String urlSlug = null
         while (null == urlSlug) {
             def potentialSlug = faker.word().noun() + System.currentTimeMillis()
-            def response = authDynamicRoutingClient.getOrgIdFromSlug(potentialSlug)
-            if (response.status() == HttpStatus.NOT_FOUND) {
-                urlSlug = potentialSlug
+            try {
+                authDynamicRoutingClient.getOrgIdFromSlug(potentialSlug).block()
+            } catch (HttpClientResponseException e) {
+                if (e.status == HttpStatus.NOT_FOUND) {
+                    urlSlug = potentialSlug
+                } else {
+                    throw e
+                }
             }
         }
         return urlSlug

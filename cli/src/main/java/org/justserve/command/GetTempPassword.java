@@ -1,6 +1,5 @@
 package org.justserve.command;
 
-import io.micronaut.http.HttpResponse;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import jakarta.inject.Inject;
 import jakarta.inject.Provider;
@@ -30,10 +29,10 @@ public class GetTempPassword extends BaseCommand implements Runnable {
         if (isTokenInvalid()) {
             return;
         }
-        HttpResponse<String> response;
+        String response;
         try {
             UserClient userClient = userClientProvider.get();
-            response = userClient.getTempPassword(new UserHashRequestByEmail(email));
+            response = userClient.getTempPassword(new UserHashRequestByEmail(email)).block();
         } catch (HttpClientResponseException e) {
             String errorMessage = "Received an unexpected response from JustServe:" +
                     String.format("%n%d (%s)", e.getResponse().status().getCode(), e.reason());
@@ -41,7 +40,7 @@ public class GetTempPassword extends BaseCommand implements Runnable {
             return;
         }
         if (response != null) {
-            printNormal(response.body().replace("\"", "").trim());
+            printNormal(response.replace("\"", "").trim());
         } else {
             printError("An unexpected error occurred. Response from JustServe was null.");
         }

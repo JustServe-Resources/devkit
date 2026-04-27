@@ -1,7 +1,5 @@
 package org.justserve.command;
 
-import io.micronaut.http.HttpResponse;
-import io.micronaut.http.HttpStatus;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import jakarta.inject.Inject;
 import jakarta.inject.Provider;
@@ -39,16 +37,9 @@ public class AssignOrgToProject extends BaseCommand implements Runnable {
 
         try {
             log.atTrace().log("Assigning organization {} to project {}", orgId, projectId);
-            HttpResponse<Object> response = client.assignOrganizationToProject(projectId, orgId);
-            if (response.status() == HttpStatus.OK) {
-                printNormal("Successfully assigned organization %s to project %s", orgId, projectId);
-                log.atTrace().log("received api response status: {}", response.status());
-            } else {
-                printError("Failed to assign organization " + orgId + " to project " + projectId +
-                        ". Expected HTTP Status 'OK', but got " + response.status());
-                log.atError().log("Failed to assign organization {} to project {}. Expected HTTP Status 'OK', but got {}",
-                        orgId, projectId, response.status());
-            }
+            client.assignOrganizationToProject(projectId, orgId).block();
+            printNormal("Successfully assigned organization %s to project %s", orgId, projectId);
+            log.atTrace().log("Successfully assigned organization to project");
         } catch (HttpClientResponseException e) {
             printError("Failed to assign organization %s to project %s. (%s: %s)",
                     orgId, projectId, e.getStatus().getCode(), e.getMessage());

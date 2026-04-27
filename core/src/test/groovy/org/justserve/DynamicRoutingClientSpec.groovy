@@ -1,10 +1,9 @@
 package org.justserve
 
-import io.micronaut.http.HttpResponse
-import io.micronaut.http.HttpStatus
+
+import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.test.extensions.spock.annotation.MicronautTest
 import org.justserve.client.DynamicRoutingClient
-import org.justserve.model.DynamicRoutingDataResponse
 import spock.lang.Shared
 
 @MicronautTest
@@ -20,23 +19,28 @@ class DynamicRoutingClientSpec extends JustServeSpec {
     def setupSpec() {
         noAuthClient = noAuthCtx.getBean(DynamicRoutingClient)
         authClient = ctx.getBean(DynamicRoutingClient)
-        realOrgSlug = authOrgClient.searchByLocation(createSearchRequestForElkGrove()).body().getOrganizations().url.first().toString()
+        realOrgSlug = authOrgClient.searchByLocation(createSearchRequestForElkGrove()).block().getOrganizations().first().getUrl()
     }
 
-    def "get orgId for #url"() {
+    def "can query orgId for #url"(DynamicRoutingClient client, String url) {
         when:
-        HttpResponse<DynamicRoutingDataResponse> response = client.getOrgIdFromSlug(url)
+        client.getOrgIdFromSlug(url).block()
+
         then:
-        response.status() == expectedStatus
-        if (expectedStatus == HttpStatus.OK) {
-            response.body().id != null
-        }
+        noExceptionThrown()
 
         where:
-        url         | expectedStatus       | client
-        realOrgSlug | HttpStatus.OK        | authClient
-        realOrgSlug | HttpStatus.OK        | noAuthClient
-        "1234"      | HttpStatus.NOT_FOUND | authClient
-        "1234"      | HttpStatus.NOT_FOUND | noAuthClient
+        [url, client] << [[realOrgSlug], [authClient, noAuthClient]].combinations()
+    }
+
+    def "attempting to query the orgId for #url fails as expected"(DynamicRoutingClient client, String url) {
+        when:
+        client.getOrgIdFromSlug(url).block()
+
+        then:
+        thrown(HttpClientResponseException)
+
+        where:
+        [url, client] <<  [["thisisafakeurl"], [authClient, noAuthClient]].combinations()
     }
 }

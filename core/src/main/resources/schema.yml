@@ -71,108 +71,6 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/UserSlimSearchResult' } } } }
-  /api/v2/projects/search:
-    post:
-      tags: [ Project ]
-      description: search active projects
-      operationId: searchProjects
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ProjectSearchRequest'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProjectSearchResponse'
-  /api/v1/projects/{id}/{locale}:
-    post:
-      tags: [ Project ]
-      description: Get project details for a given project
-      operationId: getProject
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema: { type: string, format: uuid }
-        - name: locale
-          in: path
-          required: true
-          schema: { type: string }
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                latitude:
-                  type: string
-                longitude:
-                  type: string
-                postalCode:
-                  type: string
-                lang:
-                  type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Project'
-  /api/v1/projects/{projectId}/users/reassignAndDelete:
-    put:
-      tags: [ Project ]
-      description: Reassigns multiple projects to a new user.
-      operationId: reassignProject
-      parameters:
-        - name: projectId
-          in: path
-          description: ID of the project to be reassigned
-          required: true
-          schema: { type: string, format: uuid }
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                assignId: { type: string, format: UUID, description: "UUID of the new owner of the project" }
-                deleteId: { type: string, format: UUID, description: "UUID of the previous owner of the project" }
-              additionalProperties: false
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: null
-  /api/v1/projects/{id}/organization/{organizationId}/assign:
-    put:
-      tags: [ Project ]
-      description: Assigns an organization to a project.
-      operationId: assignOrganizationToProject
-      parameters:
-        - name: id
-          in: path
-          description: ID of the project
-          required: true
-          schema: { type: string, format: uuid }
-        - name: organizationId
-          in: path
-          description: ID of the organization to assign
-          required: true
-          schema: { type: string, format: uuid }
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: null
   /api/v1/users:
     post:
       description: Register a new user on JustServe
@@ -1301,32 +1199,6 @@ components:
             geoCodeOverride:
               type: boolean
             timezone: {}
-          required:
-            - mapId
-            - fullDisplayAddress
-            - address
-            - suite
-            - city
-            - civicCityId
-            - neighborhood
-            - county
-            - state
-            - postal
-            - country
-            - countryCode
-            - locationVisibilityId
-            - missionId
-            - ccId
-            - stakeId
-            - areaId
-            - latitude
-            - longitude
-            - maxLatitude
-            - minLatitude
-            - maxLongitude
-            - minLongitude
-            - geoCodeOverride
-            - timezone
         ownerLog:
           type: array
           items: {}
@@ -1381,19 +1253,6 @@ components:
               type: number
             assignedOn:
               type: string
-          required:
-            - submitterUserId
-            - firstName
-            - lastName
-            - email
-            - phone
-            - postal
-            - applicantPostal
-            - applicantCity
-            - applicantCountry
-            - applicantCountryCode
-            - assignmentLevel
-            - assignedOn
         contact:
           type: object
           properties:
@@ -1415,11 +1274,6 @@ components:
               type: string
             userId:
               type: string
-          required:
-            - name
-            - email
-            - phone
-            - userId
         representative:
           type: object
           properties:
@@ -1446,18 +1300,6 @@ components:
             linked:
               type: boolean
             logo: {}
-          required:
-            - authorization
-            - organizationAuthorization
-            - name
-            - description
-            - url
-            - internalUrl
-            - organizationId
-            - reviewedBy
-            - reviewedOn
-            - linked
-            - logo
         suitableAllAges:
           type: boolean
         groupProject:
@@ -1595,31 +1437,6 @@ components:
                   timezone:
                     type: string
                 required:
-                  - mapId
-                  - fullDisplayAddress
-                  - address
-                  - suite
-                  - city
-                  - civicCityId
-                  - neighborhood
-                  - county
-                  - state
-                  - postal
-                  - country
-                  - countryCode
-                  - locationVisibilityId
-                  - missionId
-                  - ccId
-                  - stakeId
-                  - areaId
-                  - latitude
-                  - longitude
-                  - maxLatitude
-                  - minLatitude
-                  - maxLongitude
-                  - minLongitude
-                  - geoCodeOverride
-                  - timezone
               interested:
                 type: array
                 items: {}
@@ -1642,20 +1459,6 @@ components:
                 type: array
                 items: {}
             required:
-              - id
-              - start
-              - renewDate
-              - end
-              - schedule
-              - scheduleLanguage
-              - specialDirections
-              - specialDirectionsLanguage
-              - locationName
-              - locationLink
-              - location
-              - interested
-              - contacts
-              - boundaries
         recurring: {}
         lastChangeReason: {}
         escalated: {}
@@ -1699,80 +1502,6 @@ components:
           type: number
         underReview:
           type: boolean
-      required:
-        - id
-        - projectOwners
-        - projectOwnerLocation
-        - ownerLog
-        - projectType
-        - status
-        - publishDate
-        - language
-        - country
-        - title
-        - shortDescription
-        - longDescription
-        - logo
-        - attachments
-        - attachmentInfo
-        - applicant
-        - contact
-        - sponsor
-        - representative
-        - organization
-        - suitableAllAges
-        - groupProject
-        - volunteerRemotely
-        - itemDonations
-        - wheelchairAccessible
-        - indoors
-        - forYouthGroups
-        - volunteerFromAnywhere
-        - regionSelected
-        - temporaryFakeDistanceScore
-        - fakeDistanceScoreUpdate
-        - skills
-        - interests
-        - tools
-        - projectSkills
-        - projectInterests
-        - projectTools
-        - externalVolunteerURL
-        - isExternalProject
-        - isUnlistedProject
-        - archivedProject
-        - isActive
-        - externalVolunteerCount
-        - externalVolunteers
-        - allEventsFilled
-        - daysOfWeek
-        - timesOfDay
-        - waiverURL
-        - dtl
-        - onGoing
-        - recurring
-        - lastChangeReason
-        - escalated
-        - created
-        - updated
-        - createdBy
-        - deleted
-        - deletedOn
-        - deletedBy
-        - firstStartDateTimeOffset
-        - lastEndDateTimeOffset
-        - cbfName
-        - cblName
-        - updatedBy
-        - ubfName
-        - ublName
-        - volunteerCentersData
-        - relativityScore
-        - projectOwnerName
-        - projectOwnerLastName
-        - projectOwnerUserId
-        - projectLocationType
-        - underReview
     UserResultBounded:
       type: object
       properties:
