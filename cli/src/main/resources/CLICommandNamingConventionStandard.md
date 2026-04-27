@@ -67,7 +67,7 @@ If when creating a reassign org command we decide to reference the user by first
 as well as using the supported method of UUID, or email you must update the other commands to retain
 consistency across all commands.
 
-consistency is key every reference to a user must provide every reference option, and every reference to an organization must provide **every** reference option without exception.
+consistency is key
 
 ---
 
