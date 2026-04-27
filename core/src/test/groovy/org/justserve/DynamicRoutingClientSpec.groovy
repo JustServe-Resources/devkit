@@ -19,7 +19,7 @@ class DynamicRoutingClientSpec extends JustServeSpec {
     def setupSpec() {
         noAuthClient = noAuthCtx.getBean(DynamicRoutingClient)
         authClient = ctx.getBean(DynamicRoutingClient)
-        realOrgSlug = authOrgClient.searchByLocation(createSearchRequestForElkGrove()).block().getOrganizations().url.first().toString()
+        realOrgSlug = authOrgClient.searchByLocation(createSearchRequestForElkGrove()).block().getOrganizations().first().getUrl()
     }
 
     def "can query orgId for #url"(DynamicRoutingClient client, String url) {
@@ -30,7 +30,7 @@ class DynamicRoutingClientSpec extends JustServeSpec {
         noExceptionThrown()
 
         where:
-        [url, client] << [realOrgSlug, [authClient, noAuthClient]].combinations()
+        [url, client] << [[realOrgSlug], [authClient, noAuthClient]].combinations()
     }
 
     def "attempting to query the orgId for #url fails as expected"(DynamicRoutingClient client, String url) {
@@ -41,6 +41,6 @@ class DynamicRoutingClientSpec extends JustServeSpec {
         thrown(HttpClientResponseException)
 
         where:
-        [url, client] <<  ["thisisafakeurl", [authClient, noAuthClient]].combinations()
+        [url, client] <<  [["thisisafakeurl"], [authClient, noAuthClient]].combinations()
     }
 }
