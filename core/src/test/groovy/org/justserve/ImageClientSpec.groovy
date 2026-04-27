@@ -24,7 +24,7 @@ class ImageClientSpec extends JustServeSpec {
         def imageUpload = new ImageUploadRequest(faker.image().base64JPG().split(",")[1], 256, 256, false, 0, 0)
 
         when:
-        client.uploadImage(imageUpload)
+        client.uploadImage(imageUpload).block()
 
         then:
         noExceptionThrown()
@@ -40,12 +40,11 @@ class ImageClientSpec extends JustServeSpec {
         def imageUpload = new ImageUploadRequest(faker.image().base64JPG().split(",")[1], 256, 256, false, 0, 0)
 
         when:
-        def response = client.uploadImage(imageUpload)
+        def response = client.uploadImage(imageUpload).block()
 
         then:
         if (!expectedStatus) {
-            response.status() == HttpStatus.CREATED
-            response.body() != null
+            response != null
             return
         }
         def exception = thrown(HttpClientResponseException)

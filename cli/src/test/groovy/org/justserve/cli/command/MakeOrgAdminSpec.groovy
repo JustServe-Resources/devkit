@@ -3,7 +3,6 @@ package org.justserve.cli.command
 import io.micronaut.context.ApplicationContext
 import spock.lang.Shared
 
-//@Execution(SAME_THREAD)
 class MakeOrgAdminSpec extends BaseCommandSpec {
 
     @Shared
@@ -13,47 +12,49 @@ class MakeOrgAdminSpec extends BaseCommandSpec {
     List<UUID> sharedOrgs
 
     def setupSpec() {
-        sharedUserID = createUser().body().id
+        sharedUserID = createUser().id
         sharedOrgs = createTestOrgs(3)
     }
 
-    def "can make a user an admin to #orgCount org(s) using the #orgFlag and #userFlag flags #title"() {
+    @SuppressWarnings("GroovyAssignabilityCheck")
+    def "can make a user an admin to #orgCount org(s) using the #orgFlag and #userFlag flags as an authorized user"(String orgFlag, Integer orgCount, String userFlag) {
         given:
         def orgs = sharedOrgs.take(orgCount).join(",")
 
         when:
-        def (outputStream, errorStream) = executeCommand(context as ApplicationContext, ["makeOrgAdmin", orgFlag, orgs, userFlag, sharedUserID] as String[])
+        def (outputStream, errorStream) = executeCommand(ctx as ApplicationContext, ["makeOrgAdmin", orgFlag, orgs, userFlag, sharedUserID] as String[])
 
         then:
-        if (context == noAuthCtx) {
-            verifyAll {
-                errorStream.matches(tokenNotSetRegex)
-                outputStream.matches(blankRegex)
-            }
-            return
-        }
         verifyAll {
             (outputStream as String).contains("successfully reassigned ${orgCount} orgs to user ${sharedUserID}")
             errorStream.matches(blankRegex)
         }
 
         where:
-        orgFlag | orgCount | userFlag | context   | title                                                         | _
-        "-o"    | 3        | "-u"     | ctx       | "as an authorized user successfully makes the changes"        | _
-        "--org" | 3        | "-u"     | ctx       | "as an authorized user successfully makes the changes"        | _
-        "-o"    | 3        | "--user" | ctx       | "as an authorized user successfully makes the changes"        | _
-        "-o"    | 3        | "-u"     | noAuthCtx | "as unauthorized user and fails prior to making any api call" | _
-        "--org" | 3        | "-u"     | noAuthCtx | "as unauthorized user and fails prior to making any api call" | _
-        "-o"    | 3        | "--user" | noAuthCtx | "as unauthorized user and fails prior to making any api call" | _
-        "-o"    | 1        | "-u"     | noAuthCtx | "as unauthorized user and fails prior to making any api call" | _
-        "--org" | 1        | "-u"     | noAuthCtx | "as unauthorized user and fails prior to making any api call" | _
-        "-o"    | 1        | "--user" | noAuthCtx | "as unauthorized user and fails prior to making any api call" | _
-        "-o"    | 1        | "-u"     | ctx       | "as an authorized user successfully makes the changes"        | _
-        "--org" | 1        | "-u"     | ctx       | "as an authorized user successfully makes the changes"        | _
-        "-o"    | 1        | "--user" | ctx       | "as an authorized user successfully makes the changes"        | _
+        [orgFlag, orgCount, userFlag] << [["-o", "--org"], [3, 1], ["-u", "--user"]].combinations()
     }
 
-    def "can make a user an admin to #orgCount where at least one org ID does not exist on JustServe"() {
+    @SuppressWarnings("GroovyAssignabilityCheck")
+    def "fails to make a user an admin to #orgCount org(s) when unauthorized"(String orgFlag, Integer orgCount, String userFlag) {
+        given:
+        def orgs = sharedOrgs.take(orgCount).join(",")
+
+        when:
+        def (outputStream, errorStream) = executeCommand(noAuthCtx as ApplicationContext, ["makeOrgAdmin", orgFlag, orgs, userFlag, sharedUserID] as String[])
+
+        then:
+        verifyAll {
+            errorStream.matches(tokenNotSetRegex)
+            outputStream.matches(blankRegex)
+        }
+
+        where:
+        [orgFlag, orgCount, userFlag] << [["-o", "--org"], [3, 1], ["-u", "--user"]].combinations()
+    }
+
+    @SuppressWarnings("GroovyAssignabilityCheck")
+    def "can make a user an admin to #orgCount where at least one org ID does not exist on JustServe using the #orgFlag and #userFlag flags"(
+            String orgFlag, Integer orgCount, String userFlag) {
         given:
         String orgs
         def fakeId = faker.internet().uuid().toString()
@@ -64,7 +65,7 @@ class MakeOrgAdminSpec extends BaseCommandSpec {
         }
 
         when:
-        def (outputStream, errorStream) = executeCommand(context as ApplicationContext, ["makeOrgAdmin", orgFlag, orgs, userFlag, sharedUserID] as String[])
+        def (outputStream, errorStream) = executeCommand(ctx as ApplicationContext, ["makeOrgAdmin", orgFlag, orgs, userFlag, sharedUserID] as String[])
 
         then:
         verifyAll {
@@ -73,28 +74,23 @@ class MakeOrgAdminSpec extends BaseCommandSpec {
         }
 
         where:
-        orgFlag | orgCount | userFlag | context | title                                                  | _
-        "-o"    | 3        | "-u"     | ctx     | "as an authorized user successfully makes the changes" | _
-        "--org" | 3        | "-u"     | ctx     | "as an authorized user successfully makes the changes" | _
-        "-o"    | 3        | "--user" | ctx     | "as an authorized user successfully makes the changes" | _
-        "-o"    | 1        | "-u"     | ctx     | "as an authorized user successfully makes the changes" | _
-        "--org" | 1        | "-u"     | ctx     | "as an authorized user successfully makes the changes" | _
-        "-o"    | 1        | "--user" | ctx     | "as an authorized user successfully makes the changes" | _
+        [orgFlag, orgCount, userFlag] << [["-o", "--org"], [3, 1], ["-u", "--user"]].combinations()
     }
 
 
-    def "can make a user an admin to #orgCount where at least one org Slug does not exist on JustServe"() {
+    @SuppressWarnings("GroovyAssignabilityCheck")
+    def "can make a user an admin to #orgCount where at least one org Slug does not exist on JustServe using the #orgFlag and #userFlag flags"(String orgFlag, Integer orgCount, String userFlag) {
         given:
         String orgs
         def fakeSlug = faker.internet().slug().toString()
         if (orgCount == 1) {
             orgs = fakeSlug
         } else {
-            orgs = authOrgClient.searchByLocation(createSearchRequestForElkGrove()).body().getOrganizations().url.take(orgCount - 1).join(",") + "," + fakeSlug
+            orgs = authOrgClient.searchByLocation(createSearchRequestForElkGrove()).block().getOrganizations().url.take(orgCount - 1).join(",") + "," + fakeSlug
         }
 
         when:
-        def (outputStream, errorStream) = executeCommand(context as ApplicationContext, ["makeOrgAdmin", orgFlag, orgs, userFlag, sharedUserID] as String[])
+        def (outputStream, errorStream) = executeCommand(ctx as ApplicationContext, ["makeOrgAdmin", orgFlag, orgs, userFlag, sharedUserID] as String[])
 
         then:
         verifyAll {
@@ -103,12 +99,6 @@ class MakeOrgAdminSpec extends BaseCommandSpec {
         }
 
         where:
-        orgFlag | orgCount | userFlag | context | title                                                  | _
-        "-o"    | 3        | "-u"     | ctx     | "as an authorized user successfully makes the changes" | _
-        "--org" | 3        | "-u"     | ctx     | "as an authorized user successfully makes the changes" | _
-        "-o"    | 3        | "--user" | ctx     | "as an authorized user successfully makes the changes" | _
-        "-o"    | 1        | "-u"     | ctx     | "as an authorized user successfully makes the changes" | _
-        "--org" | 1        | "-u"     | ctx     | "as an authorized user successfully makes the changes" | _
-        "-o"    | 1        | "--user" | ctx     | "as an authorized user successfully makes the changes" | _
+        [orgFlag, orgCount, userFlag] << [["-o", "--org"], [3, 1], ["-u", "--user"]].combinations()
     }
 }

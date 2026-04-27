@@ -32,7 +32,7 @@ class GraphQLClientSpec extends Specification {
                     .setTitle("Test Project - ${type.name()}")
                     .setEventType(type)
                     .setLocationType(ProjectLocationType.SINGLE_LOCATION)
-            )
+            ).block()
             projectIds[type] = project.getData().getCreateProject().getId()
         }
     }
@@ -47,7 +47,7 @@ class GraphQLClientSpec extends Specification {
                 .setRedirect(redirect)
 
         when:
-        client.createProject(args)
+        client.createProject(args).block()
 
         then:
         noExceptionThrown()
@@ -73,7 +73,7 @@ class GraphQLClientSpec extends Specification {
         def vars = new CreateEventVariables().setProjectId(projectIds[eventType]).setProjectEvent(event)
 
         when:
-        client.createEvent(new CreateEventMutation(vars))
+        client.createEvent(new CreateEventMutation(vars)).block()
 
         then:
         noExceptionThrown()
@@ -91,7 +91,7 @@ class GraphQLClientSpec extends Specification {
         def vars = new CreateEventVariables().setProjectId(projectIds[eventType]).setProjectEvent(event)
 
         when:
-        client.createEvent(new CreateEventMutation(vars))
+        client.createEvent(new CreateEventMutation(vars)).block()
 
         then:
         noExceptionThrown()
@@ -110,7 +110,7 @@ class GraphQLClientSpec extends Specification {
         def vars = new CreateEventVariables().setProjectId(projectIds[eventType]).setProjectEvent(event)
 
         when:
-        client.createEvent(new CreateEventMutation(vars))
+        client.createEvent(new CreateEventMutation(vars)).block()
 
         then:
         noExceptionThrown()
@@ -129,7 +129,7 @@ class GraphQLClientSpec extends Specification {
         def vars = new CreateEventVariables().setProjectId(projectIds[eventType]).setProjectEvent(event)
 
         when:
-        client.createEvent(new CreateEventMutation(vars))
+        client.createEvent(new CreateEventMutation(vars)).block()
 
         then:
         noExceptionThrown()
@@ -149,7 +149,7 @@ class GraphQLClientSpec extends Specification {
         def vars = new CreateEventVariables().setProjectId(projectIds[eventType]).setProjectEvent(event)
 
         when:
-        client.createEvent(new CreateEventMutation(vars))
+        client.createEvent(new CreateEventMutation(vars)).block()
 
         then:
         noExceptionThrown()
@@ -168,7 +168,7 @@ class GraphQLClientSpec extends Specification {
         def vars = new CreateEventVariables().setProjectId(projectIds[eventType]).setProjectEvent(event)
 
         when:
-        client.createEvent(new CreateEventMutation(vars))
+        client.createEvent(new CreateEventMutation(vars)).block()
 
         then:
         noExceptionThrown()
@@ -189,7 +189,7 @@ class GraphQLClientSpec extends Specification {
         def vars = new CreateEventVariables().setProjectId(projectIds[eventType]).setProjectEvent(event)
 
         when:
-        client.createEvent(new CreateEventMutation(vars))
+        client.createEvent(new CreateEventMutation(vars)).block()
 
         then:
         noExceptionThrown()
@@ -205,7 +205,7 @@ class GraphQLClientSpec extends Specification {
         def vars = new CreateEventVariables().setProjectId(projectIds[eventType]).setProjectEvent(event)
 
         when:
-        client.createEvent(new CreateEventMutation(vars))
+        client.createEvent(new CreateEventMutation(vars)).block()
 
         then:
         thrown(HttpClientResponseException)
@@ -223,8 +223,8 @@ class GraphQLClientSpec extends Specification {
         def secondVars = new CreateEventVariables().setProjectId(projectIds[eventType]).setProjectEvent(secondEvent)
 
         when:
-        client.createEvent(new CreateEventMutation(firstVars))
-        client.createEvent(new CreateEventMutation(secondVars))
+        client.createEvent(new CreateEventMutation(firstVars)).block()
+        client.createEvent(new CreateEventMutation(secondVars)).block()
 
         then:
         thrown(HttpClientResponseException)
@@ -242,8 +242,8 @@ class GraphQLClientSpec extends Specification {
         def secondVars = new CreateEventVariables().setProjectId(projectIds[eventType]).setProjectEvent(secondEvent)
 
         when:
-        client.createEvent(new CreateEventMutation(firstVars))
-        client.createEvent(new CreateEventMutation(secondVars))
+        client.createEvent(new CreateEventMutation(firstVars)).block()
+        client.createEvent(new CreateEventMutation(secondVars)).block()
 
         then:
         noExceptionThrown()
@@ -261,7 +261,7 @@ class GraphQLClientSpec extends Specification {
         def mutation = new CreateEventsMutation(vars)
 
         when:
-        def response = client.createEvents(mutation)
+        def response = client.createEvents(mutation).block()
 
         then:
         noExceptionThrown()
@@ -278,7 +278,7 @@ class GraphQLClientSpec extends Specification {
         def mutation = new CreateRecurringEventsMutation(vars)
 
         when:
-        def response = client.createRecurringEvents(mutation)
+        def response = client.createRecurringEvents(mutation).block()
 
         then:
         noExceptionThrown()
@@ -352,7 +352,7 @@ class GraphQLClientSpec extends Specification {
         def mutation = new CreateRecurringEventsMutation(vars)
 
         when:
-        def response = client.createRecurringEvents(mutation)
+        def response = client.createRecurringEvents(mutation).block()
 
         then:
         noExceptionThrown()
@@ -368,7 +368,7 @@ class GraphQLClientSpec extends Specification {
                 .setIncludeAll(includesAll)
 
         when:
-        GraphQLResponse<GraphQLSearchOrganizationData> response = client.searchOrganization(inputData)
+        GraphQLResponse<GraphQLSearchOrganizationData> response = client.searchOrganization(inputData).block()
 
         then:
         noExceptionThrown()

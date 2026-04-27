@@ -1,7 +1,6 @@
 package org.justserve.command;
 
 import io.micronaut.core.annotation.Nullable;
-import io.micronaut.http.HttpResponse;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import jakarta.inject.Inject;
 import jakarta.inject.Provider;
@@ -10,6 +9,7 @@ import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.justserve.client.BoundaryPermissionClient;
 import org.justserve.client.DynamicRoutingClient;
+import org.justserve.model.DynamicRoutingDataResponse;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -47,16 +47,19 @@ public class MakeOrgAdmin extends BaseCommand implements Runnable {
         // since we allow submitting orgId's and orgUrl, convert any slugs to orgId's
         Map<Org, UUID> orgUuidMap = Arrays.stream(orgs).distinct().parallel()
                 .map(org -> {
-                    if (org instanceof OrgId) {
-                        return new AbstractMap.SimpleEntry<>(org, ((OrgId) org).getId());
+                    if (org instanceof OrgId orgId) {
+                        return new AbstractMap.SimpleEntry<>(org, orgId.getId());
                     }
+                    DynamicRoutingDataResponse response;
                     try {
-                        return new AbstractMap.SimpleEntry<>(org, dynamicRoutingClient
-                                .getOrgIdFromSlug(((OrgSlug) org).getSlug()).body().getId());
-                    } catch (NullPointerException noOrgFound) {
+                        response = dynamicRoutingClient.getOrgIdFromSlug(((OrgSlug) org).getSlug()).block();
+                        assert response != null;
+                        return new AbstractMap.SimpleEntry<>(org, response.getId());
+                    } catch (HttpClientResponseException | NullPointerException noOrgFound) {
                         err(String.format("The org '%s' is not found on JustServe", ((OrgSlug) org).getSlug()));
                         return null;
-                    }
+                    } 
+
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
@@ -67,13 +70,12 @@ public class MakeOrgAdmin extends BaseCommand implements Runnable {
         orgUuidMap.entrySet().stream().parallel().forEach(entry -> {
             Org org = entry.getKey();
             UUID orgId = entry.getValue();
-            String orgIdentifier = org instanceof OrgSlug ? ((OrgSlug) org).getSlug() + " (" + orgId + ")" : orgId.toString();
+            String orgIdentifier = org instanceof OrgSlug orgSlug ? orgSlug.getSlug() + " (" + orgId + ")" : orgId.toString();
 
             log.atTrace().log("Making user {} an admin for org {}", user, orgIdentifier);
             try {
                 log.atTrace().log("sending request to make user {} an admin for org {}.", user, orgIdentifier);
-                HttpResponse<Object> response = boundaryPermissionClient.makeAdminForOrg(orgId, user);
-                log.atTrace().log("received api response status: {}", response.status());
+                boundaryPermissionClient.makeAdminForOrg(orgId, user).block();
                 log.atDebug().log("Successfully made user {} an admin for org {}.", user, orgIdentifier);
                 successfulReassignments.put(org, orgId);
             } catch (HttpClientResponseException e) {
