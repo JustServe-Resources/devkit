@@ -1,10 +1,8 @@
 package org.justserve
 
-import io.micronaut.http.HttpResponse
 import io.micronaut.test.extensions.spock.annotation.MicronautTest
 import org.justserve.model.*
 
-import static io.micronaut.http.HttpStatus.OK
 import static org.justserve.model.DistanceType.MILES
 
 @MicronautTest
@@ -15,12 +13,12 @@ class ProjectClientSpec extends JustServeSpec {
         GetProjectRequest projectRequest = new GetProjectRequest()
 
         def response = projectClient
-                .getProject((project as ProjectCard).getId(), "en-US", projectRequest)
+                .getProject((project as ProjectCard).getId(), "en-US", projectRequest).block()
 
         then:
         verifyAll {
-            response.body() != null
-            response.body().getProjectOwnerUserId() != null
+            response != null
+            response.getProjectOwnerUserId() != null
         }
 
 
@@ -33,22 +31,18 @@ class ProjectClientSpec extends JustServeSpec {
         given:
         GetProjectRequest projectRequest = new GetProjectRequest()
         String locale = new Random().nextBoolean() ? " " : "en-US"
-        UUID currentOwner = projectClient.getProject((project as ProjectCard).getId(), locale, projectRequest)
-                .body().getProjectOwnerUserId()
+        UUID currentOwner = projectClient.getProject((project as ProjectCard).getId(), locale, projectRequest).block()
+                .getProjectOwnerUserId()
         ReassignProjectRequest reassignProjectRequest = new ReassignProjectRequest(readOnlyUser.uuid, currentOwner)
 
         when:
-        def response = projectClient.reassignProject((project as ProjectCard).getId(), reassignProjectRequest)
+        projectClient.reassignProject((project as ProjectCard).getId(), reassignProjectRequest).block()
 
         then:
         noExceptionThrown()
         verifyAll {
-            if (response.status() != OK) {
-                println "Warning: response status ${response.status()} != OK"
-            } else {
-                projectClient.getProject((project as ProjectCard).getId(), "en-US", projectRequest)
-                        .body().getProjectOwnerUserId() == readOnlyUser.uuid
-            }
+            projectClient.getProject((project as ProjectCard).getId(), "en-US", projectRequest).block()
+                    .getProjectOwnerUserId() == readOnlyUser.uuid
         }
 
         where:
@@ -64,32 +58,30 @@ class ProjectClientSpec extends JustServeSpec {
                 .setPublishedOnly(false).setIncludeFilledProjects(true).setDisasterRecoveryProjectsOnly(false).setTimesOfDay(null)
 
         when:
-        HttpResponse<ProjectSearchResponse> response = projectClient.searchProjects(request)
+        ProjectSearchResponse response = projectClient.searchProjects(request).block()
 
         then:
         verifyAll {
-            response.status == OK
-            response.body() != null
-            response.body().items != null
+            response != null
+            response.items != null
         }
     }
 
     void "can assign an organization to a project"() {
         given:
-        def orgSearchResponse = authOrgClient.searchByLocation(createSearchRequestForElkGrove())
-        UUID orgId = orgSearchResponse.body().organizations.first().id
+        def orgSearchResponse = authOrgClient.searchByLocation(createSearchRequestForElkGrove()).block()
+        UUID orgId = orgSearchResponse.organizations.first().id
         ProjectCard project = searchResults.first()
 
         when:
-        def response = projectClient.assignOrganizationToProject(project.getId(), orgId)
+        projectClient.assignOrganizationToProject(project.getId(), orgId).block()
 
         then:
-        verifyAll {
-            response.status == OK
-        }
+        noExceptionThrown()
+
 
         and: "validate that the reassignment worked - this is testing the underlying tech, not our codebase"
-        def updatedProject = projectClient.getProject(project.getId(), "en-US", new GetProjectRequest()).body()
+        def updatedProject = projectClient.getProject(project.getId(), "en-US", new GetProjectRequest()).block()
         verifyAll {
             updatedProject.organization.organizationId == orgId
         }

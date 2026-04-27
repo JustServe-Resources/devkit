@@ -47,12 +47,12 @@ micronaut {
         client(file("src/main/resources/schema.yml")) {
             apiPackageName = "org.justserve.client"
             modelPackageName = "org.justserve.model"
-            useReactive = false
+            useReactive = true
             useAuth = false
             lombok.set(true)
             clientId = "justserve"
             apiNameSuffix = "Client"
-            alwaysUseGenerateHttpResponse = true
+            alwaysUseGenerateHttpResponse = false
             additionalProperties.put("retryable", "true")
 //            https://github.com/micronaut-projects/micronaut-openapi/discussions/1783
             schemaMapping.put("EventType", "org.justserve.model.EventType")

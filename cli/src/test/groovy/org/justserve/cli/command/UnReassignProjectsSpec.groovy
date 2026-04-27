@@ -27,7 +27,7 @@ class UnReassignProjectsSpec extends BaseCommandSpec {
     def setupSpec() {
         testProjects = getProjectsByLocation(faker.location().toString())
         def newReadOnlyUser = new TestUser(faker)
-        newReadOnlyUser.uuid = createUser().body().id
+        newReadOnlyUser.uuid = createUser().id
         testEmails = new HashMap<>()
         testEmails.put("forwarded-reassignment-email", [TestEmailGenerator.generateMockValidEmlContent(testProjects, readOnlyUser), readOnlyUser])
         testEmails.put("automated-reassignment-email", [TestEmailGenerator.generateMockValidEmlContent(testProjects, newReadOnlyUser), newReadOnlyUser])

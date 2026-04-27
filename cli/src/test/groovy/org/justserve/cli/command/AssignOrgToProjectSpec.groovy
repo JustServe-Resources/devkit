@@ -13,7 +13,7 @@ class AssignOrgToProjectSpec extends BaseCommandSpec {
     def "can assign an organization to a project"() {
         given:
         def orgSearchResponse = authOrgClient.searchByLocation(createSearchRequestForElkGrove())
-        UUID orgId = orgSearchResponse.body().organizations.first().id
+        UUID orgId = orgSearchResponse.block().organizations.first().id
         ProjectCard project = searchResults.first()
         def args = ["assignOrgToProject", "-p", project.getId().toString(), "-o", orgId.toString()]
 
