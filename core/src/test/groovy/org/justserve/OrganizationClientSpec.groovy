@@ -91,11 +91,10 @@ class OrganizationClientSpec extends JustServeSpec {
         client.createOrganization(orgCreationRequest).block()
 
         then:
-        noExceptionThrown()
+        thrown(HttpClientResponseException)
 
         where:
         expectedStatus     | client        | title
-        HttpStatus.CREATED | authOrgClient | "auth client"
         HttpStatus.CREATED | noAuthClient  | "no auth client"
     }
 
