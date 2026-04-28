@@ -7,6 +7,12 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.ParameterException;
 import picocli.jansi.graalvm.AnsiConsole;
 
+/**
+ * The root command which provides shared options and spec access to subcommands.
+ *
+ * @author Jonathan Zollinger
+ * @version 0.0.1
+ */
 @Command(subcommands = {GetTempPassword.class, MakeOrgAdmin.class, UnReassignProjects.class, AssignOrgToProject.class},
         mixinStandardHelpOptions = true,
         name = "justserve", versionProvider = JustServeVersionProvider.class,

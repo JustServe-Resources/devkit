@@ -10,10 +10,6 @@ import picocli.CommandLine.Option;
 
 import java.util.UUID;
 
-import static org.justserve.util.JustServePrinter.printError;
-import static org.justserve.util.JustServePrinter.printNormal;
-
-
 @Slf4j
 @Command(name = "assignOrgToProject", description = "Assigns an organization to a project", mixinStandardHelpOptions = true)
 public class AssignOrgToProject extends BaseCommand implements Runnable {
@@ -38,10 +34,10 @@ public class AssignOrgToProject extends BaseCommand implements Runnable {
         try {
             log.atTrace().log("Assigning organization {} to project {}", orgId, projectId);
             client.assignOrganizationToProject(projectId, orgId).block();
-            printNormal("Successfully assigned organization %s to project %s", orgId, projectId);
+            out("Successfully assigned organization %s to project %s", orgId, projectId);
             log.atTrace().log("Successfully assigned organization to project");
         } catch (HttpClientResponseException e) {
-            printError("Failed to assign organization %s to project %s. (%s: %s)",
+            err("Failed to assign organization %s to project %s. (%s: %s)",
                     orgId, projectId, e.getStatus().getCode(), e.getMessage());
             log.atError().setCause(e).log("Error response from API: {}", e.getResponse().body());
         }

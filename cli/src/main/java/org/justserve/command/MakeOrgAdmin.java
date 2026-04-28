@@ -17,14 +17,11 @@ import picocli.CommandLine.Option;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.justserve.util.JustServePrinter.printError;
-import static org.justserve.util.JustServePrinter.printNormal;
-
 @Slf4j
 @Command(name = "makeOrgAdmin", description = "make a user an admin for the provided organization(s). " +
         "Makes no changes to the user's boundaries.", mixinStandardHelpOptions = true)
 public class MakeOrgAdmin extends BaseCommand implements Runnable {
-    
+
     @Option(names = {"--user", "-u"}, description = "the user who will be made org admin")
     private UUID user;
 
@@ -58,7 +55,7 @@ public class MakeOrgAdmin extends BaseCommand implements Runnable {
                     } catch (HttpClientResponseException | NullPointerException noOrgFound) {
                         err(String.format("The org '%s' is not found on JustServe", ((OrgSlug) org).getSlug()));
                         return null;
-                    } 
+                    }
 
                 })
                 .filter(Objects::nonNull)
@@ -79,11 +76,11 @@ public class MakeOrgAdmin extends BaseCommand implements Runnable {
                 log.atDebug().log("Successfully made user {} an admin for org {}.", user, orgIdentifier);
                 successfulReassignments.put(org, orgId);
             } catch (HttpClientResponseException e) {
-                printError("Failed to make user " + user + " an admin for organization " + orgIdentifier + ".");
+                err("Failed to make user " + user + " an admin for organization " + orgIdentifier + ".");
                 log.atError().setCause(e).log("Error response from API: {}", e.getResponse().body());
             }
         });
-        printNormal("successfully reassigned %d orgs to user %s", successfulReassignments.size(), user);
+        out("successfully reassigned %d orgs to user %s", successfulReassignments.size(), user);
     }
 
     /**

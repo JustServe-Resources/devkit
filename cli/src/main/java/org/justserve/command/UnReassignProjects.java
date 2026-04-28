@@ -1,7 +1,5 @@
 package org.justserve.command;
 
-import io.micronaut.http.HttpResponse;
-import io.micronaut.http.HttpStatus;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import jakarta.inject.Inject;
 import jakarta.inject.Provider;
@@ -23,9 +21,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import static org.justserve.util.JustServePrinter.printError;
-import static org.justserve.util.JustServePrinter.printNormal;
-
 @Slf4j
 @Command(name = "unReassignProjects", description = "Reassigns projects from an email file to a user", mixinStandardHelpOptions = true)
 public class UnReassignProjects extends BaseCommand implements Runnable {
@@ -46,7 +41,7 @@ public class UnReassignProjects extends BaseCommand implements Runnable {
         }
 
         if (!emlFile.exists() || !emlFile.isFile()) {
-            printError("The provided file does not exist or is not a file: " + emlFile.getAbsolutePath());
+            err("The provided file does not exist or is not a file: " + emlFile.getAbsolutePath());
             return;
         }
 
@@ -54,7 +49,7 @@ public class UnReassignProjects extends BaseCommand implements Runnable {
         try {
             emlContent = Files.readString(emlFile.toPath());
         } catch (IOException e) {
-            printError("Failed to read file: " + emlFile.getAbsolutePath());
+            err("Failed to read file: " + emlFile.getAbsolutePath());
             log.atError().setCause(e).log("Error reading file");
             return;
         }
@@ -63,13 +58,13 @@ public class UnReassignProjects extends BaseCommand implements Runnable {
         try {
             projects = EmailParser.getProjects(emlContent);
         } catch (MessagingException | IOException | JustServeEmailParserError e) {
-            printError("Failed to parse email file: " + e.getMessage());
+            err("Failed to parse email file: " + e.getMessage());
             log.atError().setCause(e).log("Error parsing email file");
             return;
         }
 
         if (projects.isEmpty()) {
-            printNormal("No projects found in the email file.");
+            out("No projects found in the email file.");
             return;
         }
 
@@ -87,12 +82,12 @@ public class UnReassignProjects extends BaseCommand implements Runnable {
                 try {
                     project = client.getProject(projectId, " ", getProjectRequest).block();
                 } catch (HttpClientResponseException | NullPointerException e) {
-                    printError(failedToGetError);
+                    err(failedToGetError);
                     log.atError().setCause(e).log("Error getting project");
                     continue;
                 }
                 if (null == project) {
-                    printError(failedToGetError);
+                    err(failedToGetError);
                     log.atError().log("Project {} not found", projectId);
                     continue;
                 }
@@ -111,12 +106,12 @@ public class UnReassignProjects extends BaseCommand implements Runnable {
                     client.reassignProject(projectId, reassignProjectRequest).block();
                     successCount ++;
                 } catch (HttpClientResponseException e) {
-                    printError("Failed to reassign project " + projectName + " (" + projectId + ") to user " + userID);
+                    err("Failed to reassign project " + projectName + " (" + projectId + ") to user " + userID);
                     log.atError().setCause(e).log("Error response from API: {}", e.getResponse().body());
                 }
             }
         }
-        printNormal("Successfully reassigned %d projects to user %s", successCount, userID);
+        out("Successfully reassigned %d projects to user %s", successCount, userID);
         log.atTrace().log("Finished reassigning projects to user {}", userID);
     }
 }

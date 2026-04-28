@@ -9,9 +9,6 @@ import org.justserve.model.UserHashRequestByEmail;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-import static org.justserve.util.JustServePrinter.printError;
-import static org.justserve.util.JustServePrinter.printNormal;
-
 @Command(name = "getTempPassword", description = "get a temporary password for a user")
 public class GetTempPassword extends BaseCommand implements Runnable {
 
@@ -34,15 +31,14 @@ public class GetTempPassword extends BaseCommand implements Runnable {
             UserClient userClient = userClientProvider.get();
             response = userClient.getTempPassword(new UserHashRequestByEmail(email)).block();
         } catch (HttpClientResponseException e) {
-            String errorMessage = "Received an unexpected response from JustServe:" +
-                    String.format("%n%d (%s)", e.getResponse().status().getCode(), e.reason());
-            printError(errorMessage);
+            err("Received an unexpected response from JustServe:%n%d (%s)",
+                    e.getResponse().status().getCode(), e.reason());
             return;
         }
         if (response != null) {
-            printNormal(response.replace("\"", "").trim());
+            out(response.replace("\"", "").trim());
         } else {
-            printError("An unexpected error occurred. Response from JustServe was null.");
+            err("An unexpected error occurred. Response from JustServe was null.");
         }
     }
 }
