@@ -1,4 +1,3 @@
-
 # CLI Command Naming Convention Standard
 **Noun–Verb–Flags Pattern**
 
