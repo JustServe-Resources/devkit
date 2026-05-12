@@ -3,9 +3,9 @@ import java.util.*
 
 plugins {
     id("groovy")
-    id("io.micronaut.application") version "4.6.2"
-    id("com.gradleup.shadow") version "8.3.9"
-    id("org.graalvm.buildtools.native") version "0.10.6"
+    id("io.micronaut.application")
+    id("com.gradleup.shadow")
+    id("org.graalvm.buildtools.native")
 }
 
 group = "org.justserve"

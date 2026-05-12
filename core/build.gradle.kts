@@ -3,9 +3,9 @@ import java.util.*
 
 plugins {
     id("groovy") 
-    id("io.micronaut.library") version "4.5.3"
-    id("io.micronaut.openapi") version "4.5.3"
-    id("com.github.hauner.jarTest") version "1.1.0"
+    id("io.micronaut.library")
+    id("io.micronaut.openapi")
+    id("com.github.hauner.jarTest")
 }
 
 version = project.properties["justserveCliVersion"]!!
