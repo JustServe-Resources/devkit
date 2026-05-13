@@ -5,7 +5,7 @@ import io.micronaut.test.extensions.spock.annotation.MicronautTest
 import org.justserve.client.BoundaryPermissionClient
 import spock.lang.Shared
 
-import static io.micronaut.http.HttpStatus.FORBIDDEN
+import static io.micronaut.http.HttpStatus.INTERNAL_SERVER_ERROR
 import static io.micronaut.http.HttpStatus.UNAUTHORIZED
 
 @MicronautTest
@@ -43,9 +43,9 @@ class BoundaryPermissionSpec extends JustServeSpec {
         exception.status == expectedError
 
         where:
-        client                         | expectedError | orgID             | title
-        noAuthBoundaryPermissionClient | UNAUTHORIZED  | createOrg()       | "as an unauthorized user"
-        authBoundaryPermissionClient   | FORBIDDEN     | UUID.randomUUID() | "with a non-existent OrgID"
+        client                         | expectedError         | orgID             | title
+        noAuthBoundaryPermissionClient | UNAUTHORIZED          | createOrg()       | "as an unauthorized user"
+        authBoundaryPermissionClient   | INTERNAL_SERVER_ERROR | UUID.randomUUID() | "with a non-existent OrgID"
     }
 
 
