@@ -37,7 +37,6 @@ choco install graalvm-java21 21.0.2
 <li> After installing the Visual Studio Community IDE, install the "Desktop development with C++" package found under "Workloads".
 
 
-> [!INFO]
 > This can be found if you launch the IDE (select "continue without code"), then from the top menu select `Tools` -> `Get Tools and Features`. The installer will pop up with the workloads tab shown first.
 
 </li>
