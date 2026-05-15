@@ -29,6 +29,36 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ImageUploadResponse'
+  /api/v1/locations/{language}:
+    get:
+      tags: [ "Locations" ]
+      description: Get all locations in a language
+      operationId: getLanguage
+      parameters:
+          - name: "language"
+            in: "path"
+            required: true
+            schema:
+              type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CountryStatePair"
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CountryStatePair"
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CountryStatePair"
   /api/v1/organizations:
     post:
       tags: [ Organization ]
@@ -1936,3 +1966,30 @@ components:
           format: uuid
         logo:
           type: string
+    CountryInfo:
+      type: object
+      properties:
+        twoCharCode:
+          type: string
+          nullable: true
+        threeCharCode:
+          type: string
+          nullable: true
+        countryPhone:
+          type: string
+          nullable: true
+      additionalProperties: false
+    CountryStatePair:
+      type: object
+      properties:
+        countryInfo:
+          $ref: "#/components/schemas/CountryInfo"
+        country:
+          type: string
+          nullable: true
+        state:
+          type: string
+          nullable: true
+        county:
+          type: string
+          nullable: true
