@@ -20,7 +20,7 @@ class LocationSpec extends JustServeSpec {
         locationClient = noAuthCtx.getBean(LocationClient)
     }
 
-    def "language endpoint returns without errors"() {
+    def ".../locations/{language} endpoint returns without errors"() {
         given:
         def lang = "eng"
 
@@ -31,7 +31,7 @@ class LocationSpec extends JustServeSpec {
         noExceptionThrown()
     }
 
-    def "result from language endpoint can be deserialized"() {
+    def "result from .../locations/{language} can be deserialized"() {
         given:
         def lang = "eng"
 
@@ -46,7 +46,7 @@ class LocationSpec extends JustServeSpec {
         }
     }
 
-    def "result data from language endpoint matches expected format"() {
+    def "result data from .../locations/{language} matches expected format"() {
         given:
         def lang = "eng"
 
