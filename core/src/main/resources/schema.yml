@@ -29,11 +29,34 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ImageUploadResponse'
+  /api/v1/languages:
+    get:
+      tags:
+        - Language
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LocaleNames"
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LocaleNames"
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LocaleNames"
   /api/v1/locations/{language}:
     get:
       tags: [ Location ]
       description: Get all locations in a language
-      operationId: getLanguage
+      operationId: getLocation
       parameters:
           - name: "language"
             in: "path"
@@ -48,17 +71,17 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/CountryStatePair"
+                  $ref: "#/components/schemas/CountryContext"
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/CountryStatePair"
+                  $ref: "#/components/schemas/CountryContext"
             text/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/CountryStatePair"
+                  $ref: "#/components/schemas/CountryContext"
   /api/v1/locations/{parentId}/{locale}:
     get:
       description: Get the children of a parent location, in a certain locale
@@ -2020,15 +2043,18 @@ components:
       properties:
         twoCharCode:
           type: string
+          description: "ISO 3166-1 standard two-letter country code"
           nullable: true
         threeCharCode:
           type: string
+          description: "ISO 3166-1 standard three-letter country code"
           nullable: true
         countryPhone:
           type: string
+          description: "international phone prefix"
           nullable: true
       additionalProperties: false
-    CountryStatePair:
+    CountryContext:
       type: object
       properties:
         countryInfo:
@@ -2042,3 +2068,16 @@ components:
         county:
           type: string
           nullable: true
+    LocaleNames:
+      type: object
+      properties:
+        bcp47:
+          description: locale abbreviation per the <a href='https://developer.mozilla.org/en-US/docs/Glossary/BCP_47_language_tag' BCP 47 standard</a>
+          type: string
+          nullable: true
+        name:
+          description: locale name
+          type: string
+          nullable: true
+        lang3char:
+          description: abbreviation of the language. Currently does not seem to follow any standardized format

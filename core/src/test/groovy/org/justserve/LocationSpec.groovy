@@ -2,7 +2,7 @@ package org.justserve
 
 import io.micronaut.test.extensions.spock.annotation.MicronautTest
 import org.justserve.client.LocationClient
-import org.justserve.model.CountryStatePair
+import org.justserve.model.CountryContext
 import spock.lang.Shared
 
 /**
@@ -14,44 +14,34 @@ import spock.lang.Shared
 class LocationSpec extends JustServeSpec {
 
     @Shared
-    LocationClient locationClient
+    LocationClient noAuthLocationClient
+
+    @Shared
+    LocationClient adminLocationClient
 
     def setupSpec() {
-        locationClient = noAuthCtx.getBean(LocationClient)
+        noAuthLocationClient = noAuthCtx.getBean(LocationClient)
+        adminLocationClient = ctx.getBean(LocationClient)
     }
 
-    def ".../locations/{language} endpoint returns without errors"() {
-        given:
-        def lang = "eng"
+    def "Can query LocationClient.getLocation(String) with no error as #userType"(LocationClient client, String userType, String lang){
 
         when:
-        locationClient.getLanguage(lang).block()
+        CountryContext[] locations = client.getLocation(lang).block()
 
         then:
         noExceptionThrown()
+
+        where:
+        client                  | userType      | lang
+        noAuthLocationClient    | "no auth"     | "eng"
+        adminLocationClient     | "admin"       | "eng"
+
     }
 
-    def "result from .../locations/{language} can be deserialized"() {
-        given:
-        def lang = "eng"
-
+    def "Data from LocationClient.getLocation(String) matches expected format when queried as #userType"(LocationClient client, String userType, String lang) {
         when:
-        def locations = locationClient.getLanguage(lang)
-
-        then:
-        verifyAll {
-            locations.each { loc ->
-                loc instanceof CountryStatePair
-            }
-        }
-    }
-
-    def "result data from .../locations/{language} matches expected format"() {
-        given:
-        def lang = "eng"
-
-        when:
-        def location = locationClient.getLanguage(lang).block().first
+        CountryContext location = client.getLocation(lang).block().first
 
         then:
         verifyAll {
@@ -65,5 +55,10 @@ class LocationSpec extends JustServeSpec {
             location.getState() == null || location.getState() ==~ /.+/
             location.getCounty() == null || location.getCounty() ==~ /.+/
         }
+
+        where:
+        client                  | userType      | lang
+        noAuthLocationClient    | "no auth"     | "eng"
+        adminLocationClient     | "admin"       | "eng"
     }
 }
