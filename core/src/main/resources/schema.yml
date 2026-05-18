@@ -59,7 +59,7 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/CountryStatePair"
-  /api/v1/locations//{parentId}/{locale}:
+  /api/v1/locations/{parentId}/{locale}:
     get:
       description: Get the children of a parent location, in a certain locale
       operationId: getCivicChild
