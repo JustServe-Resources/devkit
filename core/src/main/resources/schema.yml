@@ -31,7 +31,7 @@ paths:
                 $ref: '#/components/schemas/ImageUploadResponse'
   /api/v1/locations/{language}:
     get:
-      tags: [ "Locations" ]
+      tags: [ Location ]
       description: Get all locations in a language
       operationId: getLanguage
       parameters:
