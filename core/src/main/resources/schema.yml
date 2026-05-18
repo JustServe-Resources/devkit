@@ -59,6 +59,42 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/CountryStatePair"
+  /api/v1/locations//{parentId}/{locale}:
+    get:
+      description: Get the children of a parent location, in a certain locale
+      operationId: getCivicChild
+      tags: [ Location ]
+      parameters:
+        - name: parentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: locale
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CivicChildResult"
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CivicChildResult"
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CivicChildResult"
   /api/v1/organizations:
     post:
       tags: [ Organization ]
@@ -486,6 +522,19 @@ components:
       x-enum-varnames:
         - LdsGeography
         - Organization
+    CivicChildResult:
+      type: object
+      properties:
+        parentCivicId:
+          type: string
+          format: uuid
+        civicId:
+          type: string
+          format: uuid
+        name:
+          type: string
+          nullable: true
+      additionalProperties: false
     ChurchCivicGeographyUserRole:
       type: object
       properties:

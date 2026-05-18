@@ -20,6 +20,17 @@ class LocationSpec extends JustServeSpec {
         locationClient = noAuthCtx.getBean(LocationClient)
     }
 
+    def "language endpoint returns without errors"() {
+        given:
+        def lang = "eng"
+
+        when:
+        locationClient.getLanguage(lang).block()
+
+        then:
+        noExceptionThrown()
+    }
+
     def "result from language endpoint can be deserialized"() {
         given:
         def lang = "eng"
@@ -32,6 +43,27 @@ class LocationSpec extends JustServeSpec {
             locations.each { loc ->
                 loc instanceof CountryStatePair
             }
+        }
+    }
+
+    def "result data from language endpoint matches expected format"() {
+        given:
+        def lang = "eng"
+
+        when:
+        def location = locationClient.getLanguage(lang).block().first
+
+        then:
+        verifyAll {
+            location != null
+            location.getCountryInfo() != null
+
+            location.getCountryInfo().getTwoCharCode() == null || location.getCountryInfo().getTwoCharCode() ==~ /[a-z]{2}/
+            location.getCountryInfo().getThreeCharCode() == null || location.getCountryInfo().getThreeCharCode() ==~ /[a-z]{3}/
+            location.getCountryInfo().getCountryPhone() == null || location.getCountryInfo().getCountryPhone() ==~ /\d+/
+            location.getCountry() == null || location.getCountry() ==~ /.+/
+            location.getState() == null || location.getState() ==~ /.+/
+            location.getCounty() == null || location.getCounty() ==~ /.+/
         }
     }
 }
