@@ -2081,3 +2081,5 @@ components:
           nullable: true
         lang3char:
           description: abbreviation of the language. Currently does not seem to follow any standardized format
+          type: string
+          nullable: true
