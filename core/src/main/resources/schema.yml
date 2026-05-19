@@ -11,6 +11,8 @@ info:
     - User
     - Organization
     - Project
+    - Location
+    - Language
 paths:
   /api/v1/images:
     post:
@@ -31,8 +33,8 @@ paths:
                 $ref: '#/components/schemas/ImageUploadResponse'
   /api/v1/languages:
     get:
-      tags:
-        - Language
+      tags: [ Language ]
+      operationId: getLanguages
       responses:
         "200":
           description: OK
