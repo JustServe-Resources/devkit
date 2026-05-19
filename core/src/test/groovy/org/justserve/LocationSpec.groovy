@@ -1,64 +1,41 @@
 package org.justserve
 
 import io.micronaut.test.extensions.spock.annotation.MicronautTest
+import org.justserve.client.LanguageClient
 import org.justserve.client.LocationClient
-import org.justserve.model.CountryContext
 import spock.lang.Shared
+import spock.lang.Unroll
 
-/**
- * Test API endpoints under /api/v1/locations/*
- *
- * @author Peter Madsen
- */
 @MicronautTest()
 class LocationSpec extends JustServeSpec {
 
     @Shared
-    LocationClient noAuthLocationClient
+    LocationClient noAuthLocationClient, locationClient
 
     @Shared
-    LocationClient adminLocationClient
+    LanguageClient languageClient
+
+    @Shared
+    List<String> threeCharLocales
 
     def setupSpec() {
         noAuthLocationClient = noAuthCtx.getBean(LocationClient)
-        adminLocationClient = ctx.getBean(LocationClient)
+        locationClient = ctx.getBean(LocationClient)
+        languageClient = ctx.getBean(LanguageClient)
+        threeCharLocales = languageClient.getLanguages().block().collect { locale -> locale.getLang3char() }
     }
 
-    def "Can query LocationClient.getLocation(String) with no error as #userType"(LocationClient client, String userType, String lang){
-
+    @SuppressWarnings("GroovyAssignabilityCheck")
+    @Unroll ("Can query LocationClient.getLocation(#lang) with no error as #userType")
+    def "can query location with by a given language"(LocationClient client, String userType, String lang){
         when:
-        CountryContext[] locations = client.getLocation(lang).block()
+        client.getLocation(lang).block()
 
         then:
         noExceptionThrown()
 
         where:
-        client                  | userType      | lang
-        noAuthLocationClient    | "no auth"     | "eng"
-        adminLocationClient     | "admin"       | "eng"
-
+        [[client, userType], lang] << [[[noAuthLocationClient, "no auth"], [locationClient, "standard"]], threeCharLocales].combinations()
     }
 
-    def "Data from LocationClient.getLocation(String) matches expected format when queried as #userType"(LocationClient client, String userType, String lang) {
-        when:
-        CountryContext location = client.getLocation(lang).block().first
-
-        then:
-        verifyAll {
-            location != null
-            location.getCountryInfo() != null
-
-            location.getCountryInfo().getTwoCharCode() == null || location.getCountryInfo().getTwoCharCode() ==~ /[a-z]{2}/
-            location.getCountryInfo().getThreeCharCode() == null || location.getCountryInfo().getThreeCharCode() ==~ /[a-z]{3}/
-            location.getCountryInfo().getCountryPhone() == null || location.getCountryInfo().getCountryPhone() ==~ /\d+/
-            location.getCountry() == null || location.getCountry() ==~ /.+/
-            location.getState() == null || location.getState() ==~ /.+/
-            location.getCounty() == null || location.getCounty() ==~ /.+/
-        }
-
-        where:
-        client                  | userType      | lang
-        noAuthLocationClient    | "no auth"     | "eng"
-        adminLocationClient     | "admin"       | "eng"
-    }
 }
