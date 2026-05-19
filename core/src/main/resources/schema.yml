@@ -11,6 +11,8 @@ info:
     - User
     - Organization
     - Project
+    - Location
+    - Language
 paths:
   /api/v1/images:
     post:
@@ -29,6 +31,95 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ImageUploadResponse'
+  /api/v1/languages:
+    get:
+      tags: [ Language ]
+      operationId: getLanguages
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LocaleNames"
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LocaleNames"
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LocaleNames"
+  /api/v1/locations/{language}:
+    get:
+      tags: [ Location ]
+      description: Get all locations in a language
+      operationId: getLocation
+      parameters:
+          - name: "language"
+            in: "path"
+            required: true
+            schema:
+              type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CountryContext"
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CountryContext"
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CountryContext"
+  /api/v1/locations/{parentId}/{locale}:
+    get:
+      description: Get the children of a parent location, in a certain locale
+      operationId: getCivicChild
+      tags: [ Location ]
+      parameters:
+        - name: parentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: locale
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CivicChildResult"
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CivicChildResult"
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CivicChildResult"
   /api/v1/organizations:
     post:
       tags: [ Organization ]
@@ -456,6 +547,19 @@ components:
       x-enum-varnames:
         - LdsGeography
         - Organization
+    CivicChildResult:
+      type: object
+      properties:
+        parentCivicId:
+          type: string
+          format: uuid
+        civicId:
+          type: string
+          format: uuid
+        name:
+          type: string
+          nullable: true
+      additionalProperties: false
     ChurchCivicGeographyUserRole:
       type: object
       properties:
@@ -820,7 +924,7 @@ components:
     ProjectSlimResponse:
       type: object
       properties:
-        id: { type: string, format: uuid}
+        id: { type: string, format: uuid }
         title: { type: string, nullable: true }
         description: { type: string, nullable: true }
         projectExpired: { type: boolean }
@@ -1154,16 +1258,16 @@ components:
         projectOwnerLocation:
           type: object
           properties:
-            mapId: {}
+            mapId: { }
             fullDisplayAddress:
               type: string
-            address: {}
-            suite: {}
+            address: { }
+            suite: { }
             city:
               type: string
             civicCityId:
               type: string
-            neighborhood: {}
+            neighborhood: { }
             county:
               type: string
             state:
@@ -1198,10 +1302,10 @@ components:
               type: number
             geoCodeOverride:
               type: boolean
-            timezone: {}
+            timezone: { }
         ownerLog:
           type: array
-          items: {}
+          items: { }
         projectType:
           type: number
         status:
@@ -1222,10 +1326,10 @@ components:
           type: string
         attachments:
           type: array
-          items: {}
+          items: { }
         attachmentInfo:
           type: array
-          items: {}
+          items: { }
         applicant:
           type: object
           properties:
@@ -1256,9 +1360,9 @@ components:
         contact:
           type: object
           properties:
-            name: {}
-            phone: {}
-            email: {}
+            name: { }
+            phone: { }
+            email: { }
           required:
             - name
             - phone
@@ -1295,11 +1399,11 @@ components:
             url: {}
             internalUrl: {}
             organizationId: { type: string, format: uuid }
-            reviewedBy: {}
-            reviewedOn: {}
+            reviewedBy: { }
+            reviewedOn: { }
             linked:
               type: boolean
-            logo: {}
+            logo: { }
         suitableAllAges:
           type: boolean
         groupProject:
@@ -1324,22 +1428,22 @@ components:
           type: string
         skills:
           type: array
-          items: {}
+          items: { }
         interests:
           type: array
-          items: {}
+          items: { }
         tools:
           type: array
-          items: {}
+          items: { }
         projectSkills:
           type: array
-          items: {}
+          items: { }
         projectInterests:
           type: array
-          items: {}
+          items: { }
         projectTools:
           type: array
-          items: {}
+          items: { }
         externalVolunteerURL:
           type: string
         isExternalProject:
@@ -1360,14 +1464,14 @@ components:
           type: boolean
         daysOfWeek:
           type: array
-          items: {}
+          items: { }
         timesOfDay:
           type: array
-          items: {}
-        waiverURL: {}
+          items: { }
+        waiverURL: { }
         dtl:
           type: array
-          items: {}
+          items: { }
         onGoing:
           type: array
           items:
@@ -1385,13 +1489,13 @@ components:
                 type: string
               scheduleLanguage:
                 type: object
-                properties: {}
-                required: []
-              specialDirections: {}
+                properties: { }
+                required: [ ]
+              specialDirections: { }
               specialDirectionsLanguage:
                 type: object
-                properties: {}
-                required: []
+                properties: { }
+                required: [ ]
               locationName:
                 type: string
               locationLink:
@@ -1399,27 +1503,27 @@ components:
               location:
                 type: object
                 properties:
-                  mapId: {}
+                  mapId: { }
                   fullDisplayAddress:
                     type: string
-                  address: {}
-                  suite: {}
+                  address: { }
+                  suite: { }
                   city:
                     type: string
-                  civicCityId: {}
-                  neighborhood: {}
-                  county: {}
-                  state: {}
-                  postal: {}
+                  civicCityId: { }
+                  neighborhood: { }
+                  county: { }
+                  state: { }
+                  postal: { }
                   country:
                     type: string
-                  countryCode: {}
+                  countryCode: { }
                   locationVisibilityId:
                     type: number
-                  missionId: {}
-                  ccId: {}
-                  stakeId: {}
-                  areaId: {}
+                  missionId: { }
+                  ccId: { }
+                  stakeId: { }
+                  areaId: { }
                   latitude:
                     type: number
                   longitude:
@@ -1439,7 +1543,7 @@ components:
                 required:
               interested:
                 type: array
-                items: {}
+                items: { }
               contacts:
                 type: array
                 items:
@@ -1457,11 +1561,11 @@ components:
                     - email
               boundaries:
                 type: array
-                items: {}
+                items: { }
             required:
-        recurring: {}
-        lastChangeReason: {}
-        escalated: {}
+        recurring: { }
+        lastChangeReason: { }
+        escalated: { }
         created:
           type: string
         updated:
@@ -1470,8 +1574,8 @@ components:
           type: string
         deleted:
           type: boolean
-        deletedOn: {}
-        deletedBy: {}
+        deletedOn: { }
+        deletedBy: { }
         firstStartDateTimeOffset:
           type: string
         lastEndDateTimeOffset:
@@ -1488,7 +1592,7 @@ components:
           type: string
         volunteerCentersData:
           type: array
-          items: {}
+          items: { }
         relativityScore:
           type: number
         projectOwnerName:
@@ -1936,3 +2040,48 @@ components:
           format: uuid
         logo:
           type: string
+    CountryInfo:
+      type: object
+      properties:
+        twoCharCode:
+          type: string
+          description: "ISO 3166-1 standard two-letter country code"
+          nullable: true
+        threeCharCode:
+          type: string
+          description: "ISO 3166-1 standard three-letter country code"
+          nullable: true
+        countryPhone:
+          type: string
+          description: "international phone prefix"
+          nullable: true
+      additionalProperties: false
+    CountryContext:
+      type: object
+      properties:
+        countryInfo:
+          $ref: "#/components/schemas/CountryInfo"
+        country:
+          type: string
+          nullable: true
+        state:
+          type: string
+          nullable: true
+        county:
+          type: string
+          nullable: true
+    LocaleNames:
+      type: object
+      properties:
+        bcp47:
+          description: locale abbreviation per the <a href='https://developer.mozilla.org/en-US/docs/Glossary/BCP_47_language_tag' BCP 47 standard</a>
+          type: string
+          nullable: true
+        name:
+          description: locale name
+          type: string
+          nullable: true
+        lang3char:
+          description: abbreviation of the language. Currently does not seem to follow any standardized format
+          type: string
+          nullable: true
