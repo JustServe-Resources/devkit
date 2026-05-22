@@ -84,7 +84,7 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/CountryContext"
-  /api/v1/locations/{parentId}/{locale}:
+  /api/v1/locations/chidren/{parentId}/{locale}:
     get:
       description: Get the children of a parent location, in a certain locale
       operationId: getCivicChild
