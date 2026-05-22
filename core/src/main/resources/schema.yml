@@ -84,6 +84,36 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/CountryContext"
+  /api/v1/locations/{language}/address/{address}:
+    get:
+      description: Get a location by an address
+      operationId: getLocationByAddress
+      tags:
+        [ Location ]
+      parameters:
+        - name: language
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/Location"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Location"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/Location"
   /api/v1/locations/{language}/countries:
     get:
       description: Get a list of all countries, in a certain language
