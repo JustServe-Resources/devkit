@@ -84,6 +84,37 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/CountryContext"
+  /api/v1/locations/{language}/countries:
+    get:
+      description: Get a list of all countries, in a certain language
+      operationId: getCountries
+      tags:
+        [ Location ]
+      parameters:
+        - name: language
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  type: string
+            applications/json:
+              schema:
+                type: array
+                items:
+                  type: string
+            text/json:
+              schema:
+                type: array
+                items:
+                  type: string
   /api/v1/locations/chidren/{parentId}/{locale}:
     get:
       description: Get the children of a parent location, in a certain locale
