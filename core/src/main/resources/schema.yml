@@ -1189,8 +1189,32 @@ components:
       additionalProperties: false
     Location:
       type: object
-      properties: { latitude: { type: number, format: double },
-                    longitude: { type: number, format: double } }
+      properties:
+        mapId: { type: string, nullable: true }
+        fullDisplayAddress: { type: string, nullable: true }
+        address: { type: string, nullable: true }
+        suite: { type: string, nullable: true }
+        city: { type: string, nullable: true }
+        civicCityId: { type: string, format: uuid, nullable: true }
+        neighborhood: { type: string, nullable: true }
+        county: { type: string, nullable: true }
+        state: { type: string, nullable: true }
+        postal: { type: string, nullable: true }
+        country: { type: string, nullable: true }
+        countryCode: { type: string, nullable: true }
+        locationVisibilityId: { type: integer, format: int32 }
+        missionId: { type: string, nullable: true }
+        ccId: { type: string, nullable: true }
+        stakeId: { type: string, nullable: true }
+        areaId: { type: string, nullable: true }
+        latitude: { type: number, format: double }
+        longitude: { type: number, format: double }
+        maxLatitude: { type: number, format: double }
+        minLatitude: { type: number, format: double }
+        maxLongitude: { type: number, format: double }
+        minLongitude: { type: number, format: double }
+        geoCodeOverride: { type: boolean }
+        timezone: { type: string, nullable: true }
       additionalProperties: false
     LocationWithRadius:
       type: object,
@@ -1207,6 +1231,7 @@ components:
         postal: { type: string, nullable: true }
         country: { type: string, nullable: true }
         countryCode: { type: string, nullable: true }
+        locationVisibilityId: { type: integer, format: int32 }
         missionId: { type: string, nullable: true }
         ccId: { type: string, nullable: true }
         stakeId: { type: string, nullable: true }
