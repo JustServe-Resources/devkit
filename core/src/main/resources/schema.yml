@@ -1217,7 +1217,7 @@ components:
         timezone: { type: string, nullable: true }
       additionalProperties: false
     LocationWithRadius:
-      type: object,
+      type: object
       properties:
         mapId: { type: string, nullable: true }
         fullDisplayAddress: { type: string, nullable: true }
