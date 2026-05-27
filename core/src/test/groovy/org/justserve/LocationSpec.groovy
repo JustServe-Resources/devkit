@@ -51,17 +51,16 @@ class LocationSpec extends JustServeSpec {
         [[client, userType], lang] << [[[noAuthLocationClient, "no auth"], [locationClient, "standard"]], threeCharLocales].combinations()
     }
 
-    @SuppressWarnings("GroovyAssignabilityCheck, GroovyUnusedAssignment")
-    @Unroll("Can query LocationClient.getLocationByAddress(#lang, #address) with no error as #userType")
-    def "can query location by address for a given language"(LocationClient client, String userType, String lang, String address){
+    @SuppressWarnings("GroovyAssignabilityCheck")
+    @Unroll("Can query LocationClient.getLocationByAddress(#lang, address) for a known working location with no error as #userType")
+    def "can query location by address for a given language"(LocationClient client, String userType, String lang){
         when:
-        client.getLocationByAddress(lang, address).block()
+        client.getLocationByAddress(lang, knownWorkingLocation).block()
 
         then:
         noExceptionThrown()
 
         where:
         [[client, userType], lang] << [[[noAuthLocationClient, "no auth"], [locationClient, "standard"]], threeCharLocales].combinations()
-        address = knownWorkingLocation
     }
 }
