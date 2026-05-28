@@ -2127,12 +2127,15 @@ components:
             - $ref: "#/components/schemas/CountryIdentifiers"
           description: "Should be named countryIdentifiers to avoid confusion, but maintain JSON property 'countryInfo'"
         country:
+          description: "Name of the country"
           type: string
           nullable: true
         state:
+          description: "A principal subdivision of a country"
           type: string
           nullable: true
         county:
+          description: "A smaller subdivision of a state"
           type: string
           nullable: true
     LocaleNames:
