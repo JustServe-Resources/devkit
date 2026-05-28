@@ -2103,7 +2103,7 @@ components:
           format: uuid
         logo:
           type: string
-    CountryInfo:
+    CountryIdentifiers:
       type: object
       properties:
         twoCharCode:
@@ -2123,7 +2123,9 @@ components:
       type: object
       properties:
         countryInfo:
-          $ref: "#/components/schemas/CountryInfo"
+          allOf:
+            - $ref: "#/components/schemas/CountryIdentifiers"
+          description: "Should be named countryIdentifiers to avoid confusion, but maintain JSON property 'countryInfo'"
         country:
           type: string
           nullable: true
