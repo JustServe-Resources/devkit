@@ -1189,40 +1189,99 @@ components:
       additionalProperties: false
     Location:
       type: object
+      description: "Representation of a real-world location"
       properties:
-        mapId: { type: string, nullable: true }
-        fullDisplayAddress: { type: string, nullable: true }
-        address: { type: string, nullable: true }
-        suite: { type: string, nullable: true }
-        city: { type: string, nullable: true }
-        civicCityId: { type: string, format: uuid, nullable: true }
-        neighborhood: { type: string, nullable: true }
-        county: { type: string, nullable: true }
-        state: { type: string, nullable: true }
-        postal: { type: string, nullable: true }
-        country: { type: string, nullable: true }
-        countryCode: { type: string, nullable: true }
-        locationVisibilityId: { type: integer, format: int32 }
-        missionId: { type: string, nullable: true }
-        ccId: { type: string, nullable: true }
-        stakeId: { type: string, nullable: true }
-        areaId: { type: string, nullable: true }
-        latitude: { type: number, format: double }
-        longitude: { type: number, format: double }
-        maxLatitude: { type: number, format: double }
-        minLatitude: { type: number, format: double }
-        maxLongitude: { type: number, format: double }
-        minLongitude: { type: number, format: double }
-        geoCodeOverride: { type: boolean }
-        timezone: { type: string, nullable: true }
+        mapId:
+          type: string
+          nullable: true
+        fullDisplayAddress:
+          description: "Full representation of this location's address"
+          type: string
+          nullable: true
+        address:
+          description: "Primary street address"
+          type: string
+          nullable: true
+        suite:
+          description: "Additional address details"
+          type: string
+          nullable: true
+        city:
+          type: string
+          nullable: true
+        civicCityId:
+          type: string
+          format: uuid
+          nullable: true
+        neighborhood:
+          type: string
+          nullable: true
+        county:
+          type: string
+          nullable: true
+        state:
+          type: string
+          nullable: true
+        postal:
+          type: string
+          nullable: true
+        country:
+          type: string
+          nullable: true
+        countryCode:
+          description: "ISO 3166-1 standard three-letter country code"
+          type: string
+          nullable: true
+        locationVisibilityId:
+          type: integer
+          format: int32
+        missionId:
+          type: string
+          nullable: true
+        ccId:
+          type: string
+          nullable: true
+        stakeId:
+          type: string
+          nullable: true
+        areaId:
+          type: string
+          nullable: true
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+        maxLatitude:
+          type: number
+          format: double
+        minLatitude:
+          type: number
+          format: double
+        maxLongitude:
+          type: number
+          format: double
+        minLongitude:
+          type: number
+          format: double
+        geoCodeOverride:
+          type: boolean
+        timezone:
+          type: string
+          nullable: true
       additionalProperties: false
     LocationWithRadius:
+      description: "Representation of an area in the vicinity of a real-world location"
       allOf:
         - $ref: '#/components/schemas/Location'
         - type: object
           properties:
             radiusType: { $ref: '#/components/schemas/DistanceType' }
-            countryCode2Char: { type: string, nullable: true }
+            countryCode2Char:
+              description: "ISO 3166-1 standard two-letter country code"
+              type: string
+              nullable: true
           additionalProperties: false
     VolunteerCenterInfo:
       type: object
