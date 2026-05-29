@@ -2162,8 +2162,9 @@ components:
           format: uuid
         logo:
           type: string
-    CountryIdentifiers:
+    CountryBasicIdentifiers:
       type: object
+      description: "Basic standardized identifiers for a country."
       properties:
         twoCharCode:
           type: string
@@ -2183,8 +2184,8 @@ components:
       properties:
         countryInfo:
           allOf:
-            - $ref: "#/components/schemas/CountryIdentifiers"
-          description: "Should be named countryIdentifiers to avoid confusion, but maintain JSON property 'countryInfo'"
+            - $ref: "#/components/schemas/CountryBasicIdentifiers"
+          description: "Basic standardized identifiers for a country. Should be named countryBasicIdentifiers to avoid confusion, but maintain JSON property 'countryInfo'"
         country:
           description: "Name of the country"
           type: string
