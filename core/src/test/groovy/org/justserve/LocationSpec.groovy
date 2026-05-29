@@ -38,4 +38,17 @@ class LocationSpec extends JustServeSpec {
         [[client, userType], lang] << [[[noAuthLocationClient, "no auth"], [locationClient, "standard"]], threeCharLocales].combinations()
     }
 
+    @SuppressWarnings("GroovyAssignabilityCheck")
+    @Unroll("Can query LocationClient.getAllCountryIdentifiers(#lang) with no error as #userType")
+    def "can query all country identifiers for a given language"(LocationClient client, String userType, String lang) {
+        when:
+        client.getAllCountryIdentifiers(lang).block()
+
+        then:
+        noExceptionThrown()
+
+        where:
+        [[client, userType], lang] << [[[noAuthLocationClient, "no auth"], [locationClient, "standard"]], threeCharLocales].combinations()
+    }
+
 }
