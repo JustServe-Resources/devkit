@@ -548,6 +548,7 @@ components:
           additionalProperties: false
     CountryBasicIdentifiers:
       type: object
+      description: Basic standardized identifiers for a country.
       properties:
         twoCharCode:
           type: string
