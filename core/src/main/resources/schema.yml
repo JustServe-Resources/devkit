@@ -84,6 +84,36 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/CountryContext"
+  /api/v1/locations/{language}/countries/postal:
+    get:
+      description: Get identifiers for all countries
+      operationId: getAllCountryIdentifiers
+      tags: [ Location ]
+      parameters:
+        - name: language
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CountryIdentifiers"
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CountryIdentifiers"
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CountryIdentifiers"
   /api/v1/locations/{parentId}/{locale}:
     get:
       description: Get the children of a parent location, in a certain locale
@@ -435,6 +465,24 @@ components:
         county:
           type: string
           nullable: true
+    CountryIdentifiers:
+      description: Standardized identifiers for a country.
+      allOf:
+        - $ref: "#/components/schemas/CountryInfo"
+        - type: object
+          properties:
+            usePostal:
+              type: boolean
+            countryName:
+              description: name of the country
+              type: string
+              nullable: true
+            countryId:
+              description: UUID associated with this country
+              type: string
+              format: uuid # This restriction is not present in swagger.json, but all returns are of UUID form
+              nullable: true
+          additionalProperties: false
     CountryInfo:
       type: object
       properties:
