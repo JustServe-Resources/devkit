@@ -84,6 +84,67 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/CountryContext"
+  /api/v1/locations/{language}/address/{address}:
+    get:
+      description: Get a location by an address
+      operationId: getLocationByAddress
+      tags:
+        [ Location ]
+      parameters:
+        - name: language
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/Location"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Location"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/Location"
+  /api/v1/locations/{language}/countries:
+    get:
+      description: Get a list of all countries, in a certain language
+      operationId: getCountries
+      tags:
+        [ Location ]
+      parameters:
+        - name: language
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  type: string
+            applications/json:
+              schema:
+                type: array
+                items:
+                  type: string
+            text/json:
+              schema:
+                type: array
+                items:
+                  type: string
   /api/v1/locations/{language}/countries/postal:
     get:
       description: Get identifiers for all countries
@@ -455,7 +516,9 @@ components:
       type: object
       properties:
         countryInfo:
-          $ref: "#/components/schemas/CountryInfo"
+          allOf:
+            - $ref: "#/components/schemas/CountryBasicIdentifiers"
+          description: "Basic identifiers for a country. Should be named countryIdentifiers to avoid confusion, but maintain JSON property 'countryInfo'"
         country:
           type: string
           nullable: true
@@ -465,26 +528,9 @@ components:
         county:
           type: string
           nullable: true
-    CountryIdentifiers:
-      description: Standardized identifiers for a country.
-      allOf:
-        - $ref: "#/components/schemas/CountryInfo"
-        - type: object
-          properties:
-            usePostal:
-              type: boolean
-            countryName:
-              description: name of the country
-              type: string
-              nullable: true
-            countryId:
-              description: UUID associated with this country
-              type: string
-              format: uuid # This restriction is not present in swagger.json, but all returns are of UUID form
-              nullable: true
-          additionalProperties: false
-    CountryInfo:
+    CountryBasicIdentifiers:
       type: object
+      description: Basic standardized identifiers for a country.
       properties:
         twoCharCode:
           type: string
@@ -499,6 +545,24 @@ components:
           description: "international phone prefix"
           nullable: true
       additionalProperties: false
+    CountryIdentifiers:
+      description: Standardized identifiers for a country.
+      allOf:
+        - $ref: "#/components/schemas/CountryBasicIdentifiers"
+        - type: object
+          properties:
+            usePostal:
+              type: boolean
+            countryName:
+              description: name of the country
+              type: string
+              nullable: true
+            countryId:
+              description: UUID associated with this country
+              type: string
+              format: uuid # This restriction is not present in swagger.json, but all returns are of UUID form
+              nullable: true
+          additionalProperties: false
     DistanceType:
       type: string
       enum:
@@ -1038,16 +1102,12 @@ components:
           nullable: true
     Location:
       type: object
-      properties: { latitude: { type: number, format: double },
-                    longitude: { type: number, format: double } }
-      additionalProperties: false
-    LocationWithRadius:
-      type: object,
+      description: "Representation of a real-world location"
       properties:
         mapId: { type: string, nullable: true }
-        fullDisplayAddress: { type: string, nullable: true }
-        address: { type: string, nullable: true }
-        suite: { type: string, nullable: true }
+        fullDisplayAddress: { description: "Full representation of this location's address", type: string, nullable: true }
+        address: { description: "Primary street address", type: string, nullable: true }
+        suite: { description: "Additional address details", type: string, nullable: true }
         city: { type: string, nullable: true }
         civicCityId: { type: string, format: uuid, nullable: true }
         neighborhood: { type: string, nullable: true }
@@ -1055,7 +1115,8 @@ components:
         state: { type: string, nullable: true }
         postal: { type: string, nullable: true }
         country: { type: string, nullable: true }
-        countryCode: { type: string, nullable: true }
+        countryCode: { description: "ISO 3166-1 standard three-letter country code", type: string, nullable: true }
+        locationVisibilityId: { type: number, format: int32 }
         missionId: { type: string, nullable: true }
         ccId: { type: string, nullable: true }
         stakeId: { type: string, nullable: true }
@@ -1068,9 +1129,16 @@ components:
         minLongitude: { type: number, format: double }
         geoCodeOverride: { type: boolean }
         timezone: { type: string, nullable: true }
-        radiusType: { $ref: '#/components/schemas/DistanceType' }
-        countryCode2Char: { type: string, nullable: true }
       additionalProperties: false
+    LocationWithRadius:
+      description: "Representation of an area in the vicinity of a real-world location"
+      allOf:
+        - $ref: '#/components/schemas/Location'
+        - type: object
+          properties:
+            radiusType: { $ref: '#/components/schemas/DistanceType' }
+            countryCode2Char: { description: "ISO 3166-1 standard two-letter country code", type: string, nullable: true }
+          additionalProperties: false
     OrgRepresentative:
       type: object
       properties:
