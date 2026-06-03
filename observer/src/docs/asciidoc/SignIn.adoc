@@ -1,0 +1,55 @@
+= User Journey: First‑time JustServe User Creates an Account (Web)
+
+== Target Audience
+
+*Primary persona:* Young man, 15 years old, heard about JustServe from a ward leader. Wants to do service with his friends and visits the website.
+
+== User’s Context &amp; End Goal
+
+* *Context:* The user has just discovered JustServe and wants to start volunteering but is unfamiliar with the website and account process.
+* *End Goal:* The user successfully creates a free JustServe account and has volunteered for a project.
+
+== Journey Stages
+
+. Visits JustServe.org
+. Views the homepage
+. Clicks on an interesting project
+. Decides to click volunteer (gets message you need to be signed in)
+. Creates an account
+. navigates back to previous project
+. volunteers for project
+
+== Actions (Action → Result)
+
+. *User navigates to the Register page* (`justserve.org/register`) → *System displays* the registration form with required fields (first name, last name, email, language, country, postal code, password, confirm password) and the age/terms acknowledgment checkbox.
+. *User completes the form and selects “Create Account”* → *System creates* the account and displays a "Thank You" screen with a *Continue* button.
+. *User selects “Continue”* → *System opens* the onboarding flow to select interests and skills.
+. *User selects interests and chooses “Continue” or selects “Skip for now”* → *System proceeds* to the main experience where the user can begin serving.
+
+____
+
+*Note:*
+- Whether an email activation step is required before the account is fully usable is *[NEEDS VERIFICATION]*.
+- Password complexity rules are not surfaced in the registration UI and are *[NEEDS VERIFICATION]*.
+
+____
+
+== Inner Monologue
+
+* "I hope I can find a good project to do…"
+* “I just want to volunteer somewhere—do I really need an account first?”
+* “It’s asking for my postal code. Is that just so it can show me projects nearby?”
+* “I’m not sure what the password requirements are—I hope this works and that I don't forget it.&quot;
+* “There are a lot of interest options. I don’t know yet… oh, I can skip this for now.”
+* "Great I'm signed in now. Wait… where did the project I was looking at go?"
+
+== End State (Success Indicators)
+
+* *Goal Achievement:* The user successfully creates a JustServe account and has volunteered for a project.
+* *System Integrity:* The system stores the user’s profile information and records acceptance of the age, Terms of Use, and Privacy Notice.
+* *Next Steps Clarity:* The user is guided into onboarding and understands they can start browsing or participating in service opportunities immediately.
+
+== Alternative Paths / Edge Cases
+
+* *User starts at Sign In:* User selects *Register Now* from the Sign In page and is redirected to registration.
+* *User skips onboarding:* User selects *Skip for now* during interest selection and proceeds without completing onboarding.
