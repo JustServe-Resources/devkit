@@ -528,6 +528,23 @@ components:
         county:
           type: string
           nullable: true
+    CountryBasicIdentifiers:
+      type: object
+      description: Basic standardized identifiers for a country.
+      properties:
+        twoCharCode:
+          type: string
+          description: "ISO 3166-1 standard two-letter country code"
+          nullable: true
+        threeCharCode:
+          type: string
+          description: "ISO 3166-1 standard three-letter country code"
+          nullable: true
+        countryPhone:
+          type: string
+          description: "international phone prefix"
+          nullable: true
+      additionalProperties: false
     CountryIdentifiers:
       description: Standardized identifiers for a country.
       allOf:
@@ -546,23 +563,6 @@ components:
               format: uuid # This restriction is not present in swagger.json, but all returns are of UUID form
               nullable: true
           additionalProperties: false
-    CountryBasicIdentifiers:
-      type: object
-      description: Basic standardized identifiers for a country.
-      properties:
-        twoCharCode:
-          type: string
-          description: "ISO 3166-1 standard two-letter country code"
-          nullable: true
-        threeCharCode:
-          type: string
-          description: "ISO 3166-1 standard three-letter country code"
-          nullable: true
-        countryPhone:
-          type: string
-          description: "international phone prefix"
-          nullable: true
-      additionalProperties: false
     DistanceType:
       type: string
       enum:
