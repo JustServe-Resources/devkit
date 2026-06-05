@@ -67,28 +67,28 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/CountryInfo"
+                  $ref: "#/components/schemas/CountryBasicIdentifiers"
             applications/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/CountryInfo"
+                  $ref: "#/components/schemas/CountryBasicIdentifiers"
             text/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/CountryInfo"
+                  $ref: "#/components/schemas/CountryBasicIdentifiers"
   /api/v1/locations/{language}:
     get:
       tags: [ Location ]
       description: Get all locations in a language
       operationId: getLocation
       parameters:
-          - name: "language"
-            in: "path"
-            required: true
-            schema:
-              type: string
+        - name: "language"
+          in: "path"
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: OK
@@ -108,6 +108,97 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/CountryContext"
+  /api/v1/locations/{language}/address/{address}:
+    get:
+      description: Get a location by an address
+      operationId: getLocationByAddress
+      tags:
+        [ Location ]
+      parameters:
+        - name: language
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/Location"
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Location"
+            text/json:
+              schema:
+                $ref: "#/components/schemas/Location"
+  /api/v1/locations/{language}/countries:
+    get:
+      description: Get a list of all countries, in a certain language
+      operationId: getCountries
+      tags:
+        [ Location ]
+      parameters:
+        - name: language
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  type: string
+            applications/json:
+              schema:
+                type: array
+                items:
+                  type: string
+            text/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  /api/v1/locations/{language}/countries/postal:
+    get:
+      description: Get identifiers for all countries
+      operationId: getAllCountryIdentifiers
+      tags: [ Location ]
+      parameters:
+        - name: language
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CountryIdentifiers"
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CountryIdentifiers"
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CountryIdentifiers"
   /api/v1/locations/{parentId}/{locale}:
     get:
       description: Get the children of a parent location, in a certain locale
@@ -186,6 +277,19 @@ paths:
         200:
           description: OK
           content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/UserSlimSearchResult' } } } }
+  /api/v1/routing/{url}:
+    get:
+      operationId: getOrgIdFromSlug
+      tags:
+        - DynamicRouting
+      parameters: [ { name: url, in: path, required: true, schema: { type: string } } ]
+      responses:
+        '200':
+          description: OK
+          content: { application/json: { schema: { $ref: '#/components/schemas/DynamicRoutingDataResponse' } } }
+        '404':
+          description: Not Found
+          content: { application/json: { schema: { $ref: '#/components/schemas/ProblemDetails' } } }
   /api/v1/users:
     post:
       description: Register a new user on JustServe
@@ -336,24 +440,235 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserResultBounded'
-  /api/v1/routing/{url}:
-    get:
-      operationId: getOrgIdFromSlug
-      tags:
-        - DynamicRouting
-      parameters: [ { name: url, in: path, required: true, schema: { type: string } } ]
-      responses:
-        '200':
-          description: OK
-          content: { application/json: { schema: { $ref: '#/components/schemas/DynamicRoutingDataResponse' } } }
-        '404':
-          description: Not Found
-          content: { application/json: { schema: { $ref: '#/components/schemas/ProblemDetails' } } }
 
 components:
   schemas:
-    TimeZone:
+    BoundaryAdminBounded:
+      type: object
+      properties:
+        id: { type: string, nullable: true }
+        firstName: { type: string, nullable: true }
+        lastName: { type: string, nullable: true }
+        type: { $ref: '#/components/schemas/Role' }
+      additionalProperties: false
+    BoundaryPermissionBounded:
+      type: object
+      properties:
+        id: { type: string, nullable: true }
+        boundary: { type: string, nullable: true }
+        admins:
+          type: array
+          items: { $ref: '#/components/schemas/BoundaryAdminBounded' }
+          nullable: true
+      additionalProperties: false
+    BoundaryType:
+      type: integer
+      format: int32
+      enum:
+        - 0
+        - 1
+      x-enum-varnames:
+        - LdsGeography
+        - Organization
+    BoundaryUpdateRequest:
+      type: object
+      properties:
+        id:
+          description: |
+            When reassigning to a specialist, this is the specialist's church geography ID.
+            Sometimes the security context endpoint will include this information, otherwise you can look up the church ID with 
+            api/v1/locations/lds/{CDOL-id}.
+          type: string
+          nullable: true
+        boundaryType:
+          $ref: '#/components/schemas/BoundaryType'
+        updateInfo:
+          type: array
+          items:
+            $ref: '#/components/schemas/BoundaryUserInfo'
+          nullable: true
+      additionalProperties: false
+    BoundaryUserInfo:
+      type: object
+      properties:
+        addCivicGeographyIds:
+          type: array
+          items: { type: string, format: uuid }
+        removeCivicGeographyIds:
+          type: array
+          items: { type: string, format: uuid }
+          nullable: true
+        role: { $ref: '#/components/schemas/Role' }
+        userId: { type: string, format: uuid }
+        add: { type: boolean, nullable: true }
+      additionalProperties: false
+    ChurchCivicGeographyUserRole:
+      type: object
+      properties:
+        churchGeographyId: { type: string, format: uuid }
+        unitId:
+          type: string
+          nullable: true
+        civicGeographyId: { type: string, format: uuid }
+        role:
+          $ref: '#/components/schemas/Role'
+      additionalProperties: false
+    ChurchGeographyUserRole:
+      type: object
+      properties:
+        churchGeographyId: { type: string, format: uuid }
+        unitId:
+          type: string
+          nullable: true
+        role:
+          $ref: '#/components/schemas/Role'
+      additionalProperties: false
+    CivicChildResult:
+      type: object
+      properties:
+        parentCivicId:
+          type: string
+          format: uuid
+        civicId:
+          type: string
+          format: uuid
+        name:
+          type: string
+          nullable: true
+      additionalProperties: false
+    CountryContext:
+      type: object
+      properties:
+        countryInfo:
+          allOf:
+            - $ref: "#/components/schemas/CountryBasicIdentifiers"
+          description: "Basic identifiers for a country. Should be named countryIdentifiers to avoid confusion, but maintain JSON property 'countryInfo'"
+        country:
+          type: string
+          nullable: true
+        state:
+          type: string
+          nullable: true
+        county:
+          type: string
+          nullable: true
+    CountryBasicIdentifiers:
+      type: object
+      description: Basic standardized identifiers for a country.
+      properties:
+        twoCharCode:
+          type: string
+          description: "ISO 3166-1 standard two-letter country code"
+          nullable: true
+        threeCharCode:
+          type: string
+          description: "ISO 3166-1 standard three-letter country code"
+          nullable: true
+        countryPhone:
+          type: string
+          description: "international phone prefix"
+          nullable: true
+      additionalProperties: false
+    CountryIdentifiers:
+      description: Standardized identifiers for a country.
+      allOf:
+        - $ref: "#/components/schemas/CountryBasicIdentifiers"
+        - type: object
+          properties:
+            usePostal:
+              type: boolean
+            countryName:
+              description: name of the country
+              type: string
+              nullable: true
+            countryId:
+              description: UUID associated with this country
+              type: string
+              format: uuid # This restriction is not present in swagger.json, but all returns are of UUID form
+              nullable: true
+          additionalProperties: false
+    DistanceType:
       type: string
+      enum:
+        - None
+        - Miles
+        - Kilometers
+    DynamicRoutingDataResponse:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        dynamicRouteType:
+          description: "The type of entity the route points to."
+          type: integer
+          format: int32
+          enum: [ 0, 1 ]
+          x-enum-varnames:
+            - Organization
+            - DisasterRelief
+      additionalProperties: false
+    Endorsement:
+      type: object
+      properties:
+        id: { type: string }
+        organizationId: { type: string }
+        userid: { type: string }
+        created: { type: string, format: date-time }
+        updated: { type: string, format: date-time }
+        createdBy: { type: string, nullable: true }
+        updatedBy: { type: string, nullable: true }
+        deleted: { type: boolean }
+        deletedOn: { type: string, format: date-time, nullable: true }
+        deletedBy: { type: string, format: uuid, nullable: true }
+      additionalProperties: false
+    GraphQLAddProjectAttachmentData:
+      type: object
+      properties:
+        addProjectAttachment:
+          type: object
+          properties:
+            attachmentId: { type: string, format: uuid }
+    GraphQLAddProjectAttachmentRequest:
+      type: object
+      properties:
+        query: { type: string }
+        variables: { $ref: '#/components/schemas/GraphQLAddProjectAttachmentVariables' }
+    GraphQLAddProjectAttachmentVariables:
+      type: object
+      properties:
+        projectId:
+          type: string
+          format: uuid
+        attachmentId:
+          type: string
+          format: uuid
+    GraphQLAddProjectOrganizationData:
+      type: object
+      properties:
+        addProjectOrganization:
+          type: object
+          properties:
+            id: { type: string, format: uuid }
+            organizations:
+              type: array
+              items:
+                type: object
+                properties:
+                  id: { type: string, format: uuid }
+                  name: { type: string }
+    GraphQLAddProjectOrganizationRequest:
+      type: object
+      properties:
+        query: { type: string }
+        variables: { $ref: '#/components/schemas/GraphQLAddProjectOrganizationVariables' }
+    GraphQLAddProjectOrganizationVariables:
+      type: object
+      properties:
+        organizationId:
+          type: string
+          format: uuid
+        projectId:
+          type: string
+          format: uuid
     GraphQLCreateEventData:
       type: object
       properties:
@@ -372,6 +687,195 @@ components:
             timezone: { $ref: '#/components/schemas/TimeZone' }
             totalVolunteersNeeded: { type: integer, format: int32 }
             volunteerCap: { type: boolean }
+    GraphQLCreateEventRequest:
+      type: object
+      properties:
+        query: { type: string }
+        variables: { $ref: '#/components/schemas/GraphQLCreateEventVariables' }
+    GraphQLCreateEventVariables:
+      type: object
+      properties:
+        id:
+          description: ID for the overall project
+          type: string
+          format: uuid
+        projectEvent:
+          type: object
+          properties:
+            contactEmail:
+              type: string
+              format: email
+            contactName:
+              type: string
+            contactPhone:
+              type: string
+              format: phone
+            end:
+              type: string
+              format: date-time
+            groupCap:
+              type: boolean
+            groupLimit:
+              type: integer
+            shiftTitle:
+              type: string
+            start:
+              type: string
+              format: date-time
+            timezone:
+              $ref: '#/components/schemas/TimeZone'
+            totalVolunteersNeeded:
+              type: integer
+            volunteerCap:
+              type: boolean
+    GraphQLCreateOngoingEventRequest:
+      type: object
+      properties:
+        query: { type: string }
+        variables: { $ref: '#/components/schemas/GraphQLCreateOngoingEventVariables' }
+    GraphQLCreateOngoingEventVariables:
+      type: object
+      properties:
+        id:
+          description: ID for the overall project
+          type: string
+          format: uuid
+        projectEvent:
+          type: object
+          properties:
+            contactEmail:
+              type: string
+              format: email
+              maxLength: 200
+            contactName:
+              type: string
+              maxLength: 200
+            contactPhone:
+              type: string
+              format: phone
+              maxLength: 139
+            schedule:
+              type: string
+              maxLength: 100 # will be corrected to 300
+            shiftTitle:
+              type: string
+              maxLength: 100 # will be corrected to 300
+    GraphQLCreateProjectData:
+      type: object
+      properties:
+        createProject:
+          type: object
+          properties:
+            id: { type: string, format: uuid }
+            title: { type: string }
+            typeId: { type: integer, format: int32 }
+            locationTypeId: { type: integer, format: int32 }
+            externalVolunteerUrl: { type: string, nullable: true }
+            statusId: { type: integer, format: int32 }
+    GraphQLCreateProjectRequest:
+      type: object
+      properties:
+        query: { type: string }
+        variables: { $ref: '#/components/schemas/GraphQLCreateProjectVariables' }
+    GraphQLCreateProjectVariables:
+      type: object
+      properties:
+        title:
+          type: string
+        eventType:
+          $ref: "EventType"
+        locationType:
+          $ref: "ProjectLocationType"
+        redirect:
+          type: string
+    GraphQLCombinedMutationUpdateProjectAddProjectTagData:
+      type: object
+      properties:
+        updateProject:
+          type: object
+          properties:
+            id: { type: string, format: uuid }
+            wheelchairAccessible: { type: boolean }
+            itemDonations: { type: boolean }
+            indoors: { type: boolean }
+            longDescription: { type: string, maxLength: 2000 }
+            shortDescription: { type: string, maxLength: 300 }
+            sponsorUserId: { type: string, format: uuid }
+            groupProjects: { type: boolean }
+      additionalProperties:
+        type: object
+        properties:
+          id: { type: string, format: uuid }
+          tags:
+            type: array
+            items:
+              type: object
+              properties:
+                id: { type: integer, format: int32 }
+                tagType: { type: string }
+                tagTypeId: { type: integer, format: int32 }
+                translations:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      description: { type: string, nullable: true }
+                      label: { type: string }
+                      languageId: { type: integer, format: int32 }
+    GraphQLCombinedMutationUpdateProjectAddProjectTagRequest:
+      type: object
+      properties:
+        query: { type: string }
+        variables: { $ref: '#/components/schemas/GraphQLCombinedMutationUpdateProjectAddProjectTagVariables' }
+    GraphQLCombinedMutationUpdateProjectAddProjectTagVariables:
+      type: object
+      properties:
+        projectId:
+          type: string
+          format: uuid
+        modify:
+          type: object
+          properties:
+            indoors:
+              type: boolean
+            longDescription:
+              type: string
+              maxLength: 2000
+            shortDescription:
+              type: string
+              maxLength: 300
+            sponsorUserId:
+              type: string
+              format: uuid
+            suitableAllAges:
+              type: boolean
+            groupProjects:
+              type: boolean
+            itemDonations:
+              type: boolean
+            wheelchairAccessible:
+              type: boolean
+            sponsorType:
+              type: string
+    GraphQLPublishProjectData:
+      type: object
+      properties:
+        publishProject:
+          type: object
+          properties:
+            id: { type: string, format: uuid }
+            statusId: { type: integer, format: int32 }
+    GraphQLPublishProjectRequest:
+      type: object
+      properties:
+        query: { type: string }
+        variables: { $ref: '#/components/schemas/GraphQLPublishProjectVariables' }
+    GraphQLPublishProjectVariables:
+      type: object
+      properties:
+        projectId:
+          type: string
+          format: uuid
     GraphQLSearchOrganizationData:
       type: object
       properties:
@@ -393,14 +897,22 @@ components:
                 properties:
                   displayCity: { type: string }
                   displayState: { type: string }
-    GraphQLUpdateProjectData:
+    GraphQLSearchOrganizationRequest:
       type: object
       properties:
-        updateProject:
-          type: object
-          properties:
-            id: { type: string, format: uuid }
-            logo: { type: string }
+        query: { type: string }
+        variables: { $ref: '#/components/schemas/GraphQLSearchOrganizationVariables' }
+    GraphQLSearchOrganizationVariables:
+      type: object
+      properties:
+        searchTerm:
+          minLength: 3
+          maxLength: 100
+          description: must not be null, and must be at least three characters long to avoid an exception
+          type: string
+        includeAll:
+          description: must not be null
+          type: boolean
     GraphQLSetProjectLocationData:
       type: object
       properties:
@@ -440,81 +952,54 @@ components:
                 ccUnitId: { type: string }
                 missionUnitId: { type: string }
                 stakeUnitId: { type: string }
-    GraphQLAddProjectAttachmentData:
+    GraphQLSetProjectLocationRequest:
       type: object
       properties:
-        addProjectAttachment:
-          type: object
-          properties:
-            attachmentId: { type: string, format: uuid }
-    GraphQLAddProjectOrganizationData:
+        query: { type: string }
+        variables: { $ref: '#/components/schemas/GraphQLSetProjectLocationVariables' }
+    GraphQLSetProjectLocationVariables:
       type: object
       properties:
-        addProjectOrganization:
+        projectId:
+          type: string
+          format: uuid
+        location:
+          type: string
+        locationData:
           type: object
           properties:
-            id: { type: string, format: uuid }
-            organizations:
-              type: array
-              items:
-                type: object
-                properties:
-                  id: { type: string, format: uuid }
-                  name: { type: string }
-    GraphQLCombinedMutationUpdateProjectAddProjectTagData:
-      type: object
-      properties:
-        updateProject:
-          type: object
-          properties:
-            id: { type: string, format: uuid }
-            wheelchairAccessible: { type: boolean }
-            itemDonations: { type: boolean }
-            indoors: { type: boolean }
-            longDescription: { type: string, maxLength: 2000 }
-            shortDescription: { type: string, maxLength: 300 }
-            sponsorUserId: { type: string, format: uuid }
-            groupProjects: { type: boolean }
-      additionalProperties:
-        type: object
-        properties:
-          id: { type: string, format: uuid }
-          tags:
-            type: array
-            items:
-              type: object
-              properties:
-                id: { type: integer, format: int32 }
-                tagType: { type: string }
-                tagTypeId: { type: integer, format: int32 }
-                translations:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      description: { type: string, nullable: true }
-                      label: { type: string }
-                      languageId: { type: integer, format: int32 }
-    GraphQLCreateProjectData:
-      type: object
-      properties:
-        createProject:
-          type: object
-          properties:
-            id: { type: string, format: uuid }
-            title: { type: string }
-            typeId: { type: integer, format: int32 }
-            locationTypeId: { type: integer, format: int32 }
-            externalVolunteerUrl: { type: string, nullable: true }
-            statusId: { type: integer, format: int32 }
-    GraphQLPublishProjectData:
-      type: object
-      properties:
-        publishProject:
-          type: object
-          properties:
-            id: { type: string, format: uuid }
-            statusId: { type: integer, format: int32 }
+            country:
+              type: string
+            countryCode:
+              type: string
+            state:
+              type: string
+            city:
+              type: string
+            county:
+              type: string
+            postal:
+              type: string
+            neighborhood:
+              type: string
+            latitude:
+              type: number
+            longitude:
+              type: number
+            address:
+              type: string
+            areaId:
+              type: string
+            ccId:
+              type: string
+            missionId:
+              type: string
+            stakeId:
+              type: string
+            locationDetails:
+              type: string
+            locationName:
+              type: string
     GraphQLUpdateProjectAttachmentData:
       type: object
       properties:
@@ -522,6 +1007,29 @@ components:
           type: object
           properties:
             attachmentId: { type: string, format: uuid }
+    GraphQLUpdateProjectAttachmentRequest:
+      type: object
+      properties:
+        query: { type: string }
+        variables: { $ref: '#/components/schemas/GraphQLUpdateProjectAttachmentVariables' }
+    GraphQLUpdateProjectAttachmentVariables:
+      type: object
+      properties:
+        attachmentId:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+    GraphQLUpdateProjectData:
+      type: object
+      properties:
+        updateProject:
+          type: object
+          properties:
+            id: { type: string, format: uuid }
+            logo: { type: string }
     GraphQLUpdateProjectListingData:
       type: object
       properties:
@@ -530,281 +1038,42 @@ components:
           properties:
             id: { type: string, format: uuid }
             unlisted: { type: boolean }
-    BoundaryUpdateRequest:
+    GraphQLUpdateProjectListingRequest:
       type: object
       properties:
-        id:
-          description: |
-            When reassigning to a specialist, this is the specialist's church geography ID.
-            Sometimes the security context endpoint will include this information, otherwise you can look up the church ID with 
-            api/v1/locations/lds/{CDOL-id}.
-          type: string
-          nullable: true
-        boundaryType:
-          $ref: '#/components/schemas/BoundaryType'
-        updateInfo:
-          type: array
-          items:
-            $ref: '#/components/schemas/BoundaryUserInfo'
-          nullable: true
-      additionalProperties: false
-    BoundaryUserInfo:
+        query: { type: string }
+        variables: { $ref: '#/components/schemas/GraphQLUpdateProjectListingVariables' }
+    GraphQLUpdateProjectListingVariables:
       type: object
       properties:
-        addCivicGeographyIds:
-          type: array
-          items: { type: string, format: uuid }
-        removeCivicGeographyIds:
-          type: array
-          items: { type: string, format: uuid }
-          nullable: true
-        role: { $ref: '#/components/schemas/Role' }
-        userId: { type: string, format: uuid }
-        add: { type: boolean, nullable: true }
-      additionalProperties: false
-    BoundaryType:
-      type: integer
-      format: int32
-      enum:
-        - 0
-        - 1
-      x-enum-varnames:
-        - LdsGeography
-        - Organization
-    CivicChildResult:
-      type: object
-      properties:
-        parentCivicId:
+        projectId:
           type: string
           format: uuid
-        civicId:
-          type: string
-          format: uuid
-        name:
-          type: string
-          nullable: true
-      additionalProperties: false
-    ChurchCivicGeographyUserRole:
-      type: object
-      properties:
-        churchGeographyId: { type: string, format: uuid }
-        unitId:
-          type: string
-          nullable: true
-        civicGeographyId: { type: string, format: uuid }
-        role:
-          $ref: '#/components/schemas/Role'
-      additionalProperties: false
-    ChurchGeographyUserRole:
-      type: object
-      properties:
-        churchGeographyId: { type: string, format: uuid }
-        unitId:
-          type: string
-          nullable: true
-        role:
-          $ref: '#/components/schemas/Role'
-      additionalProperties: false
-    Time.DayOfWeek:
-      enum: [ 0, 1, 2, 3, 4, 5, 6 ]
-      x-enum-varnames:
-        - Sunday
-        - Monday
-        - Tuesday
-        - Wednesday
-        - Thursday
-        - Friday
-        - Saturday
-      type: integer
-      format: int32
-    Time.TimeOfDay:
-      enum: [ 0,1,2,3 ]
-      x-enum-varnames:
-        - None
-        - Morning
-        - Afternoon
-        - Evening
-      type: integer
-      format: int32
-    DistanceType:
-      type: string
-      enum:
-        - None
-        - Miles
-        - Kilometers
-    DynamicRoutingDataResponse:
-      type: object
-      properties:
-        id: { type: string, format: uuid }
-        dynamicRouteType:
-          description: "The type of entity the route points to."
-          type: integer
-          format: int32
-          enum: [ 0, 1 ]
-          x-enum-varnames:
-            - Organization
-            - DisasterRelief
-      additionalProperties: false
-    ImageUploadRequest:
-      type: object
-      properties:
-        base64: { type: string }
-        height: { type: integer, format: int32 }
-        width: { type: integer, format: int32 }
-        squareWrapper: { type: boolean }
-        x: { type: integer, format: int32 }
-        y: { type: integer, format: int32 }
-    ImageUploadResponse:
-      type: object
-      properties:
-        attachmentId: { type: string, format: uuid }
-        full: { type: string }
-        displayFileName: { type: string }
-        thumb: { type: string }
-    OrganizationCreateRequest:
-      type: object
-      properties:
-        banner: { type: string, nullable: true }
-        logo: { type: string, nullable: true }
-        contactEmail: { type: string }
-        contactName: { type: string }
-        contactPhone: { type: string }
-        description: { type: string }
-        locationString: { type: string }
-        name: { type: string }
-        public: { type: boolean }
-        url:
-          type: string
-          description: The vanity URL slug for the organization's public page ('my-cool-org' not 'https.../orgs/my-cool-org'
-        volunteerCenterInfo: { type: string, nullable: true }
-        website: { type: string, nullable: true }
-      additionalProperties: false
-    OrganizationUserRole:
-      type: object
-      properties:
-        organizationId: { type: string, format: uuid }
-        role:
-          $ref: '#/components/schemas/Role'
-      additionalProperties: false
-    OrganizationSearchResponse:
-      type: object
-      properties:
-        count:
-          type: integer
-          format: int32
-        organizations:
-          type: array
-          items:
-            $ref: "#/components/schemas/OrganizationSlimResponse"
-          nullable: true
-        location:
-          $ref: "#/components/schemas/Location"
-        isLocationSupported:
+        unlisted:
           type: boolean
-      additionalProperties: false
-    ProjectSearchRequest:
+    GraphQLUpdateProjectRequest:
       type: object
       properties:
-        latitude: { type: number, format: double }
-        longitude: { type: number, format: double }
-        searchType: { $ref: '#/components/schemas/SearchLocationType' }
-        radius: { type: integer, format: int32 }
-        radiusType: { $ref: '#/components/schemas/DistanceType' }
-        start: { type: string, format: date-time }
-        page: { type: integer, format: int32 }
-        size: { type: integer, format: int32 }
-        sortBy: { type: string, nullable: true }
-        language: { type: string, nullable: true }
-        browserLocale: { type: string, nullable: true }
-        getProjectSearchOrderBy: { $ref: '#/components/schemas/ProjectSearchOrderBy' }
-        keywords: { type: string, nullable: true }
-        location: { type: string, nullable: true }
-        end: { type: string, format: date-time }
-        suitableAllAges: { type: boolean }
-        groupProject: { type: boolean }
-        volunteerRemotely: { type: boolean }
-        volunteerFromAnywhere: { type: boolean }
-        itemDonations: { type: boolean }
-        wheelchairAccessible: { type: boolean }
-        indoors: { type: boolean }
-        onGoing: { type: boolean }
-        dtl: { type: boolean }
-        skills: { type: array, items: { type: integer, format: int32 }, nullable: true }
-        interests: { type: array, items: { type: integer, format: int32 }, nullable: true }
-        userInitiatedSearch: { type: boolean }
-        includeOrgInfo: { type: boolean }
-        includeFilledProjects: { type: boolean }
-        disasterRecoveryProjectsOnly: { type: boolean }
-        daysOfWeek: { type: array, items: { $ref: '#/components/schemas/Time.DayOfWeek' }, nullable: true }
-        timesOfDay: { type: array, items: { $ref: '#/components/schemas/Time.TimeOfDay' }, nullable: true }
-        publishedOnly: { type: boolean }
-      additionalProperties: false
-    ProjectSearchResponse:
+        query: { type: string }
+        variables: { $ref: '#/components/schemas/GraphQLUpdateProjectVariables' }
+    GraphQLUpdateProjectVariables:
       type: object
       properties:
-        pageNumber: { type: integer, format: int32 }
-        pageSize: { type: integer, format: int32 }
-        items:
-          type: array
-          items: { $ref: '#/components/schemas/ProjectCard' }
-          nullable: true
-        pageCount: { type: integer, format: int32, nullable: true, readOnly: true }
-        itemCount: { type: integer, format: int32, nullable: true }
-        searchLatitude: { type: number, format: double }
-        searchLongitude: { type: number, format: double }
-      additionalProperties: false
-    ProjectCard:
+        projectId:
+          type: string
+          format: uuid
+        logo:
+          type: string
+    GeographyBounded:
       type: object
       properties:
-        id: { type: string, format: uuid }
-        statusId: { type: integer, format: int32 }
-        projectTypeId: { type: integer, format: int32 }
-        title: { type: string, nullable: true }
-        shortDescription: { type: string, nullable: true }
-        imagePath: { type: string, nullable: true }
-        organizationName: { type: string, nullable: true }
-        suitableAllAges: { type: boolean }
-        groupProjects: { type: boolean }
-        volunteerRemotely: { type: boolean }
-        volunteerFromAnywhere: { type: boolean }
-        itemDonations: { type: boolean }
-        wheelchairAccessible: { type: boolean }
-        indoors: { type: boolean }
-        forYouthGroups: { type: boolean }
-        totalNextOpportunities: { type: integer, format: int32, nullable: true }
-        regionSelected: { type: boolean }
-        nextOpportunity: { $ref: '#/components/schemas/ProjectCardOpportunity' }
-        location: { $ref: '#/components/schemas/ProjectCardLocation' }
-        countryCode: { type: string, nullable: true }
-        boundaries:
-          type: array
-          items: { $ref: '#/components/schemas/RegionCivicGeography' }
-          nullable: true
-      additionalProperties: false
-    ProjectCardOpportunity:
-      type: object
-      properties:
-        projectEventId: { type: string, format: uuid }
-        start: { type: string, nullable: true }
-        end: { type: string, nullable: true }
-        volunteersNeeded: { type: integer, format: int32, nullable: true }
-        timezone: { type: string, nullable: true }
-      additionalProperties: false
-    ProjectCardLocation:
-      type: object
-      properties:
-        city: { type: string, nullable: true }
-        state: { type: string, nullable: true }
-        postal: { type: string, nullable: true }
-        latitude: { type: number, format: double }
-        longitude: { type: number, format: double }
-      additionalProperties: false
-    RegionCivicGeography:
-      type: object
-      properties:
-        type: { $ref: '#/components/schemas/GeographyType' }
-        name: { type: string, nullable: true }
         id: { type: string, nullable: true }
+        name: { type: string, nullable: true }
+        type: { $ref: '#/components/schemas/GeographyType' }
+        civicCountryId: { type: string, nullable: true }
+        civicStateId: { type: string, nullable: true }
+        civicCountyId: { type: string, nullable: true }
+        civicCityId: { type: string, nullable: true }
       additionalProperties: false
     GeographyType:
       enum: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ]
@@ -824,182 +1093,89 @@ components:
         - None
       type: integer
       format: int32
-    SearchLocationType:
-      enum: [ 0, 1, 2, 3 ]
-      x-enum-varnames:
-        - Radius
-        - State
-        - Regional
-        - None
-      type: integer
-      format: int32
-    ProjectSearchOrderBy:
-      enum: [ 0, 1, 2, 3, 4, 5, 6, 7 ]
-      x-enum-varnames:
-        - None
-        - Relativity
-        - Recent
-        - Title
-        - TitleReverse
-        - Created
-        - NextOpportunity
-        - Distance
-      type: integer
-      format: int32
-    UserHashRequest:
-      description: |
-        A request containing either the email or the userid for a user.
-      type: object
-      oneOf:
-        - $ref: '#/components/schemas/UserHashRequestByEmail'
-    UserHashRequestByEmail:
-      type: object
-      description: "A request to get a user hash using their email."
-      required: [ email ]
-      properties:
-        email:
-          type: string
-          description: "The email address of the user."
-      additionalProperties: false
-    UserHashRequestByUserId:
-      type: object
-      description: "A request to get a user hash using their unique ID."
-      required: [ userid ]
-      properties:
-        userid:
-          type: string
-          description: "The unique ID of the user."
-      additionalProperties: false
-    UserSearchRequest:
-      description: |
-        search query used in a few different endpoints
-      required: [ value, page, size ]
+    ImageUploadRequest:
       type: object
       properties:
-        value: { minLength: 1, type: string }
-        page:
-          description: "the page number to retrieve"
-          type: integer
-          format: int32
-        size:
-          description: "the number of results per page"
-          type: integer
-          format: int32
-        orderBy:
+        base64: { type: string }
+        height: { type: integer, format: int32 }
+        width: { type: integer, format: int32 }
+        squareWrapper: { type: boolean }
+        x: { type: integer, format: int32 }
+        y: { type: integer, format: int32 }
+    ImageUploadResponse:
+      type: object
+      properties:
+        attachmentId: { type: string, format: uuid }
+        full: { type: string }
+        displayFileName: { type: string }
+        thumb: { type: string }
+    LocaleNames:
+      type: object
+      properties:
+        bcp47:
+          description: locale abbreviation per the <a href='https://developer.mozilla.org/en-US/docs/Glossary/BCP_47_language_tag' BCP 47 standard</a>
           type: string
           nullable: true
-      additionalProperties: false
-    UserSlimSearchResults:
-      description: |
-        Return object for the user slim search endpoint
-      type: object
-      properties:
-        count: { type: integer, format: int32 }
-        users:
-          type: array
-          items: { $ref: '#/components/schemas/UserSlimSearchResult' }
+        name:
+          description: locale name
+          type: string
           nullable: true
-      additionalProperties: false
-    UserSearchResults:
-      deprecated: true
-      description: |
-        Return object for the user search endpoint
+        lang3char:
+          description: abbreviation of the language. Currently does not seem to follow any standardized format
+          type: string
+          nullable: true
+    Location:
       type: object
+      description: "Representation of a real-world location"
       properties:
-        count: { type: integer, format: int32 }
-        users:
-          type: array
-          items: { $ref: '#/components/schemas/UserSearchResult' }
-    UserSearchResult:
-      deprecated: true
-      type: object
-      properties:
-        id: { type: string }
-        firstName: { type: string, nullable: true }
-        lastName: { type: string, nullable: true }
-        userName: { type: string, nullable: true }
-        language: { type: string, nullable: true }
-        address: { type: string, nullable: true }
-        neighborhood: { type: string, nullable: true }
+        mapId: { type: string, nullable: true }
+        fullDisplayAddress: { description: "Full representation of this location's address", type: string, nullable: true }
+        address: { description: "Primary street address", type: string, nullable: true }
+        suite: { description: "Additional address details", type: string, nullable: true }
         city: { type: string, nullable: true }
+        civicCityId: { type: string, format: uuid, nullable: true }
+        neighborhood: { type: string, nullable: true }
+        county: { type: string, nullable: true }
         state: { type: string, nullable: true }
         postal: { type: string, nullable: true }
         country: { type: string, nullable: true }
-        countryCode: { type: string, nullable: true }
-        isActive: { type: boolean }
-        skills: { type: array, items: { type: string }, nullable: true }
-        interests: { type: array, items: { type: string }, nullable: true }
-        tools: { type: array, items: { type: string }, nullable: true }
-        email: { type: string, nullable: true }
-        phone: { type: string, nullable: true }
-        keywords: { type: string, nullable: true }
-        adminRole: { $ref: '#/components/schemas/Role' }
-        organizations: { type: array, items: { $ref: '#/components/schemas/Organization' }, nullable: true }
-        permissions: { type: array, items: { type: string }, nullable: true }
-        assignedAreas: { type: array, items: string, nullable: true }
-        churchBoundaries: { type: array, items: string, nullable: true }
-        civicBoundaries: { type: array, items: string, nullable: true }
-        manageableAdmin: { type: boolean }
-        showsSensitiveInfo: { type: boolean }
-        distance: { type: integer, format: int32 }
-        relativityScore: { type: number, format: double }
-        volunteerProjects: { type: array, items: { $ref: '#/components/schemas/ProjectSlimResponse' } }
-        additionalProperties: false
-    ProjectSlimResponse:
-      type: object
-      properties:
-        id: { type: string, format: uuid }
-        title: { type: string, nullable: true }
-        description: { type: string, nullable: true }
-        projectExpired: { type: boolean }
-        orgAuthorizationPending: { type: boolean, nullable: true }
-        status: { $ref: '#/components/schemas/ProjectStatus' }
-        startDate: { type: string, format: date-time, nullable: true }
-        endDate: { type: string, format: date-time, nullable: true }
-        locations:
-          type: array
-          items: { $ref: '#/components/schemas/Location' }
-          nullable: true
-        lastChangeReason: { type: string, nullable: true }
-        needsAttention: { type: boolean, nullable: true }
-        isActive: { type: boolean, nullable: true }
-        isUnlistedProject: { type: boolean }
-        isDirectlyOwnedOrSponsored: { type: boolean }
-        isOwnedOrRepresentedViaOrganization: { type: boolean }
-        isIndividualProject: { type: boolean }
-        projectOwnerName: { type: string, nullable: true }
-        projectOwnerUserId: { type: string, format: uuid, nullable: true }
-        relativityScore: { type: number, format: double }
+        countryCode: { description: "ISO 3166-1 standard three-letter country code", type: string, nullable: true }
+        locationVisibilityId: { type: number, format: int32 }
+        missionId: { type: string, nullable: true }
+        ccId: { type: string, nullable: true }
+        stakeId: { type: string, nullable: true }
+        areaId: { type: string, nullable: true }
+        latitude: { type: number, format: double }
+        longitude: { type: number, format: double }
+        maxLatitude: { type: number, format: double }
+        minLatitude: { type: number, format: double }
+        maxLongitude: { type: number, format: double }
+        minLongitude: { type: number, format: double }
+        geoCodeOverride: { type: boolean }
+        timezone: { type: string, nullable: true }
       additionalProperties: false
-    ProjectStatus:
-      type: integer
-      format: int32
-      enum: [ 1, 2, 3, 4, 5, 6, 7 ]
-      x-enum-varnames:
-        - PUBLISHED
-        - SUBMITTED
-        - DRAFT
-        - TEMPLATE
-        - ON_HOLD
-        - CANCELLED
-        - DECLINED
-    UserSlimSearchResult:
-      description: |
-        high level information for a given user
+    LocationWithRadius:
+      description: "Representation of an area in the vicinity of a real-world location"
+      allOf:
+        - $ref: '#/components/schemas/Location'
+        - type: object
+          properties:
+            radiusType: { $ref: '#/components/schemas/DistanceType' }
+            countryCode2Char: { description: "ISO 3166-1 standard two-letter country code", type: string, nullable: true }
+          additionalProperties: false
+    OrgRepresentative:
       type: object
       properties:
-        id: { type: string, format: uuid }
-        firstName: { type: string, nullable: true }
-        lastName: { type: string, nullable: true }
-        userName: { type: string, nullable: true }
-        email: { type: string, nullable: true, description: "partially obfuscated email for user" }
-        state: { type: string, nullable: true }
-        adminRole: { $ref: '#/components/schemas/Role' }
-        adminRoleName: { type: string, nullable: true }
-        permissions: { type: array, items: { type: string }, nullable: true }
-        organizationName: { type: string, nullable: true }
-        churchBoundaryName: { type: string, nullable: true }
-        showsSensitiveInfo: { type: boolean }
+        id: { type: string }
+        organizationId: { type: string }
+        userid: { type: string }
+        created: { type: string, format: date-time }
+        updated: { type: string, format: date-time }
+        createdBy: { type: string, nullable: true }
+        updatedBy: { type: string, nullable: true }
+        deleted: { type: boolean }
+        deletedOn: { type: string, format: date-time, nullable: true }
+        deletedBy: { type: string, format: uuid, nullable: true }
       additionalProperties: false
     Organization:
       type: object
@@ -1057,6 +1233,47 @@ components:
           items: { $ref: '#/components/schemas/OrganizationSlimResponse' }
           nullable: true
         additionalProperties: false
+    OrganizationBounded:
+      type: object
+      properties:
+        id: { type: string, nullable: true }
+        endorsements:
+          type: array
+          items: { $ref: '#/components/schemas/Endorsement' }
+          nullable: true
+        name: { type: string, nullable: true }
+        url: { type: string, nullable: true }
+        location: { $ref: '#/components/schemas/Location' }
+        status: { $ref: '#/components/schemas/OrganizationStatus' }
+        isLead: { type: boolean }
+        type: { $ref: '#/components/schemas/OrganizationType' }
+      additionalProperties: false
+    OrganizationCreateRequest:
+      type: object
+      properties:
+        banner: { type: string, nullable: true }
+        logo: { type: string, nullable: true }
+        contactEmail: { type: string }
+        contactName: { type: string }
+        contactPhone: { type: string }
+        description: { type: string }
+        locationString: { type: string }
+        name: { type: string }
+        public: { type: boolean }
+        url:
+          type: string
+          description: The vanity URL slug for the organization's public page ('my-cool-org' not 'https.../orgs/my-cool-org'
+        volunteerCenterInfo: { type: string, nullable: true }
+        website: { type: string, nullable: true }
+      additionalProperties: false
+    OrganizationCivicGeographyUserRole:
+      type: object
+      properties:
+        organizationId: { type: string, format: uuid }
+        role:
+          $ref: '#/components/schemas/Role'
+        civicGeographyId: { type: string, format: uuid }
+      additionalProperties: false
     OrganizationSearchRequest:
       type: object
       properties:
@@ -1077,14 +1294,22 @@ components:
         page: { default: 0, type: integer, format: int32 }
         size: { default: 5, type: integer, format: int32 }
       additionalProperties: false
-    OrganizationStatus:
-      type: string
-      enum:
-        - None
-        - Active
-        - Inactive
-        - Pending
-        - Rejected
+    OrganizationSearchResponse:
+      type: object
+      properties:
+        count:
+          type: integer
+          format: int32
+        organizations:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrganizationSlimResponse"
+          nullable: true
+        location:
+          $ref: "#/components/schemas/Location"
+        isLocationSupported:
+          type: boolean
+      additionalProperties: false
     OrganizationSlimResponse:
       type: object
       properties:
@@ -1101,6 +1326,14 @@ components:
         contactEmail: { type: string, nullable: true }
         isIndividualProject: { type: boolean }
         status: { $ref: '#/components/schemas/OrganizationStatus' }
+    OrganizationStatus:
+      type: string
+      enum:
+        - None
+        - Active
+        - Inactive
+        - Pending
+        - Rejected
     OrganizationType:
       type: integer
       format: int32
@@ -1114,111 +1347,20 @@ components:
         - Organization
         - VolunteerCenter
         - DisasterRelief
-    Endorsement:
-      type: object
-      properties:
-        id: { type: string }
-        organizationId: { type: string }
-        userid: { type: string }
-        created: { type: string, format: date-time }
-        updated: { type: string, format: date-time }
-        createdBy: { type: string, nullable: true }
-        updatedBy: { type: string, nullable: true }
-        deleted: { type: boolean }
-        deletedOn: { type: string, format: date-time, nullable: true }
-        deletedBy: { type: string, format: uuid, nullable: true }
-      additionalProperties: false
-    OrgRepresentative:
-      type: object
-      properties:
-        id: { type: string }
-        organizationId: { type: string }
-        userid: { type: string }
-        created: { type: string, format: date-time }
-        updated: { type: string, format: date-time }
-        createdBy: { type: string, nullable: true }
-        updatedBy: { type: string, nullable: true }
-        deleted: { type: boolean }
-        deletedOn: { type: string, format: date-time, nullable: true }
-        deletedBy: { type: string, format: uuid, nullable: true }
-      additionalProperties: false
-    OrganizationCivicGeographyUserRole:
+    OrganizationUserRole:
       type: object
       properties:
         organizationId: { type: string, format: uuid }
         role:
           $ref: '#/components/schemas/Role'
-        civicGeographyId: { type: string, format: uuid }
       additionalProperties: false
-    Location:
-      type: object
-      properties: { latitude: { type: number, format: double },
-                    longitude: { type: number, format: double } }
-      additionalProperties: false
-    LocationWithRadius:
-      type: object,
-      properties:
-        mapId: { type: string, nullable: true }
-        fullDisplayAddress: { type: string, nullable: true }
-        address: { type: string, nullable: true }
-        suite: { type: string, nullable: true }
-        city: { type: string, nullable: true }
-        civicCityId: { type: string, format: uuid, nullable: true }
-        neighborhood: { type: string, nullable: true }
-        county: { type: string, nullable: true }
-        state: { type: string, nullable: true }
-        postal: { type: string, nullable: true }
-        country: { type: string, nullable: true }
-        countryCode: { type: string, nullable: true }
-        missionId: { type: string, nullable: true }
-        ccId: { type: string, nullable: true }
-        stakeId: { type: string, nullable: true }
-        areaId: { type: string, nullable: true }
-        latitude: { type: number, format: double }
-        longitude: { type: number, format: double }
-        maxLatitude: { type: number, format: double }
-        minLatitude: { type: number, format: double }
-        maxLongitude: { type: number, format: double }
-        minLongitude: { type: number, format: double }
-        geoCodeOverride: { type: boolean }
-        timezone: { type: string, nullable: true }
-        radiusType: { $ref: '#/components/schemas/DistanceType' }
-        countryCode2Char: { type: string, nullable: true }
-      additionalProperties: false
-    VolunteerCenterInfo:
-      type: object
-      properties:
-        parentOrganizationId: { type: string }
-        parentOrganizationName: { type: string, nullable: true }
-        childOrganizationIds:
-          type: array
-          items: { type: string }
-          nullable: true
-    Role:
-      type: string
-      enum: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ]
-      x-enum-varnames: [
-        "none",
-        "city",
-        "county",
-        "state",
-        "country",
-        "orgAdmin",
-        "orgLeadAdmin",
-        "stakeAdmin",
-        "stakeLeadAdmin",
-        "ccAdmin",
-        "ccLeadAdmin",
-        "missionAdmin",
-        "missionLeadAdmin",
-        "nationalAdmin",
-        "nationalLeadAdmin",
-        "areaAdmin",
-        "areaLeadAdmin",
-        "globalAdmin",
-        "globalLeadAdmin",
-        "developer"
-      ]
+    OwnerType:
+      type: integer
+      format: int32
+      enum: [ 0, 1 ]
+      x-enum-varnames:
+        - User
+        - Organization
     ProblemDetails:
       type: object
       properties:
@@ -1234,34 +1376,6 @@ components:
           format: int32
           nullable: true
         traceId: { type: string, nullable: true }
-    SecurityContext:
-      type: object
-      properties:
-        userId: { type: string, format: uuid }
-        userRepresentativeForOrganizations:
-          type: array
-          items: { type: string, format: uuid, nullable: true }
-        churchGeographies:
-          type: object
-          additionalProperties:
-            $ref: '#/components/schemas/ChurchGeographyUserRole'
-          nullable: true
-        civicGeographies:
-          type: object
-          additionalProperties:
-            $ref: '#/components/schemas/ChurchCivicGeographyUserRole'
-          nullable: true
-        organizationRoles:
-          type: object
-          additionalProperties:
-            $ref: '#/components/schemas/OrganizationUserRole'
-          nullable: true
-        organizationCivicGeographyUserRoles:
-          type: array
-          items:
-            $ref: '#/components/schemas/OrganizationCivicGeographyUserRole'
-          nullable: true
-      additionalProperties: false
     Project:
       type: object
       properties:
@@ -1630,6 +1744,321 @@ components:
           type: number
         underReview:
           type: boolean
+    ProjectBounded:
+      type: object
+      properties:
+        id: { type: string, nullable: true }
+        name: { type: string, nullable: true }
+        projectOwners:
+          type: array
+          items: { $ref: '#/components/schemas/ProjectOwner' }
+          nullable: true
+        locations:
+          type: array
+          items: { $ref: '#/components/schemas/Location' }
+          nullable: true
+        status: { $ref: '#/components/schemas/ProjectStatus' }
+        organization: { $ref: '#/components/schemas/ProjectOrg' }
+        createdBy: { type: string, nullable: true }
+        cbfName: { type: string, nullable: true }
+        cblName: { type: string, nullable: true }
+        startDate: { type: string, format: date-time }
+        endDate: { type: string, format: date-time }
+        isActive: { type: boolean }
+        isUnlistedProject: { type: boolean }
+        ongoing: { type: boolean }
+        isDirectlyOwnedOrSponsored: { type: boolean }
+        isOwnedOrRepresentedViaOrganization: { type: boolean }
+        volunteersNeeded: { type: integer, format: int32 }
+        volunteersAcquired: { type: integer, format: int32 }
+        projectOwnerName: { type: string, nullable: true }
+        projectOwnerUserId: { type: string, nullable: true }
+      additionalProperties: false
+    ProjectCard:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        statusId: { type: integer, format: int32 }
+        projectTypeId: { type: integer, format: int32 }
+        title: { type: string, nullable: true }
+        shortDescription: { type: string, nullable: true }
+        imagePath: { type: string, nullable: true }
+        organizationName: { type: string, nullable: true }
+        suitableAllAges: { type: boolean }
+        groupProjects: { type: boolean }
+        volunteerRemotely: { type: boolean }
+        volunteerFromAnywhere: { type: boolean }
+        itemDonations: { type: boolean }
+        wheelchairAccessible: { type: boolean }
+        indoors: { type: boolean }
+        forYouthGroups: { type: boolean }
+        totalNextOpportunities: { type: integer, format: int32, nullable: true }
+        regionSelected: { type: boolean }
+        nextOpportunity: { $ref: '#/components/schemas/ProjectCardOpportunity' }
+        location: { $ref: '#/components/schemas/ProjectCardLocation' }
+        countryCode: { type: string, nullable: true }
+        boundaries:
+          type: array
+          items: { $ref: '#/components/schemas/RegionCivicGeography' }
+          nullable: true
+      additionalProperties: false
+    ProjectCardLocation:
+      type: object
+      properties:
+        city: { type: string, nullable: true }
+        state: { type: string, nullable: true }
+        postal: { type: string, nullable: true }
+        latitude: { type: number, format: double }
+        longitude: { type: number, format: double }
+      additionalProperties: false
+    ProjectCardOpportunity:
+      type: object
+      properties:
+        projectEventId: { type: string, format: uuid }
+        start: { type: string, nullable: true }
+        end: { type: string, nullable: true }
+        volunteersNeeded: { type: integer, format: int32, nullable: true }
+        timezone: { type: string, nullable: true }
+      additionalProperties: false
+    ProjectOrg:
+      type: object
+      properties:
+        authorization: { type: boolean }
+        organizationAuthorization: { type: boolean, nullable: true }
+        name: { type: string, nullable: true }
+        description: { type: string, nullable: true }
+        url: { type: string, nullable: true }
+        internalUrl: { type: string, nullable: true }
+        organizationId: { type: string, nullable: true }
+        reviewedBy: { type: string, nullable: true }
+        reviewedOn: { type: string, format: date-time, nullable: true }
+        linked: { type: boolean }
+        logo: { type: string, nullable: true }
+      additionalProperties: false
+    ProjectOwner:
+      type: object
+      properties:
+        id: { type: string, nullable: true }
+        ownerType: { $ref: '#/components/schemas/OwnerType' }
+      additionalProperties: false
+    ProjectSearchOrderBy:
+      enum: [ 0, 1, 2, 3, 4, 5, 6, 7 ]
+      x-enum-varnames:
+        - None
+        - Relativity
+        - Recent
+        - Title
+        - TitleReverse
+        - Created
+        - NextOpportunity
+        - Distance
+      type: integer
+      format: int32
+    ProjectSearchRequest:
+      type: object
+      properties:
+        latitude: { type: number, format: double }
+        longitude: { type: number, format: double }
+        searchType: { $ref: '#/components/schemas/SearchLocationType' }
+        radius: { type: integer, format: int32 }
+        radiusType: { $ref: '#/components/schemas/DistanceType' }
+        start: { type: string, format: date-time }
+        page: { type: integer, format: int32 }
+        size: { type: integer, format: int32 }
+        sortBy: { type: string, nullable: true }
+        language: { type: string, nullable: true }
+        browserLocale: { type: string, nullable: true }
+        getProjectSearchOrderBy: { $ref: '#/components/schemas/ProjectSearchOrderBy' }
+        keywords: { type: string, nullable: true }
+        location: { type: string, nullable: true }
+        end: { type: string, format: date-time }
+        suitableAllAges: { type: boolean }
+        groupProject: { type: boolean }
+        volunteerRemotely: { type: boolean }
+        volunteerFromAnywhere: { type: boolean }
+        itemDonations: { type: boolean }
+        wheelchairAccessible: { type: boolean }
+        indoors: { type: boolean }
+        onGoing: { type: boolean }
+        dtl: { type: boolean }
+        skills: { type: array, items: { type: integer, format: int32 }, nullable: true }
+        interests: { type: array, items: { type: integer, format: int32 }, nullable: true }
+        userInitiatedSearch: { type: boolean }
+        includeOrgInfo: { type: boolean }
+        includeFilledProjects: { type: boolean }
+        disasterRecoveryProjectsOnly: { type: boolean }
+        daysOfWeek: { type: array, items: { $ref: '#/components/schemas/Time.DayOfWeek' }, nullable: true }
+        timesOfDay: { type: array, items: { $ref: '#/components/schemas/Time.TimeOfDay' }, nullable: true }
+        publishedOnly: { type: boolean }
+      additionalProperties: false
+    ProjectSearchResponse:
+      type: object
+      properties:
+        pageNumber: { type: integer, format: int32 }
+        pageSize: { type: integer, format: int32 }
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/ProjectCard' }
+          nullable: true
+        pageCount: { type: integer, format: int32, nullable: true, readOnly: true }
+        itemCount: { type: integer, format: int32, nullable: true }
+        searchLatitude: { type: number, format: double }
+        searchLongitude: { type: number, format: double }
+      additionalProperties: false
+    ProjectSlimResponse:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        title: { type: string, nullable: true }
+        description: { type: string, nullable: true }
+        projectExpired: { type: boolean }
+        orgAuthorizationPending: { type: boolean, nullable: true }
+        status: { $ref: '#/components/schemas/ProjectStatus' }
+        startDate: { type: string, format: date-time, nullable: true }
+        endDate: { type: string, format: date-time, nullable: true }
+        locations:
+          type: array
+          items: { $ref: '#/components/schemas/Location' }
+          nullable: true
+        lastChangeReason: { type: string, nullable: true }
+        needsAttention: { type: boolean, nullable: true }
+        isActive: { type: boolean, nullable: true }
+        isUnlistedProject: { type: boolean }
+        isDirectlyOwnedOrSponsored: { type: boolean }
+        isOwnedOrRepresentedViaOrganization: { type: boolean }
+        isIndividualProject: { type: boolean }
+        projectOwnerName: { type: string, nullable: true }
+        projectOwnerUserId: { type: string, format: uuid, nullable: true }
+        relativityScore: { type: number, format: double }
+      additionalProperties: false
+    ProjectStatus:
+      type: integer
+      format: int32
+      enum: [ 1, 2, 3, 4, 5, 6, 7 ]
+      x-enum-varnames:
+        - PUBLISHED
+        - SUBMITTED
+        - DRAFT
+        - TEMPLATE
+        - ON_HOLD
+        - CANCELLED
+        - DECLINED
+    RegionCivicGeography:
+      type: object
+      properties:
+        type: { $ref: '#/components/schemas/GeographyType' }
+        name: { type: string, nullable: true }
+        id: { type: string, nullable: true }
+      additionalProperties: false
+    Role:
+      type: string
+      enum: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ]
+      x-enum-varnames: [
+        "none",
+        "city",
+        "county",
+        "state",
+        "country",
+        "orgAdmin",
+        "orgLeadAdmin",
+        "stakeAdmin",
+        "stakeLeadAdmin",
+        "ccAdmin",
+        "ccLeadAdmin",
+        "missionAdmin",
+        "missionLeadAdmin",
+        "nationalAdmin",
+        "nationalLeadAdmin",
+        "areaAdmin",
+        "areaLeadAdmin",
+        "globalAdmin",
+        "globalLeadAdmin",
+        "developer"
+      ]
+    SearchLocationType:
+      enum: [ 0, 1, 2, 3 ]
+      x-enum-varnames:
+        - Radius
+        - State
+        - Regional
+        - None
+      type: integer
+      format: int32
+    SecurityContext:
+      type: object
+      properties:
+        userId: { type: string, format: uuid }
+        userRepresentativeForOrganizations:
+          type: array
+          items: { type: string, format: uuid, nullable: true }
+        churchGeographies:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/ChurchGeographyUserRole'
+          nullable: true
+        civicGeographies:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/ChurchCivicGeographyUserRole'
+          nullable: true
+        organizationRoles:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/OrganizationUserRole'
+          nullable: true
+        organizationCivicGeographyUserRoles:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrganizationCivicGeographyUserRole'
+          nullable: true
+      additionalProperties: false
+    Time.DayOfWeek:
+      enum: [ 0, 1, 2, 3, 4, 5, 6 ]
+      x-enum-varnames:
+        - Sunday
+        - Monday
+        - Tuesday
+        - Wednesday
+        - Thursday
+        - Friday
+        - Saturday
+      type: integer
+      format: int32
+    Time.TimeOfDay:
+      enum: [ 0,1,2,3 ]
+      x-enum-varnames:
+        - None
+        - Morning
+        - Afternoon
+        - Evening
+      type: integer
+      format: int32
+    TimeZone:
+      type: string
+    UserHashRequest:
+      description: |
+        A request containing either the email or the userid for a user.
+      type: object
+      oneOf:
+        - $ref: '#/components/schemas/UserHashRequestByEmail'
+    UserHashRequestByEmail:
+      type: object
+      description: "A request to get a user hash using their email."
+      required: [ email ]
+      properties:
+        email:
+          type: string
+          description: "The email address of the user."
+      additionalProperties: false
+    UserHashRequestByUserId:
+      type: object
+      description: "A request to get a user hash using their unique ID."
+      required: [ userid ]
+      properties:
+        userid:
+          type: string
+          description: "The unique ID of the user."
+      additionalProperties: false
     UserResultBounded:
       type: object
       properties:
@@ -1684,6 +2113,99 @@ components:
           items: { $ref: '#/components/schemas/ProjectBounded' }
           nullable: true
       additionalProperties: false
+    UserSearchRequest:
+      description: |
+        search query used in a few different endpoints
+      required: [ value, page, size ]
+      type: object
+      properties:
+        value: { minLength: 1, type: string }
+        page:
+          description: "the page number to retrieve"
+          type: integer
+          format: int32
+        size:
+          description: "the number of results per page"
+          type: integer
+          format: int32
+        orderBy:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UserSearchResult:
+      deprecated: true
+      type: object
+      properties:
+        id: { type: string }
+        firstName: { type: string, nullable: true }
+        lastName: { type: string, nullable: true }
+        userName: { type: string, nullable: true }
+        language: { type: string, nullable: true }
+        address: { type: string, nullable: true }
+        neighborhood: { type: string, nullable: true }
+        city: { type: string, nullable: true }
+        state: { type: string, nullable: true }
+        postal: { type: string, nullable: true }
+        country: { type: string, nullable: true }
+        countryCode: { type: string, nullable: true }
+        isActive: { type: boolean }
+        skills: { type: array, items: { type: string }, nullable: true }
+        interests: { type: array, items: { type: string }, nullable: true }
+        tools: { type: array, items: { type: string }, nullable: true }
+        email: { type: string, nullable: true }
+        phone: { type: string, nullable: true }
+        keywords: { type: string, nullable: true }
+        adminRole: { $ref: '#/components/schemas/Role' }
+        organizations: { type: array, items: { $ref: '#/components/schemas/Organization' }, nullable: true }
+        permissions: { type: array, items: { type: string }, nullable: true }
+        assignedAreas: { type: array, items: string, nullable: true }
+        churchBoundaries: { type: array, items: string, nullable: true }
+        civicBoundaries: { type: array, items: string, nullable: true }
+        manageableAdmin: { type: boolean }
+        showsSensitiveInfo: { type: boolean }
+        distance: { type: integer, format: int32 }
+        relativityScore: { type: number, format: double }
+        volunteerProjects: { type: array, items: { $ref: '#/components/schemas/ProjectSlimResponse' } }
+        additionalProperties: false
+    UserSearchResults:
+      deprecated: true
+      description: |
+        Return object for the user search endpoint
+      type: object
+      properties:
+        count: { type: integer, format: int32 }
+        users:
+          type: array
+          items: { $ref: '#/components/schemas/UserSearchResult' }
+    UserSlimSearchResult:
+      description: |
+        high level information for a given user
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        firstName: { type: string, nullable: true }
+        lastName: { type: string, nullable: true }
+        userName: { type: string, nullable: true }
+        email: { type: string, nullable: true, description: "partially obfuscated email for user" }
+        state: { type: string, nullable: true }
+        adminRole: { $ref: '#/components/schemas/Role' }
+        adminRoleName: { type: string, nullable: true }
+        permissions: { type: array, items: { type: string }, nullable: true }
+        organizationName: { type: string, nullable: true }
+        churchBoundaryName: { type: string, nullable: true }
+        showsSensitiveInfo: { type: boolean }
+      additionalProperties: false
+    UserSlimSearchResults:
+      description: |
+        Return object for the user slim search endpoint
+      type: object
+      properties:
+        count: { type: integer, format: int32 }
+        users:
+          type: array
+          items: { $ref: '#/components/schemas/UserSlimSearchResult' }
+          nullable: true
+      additionalProperties: false
     UpdatedBy:
       type: object
       properties:
@@ -1693,419 +2215,12 @@ components:
         isLead: { type: boolean }
         updatedDate: { type: string } # broken, returns year-zero instead of a meaningful date
       additionalProperties: false
-    BoundaryPermissionBounded:
+    VolunteerCenterInfo:
       type: object
       properties:
-        id: { type: string, nullable: true }
-        boundary: { type: string, nullable: true }
-        admins:
+        parentOrganizationId: { type: string }
+        parentOrganizationName: { type: string, nullable: true }
+        childOrganizationIds:
           type: array
-          items: { $ref: '#/components/schemas/BoundaryAdminBounded' }
-          nullable: true
-      additionalProperties: false
-    BoundaryAdminBounded:
-      type: object
-      properties:
-        id: { type: string, nullable: true }
-        firstName: { type: string, nullable: true }
-        lastName: { type: string, nullable: true }
-        type: { $ref: '#/components/schemas/Role' }
-      additionalProperties: false
-    GeographyBounded:
-      type: object
-      properties:
-        id: { type: string, nullable: true }
-        name: { type: string, nullable: true }
-        type: { $ref: '#/components/schemas/GeographyType' }
-        civicCountryId: { type: string, nullable: true }
-        civicStateId: { type: string, nullable: true }
-        civicCountyId: { type: string, nullable: true }
-        civicCityId: { type: string, nullable: true }
-      additionalProperties: false
-    OrganizationBounded:
-      type: object
-      properties:
-        id: { type: string, nullable: true }
-        endorsements:
-          type: array
-          items: { $ref: '#/components/schemas/Endorsement' }
-          nullable: true
-        name: { type: string, nullable: true }
-        url: { type: string, nullable: true }
-        location: { $ref: '#/components/schemas/Location' }
-        status: { $ref: '#/components/schemas/OrganizationStatus' }
-        isLead: { type: boolean }
-        type: { $ref: '#/components/schemas/OrganizationType' }
-      additionalProperties: false
-    ProjectBounded:
-      type: object
-      properties:
-        id: { type: string, nullable: true }
-        name: { type: string, nullable: true }
-        projectOwners:
-          type: array
-          items: { $ref: '#/components/schemas/ProjectOwner' }
-          nullable: true
-        locations:
-          type: array
-          items: { $ref: '#/components/schemas/Location' }
-          nullable: true
-        status: { $ref: '#/components/schemas/ProjectStatus' }
-        organization: { $ref: '#/components/schemas/ProjectOrg' }
-        createdBy: { type: string, nullable: true }
-        cbfName: { type: string, nullable: true }
-        cblName: { type: string, nullable: true }
-        startDate: { type: string, format: date-time }
-        endDate: { type: string, format: date-time }
-        isActive: { type: boolean }
-        isUnlistedProject: { type: boolean }
-        ongoing: { type: boolean }
-        isDirectlyOwnedOrSponsored: { type: boolean }
-        isOwnedOrRepresentedViaOrganization: { type: boolean }
-        volunteersNeeded: { type: integer, format: int32 }
-        volunteersAcquired: { type: integer, format: int32 }
-        projectOwnerName: { type: string, nullable: true }
-        projectOwnerUserId: { type: string, nullable: true }
-      additionalProperties: false
-    ProjectOwner:
-      type: object
-      properties:
-        id: { type: string, nullable: true }
-        ownerType: { $ref: '#/components/schemas/OwnerType' }
-      additionalProperties: false
-    OwnerType:
-      type: integer
-      format: int32
-      enum: [ 0, 1 ]
-      x-enum-varnames:
-        - User
-        - Organization
-    ProjectOrg:
-      type: object
-      properties:
-        authorization: { type: boolean }
-        organizationAuthorization: { type: boolean, nullable: true }
-        name: { type: string, nullable: true }
-        description: { type: string, nullable: true }
-        url: { type: string, nullable: true }
-        internalUrl: { type: string, nullable: true }
-        organizationId: { type: string, nullable: true }
-        reviewedBy: { type: string, nullable: true }
-        reviewedOn: { type: string, format: date-time, nullable: true }
-        linked: { type: boolean }
-        logo: { type: string, nullable: true }
-      additionalProperties: false
-    GraphQLAddProjectAttachmentRequest:
-      type: object
-      properties:
-        query: { type: string }
-        variables: { $ref: '#/components/schemas/GraphQLAddProjectAttachmentVariables' }
-    GraphQLAddProjectAttachmentVariables:
-      type: object
-      properties:
-        projectId:
-          type: string
-          format: uuid
-        attachmentId:
-          type: string
-          format: uuid
-    GraphQLAddProjectOrganizationRequest:
-      type: object
-      properties:
-        query: { type: string }
-        variables: { $ref: '#/components/schemas/GraphQLAddProjectOrganizationVariables' }
-    GraphQLAddProjectOrganizationVariables:
-      type: object
-      properties:
-        organizationId:
-          type: string
-          format: uuid
-        projectId:
-          type: string
-          format: uuid
-    GraphQLCombinedMutationUpdateProjectAddProjectTagRequest:
-      type: object
-      properties:
-        query: { type: string }
-        variables: { $ref: '#/components/schemas/GraphQLCombinedMutationUpdateProjectAddProjectTagVariables' }
-    GraphQLCombinedMutationUpdateProjectAddProjectTagVariables:
-      type: object
-      properties:
-        projectId:
-          type: string
-          format: uuid
-        modify:
-          type: object
-          properties:
-            indoors:
-              type: boolean
-            longDescription:
-              type: string
-              maxLength: 2000
-            shortDescription:
-              type: string
-              maxLength: 300
-            sponsorUserId:
-              type: string
-              format: uuid
-            suitableAllAges:
-              type: boolean
-            groupProjects:
-              type: boolean
-            itemDonations:
-              type: boolean
-            wheelchairAccessible:
-              type: boolean
-            sponsorType:
-              type: string
-    GraphQLCreateEventRequest:
-      type: object
-      properties:
-        query: { type: string }
-        variables: { $ref: '#/components/schemas/GraphQLCreateEventVariables' }
-    GraphQLCreateOngoingEventRequest:
-      type: object
-      properties:
-        query: { type: string }
-        variables: { $ref: '#/components/schemas/GraphQLCreateOngoingEventVariables' }
-    GraphQLCreateEventVariables:
-      type: object
-      properties:
-        id:
-          description: ID for the overall project
-          type: string
-          format: uuid
-        projectEvent:
-          type: object
-          properties:
-            contactEmail:
-              type: string
-              format: email
-            contactName:
-              type: string
-            contactPhone:
-              type: string
-              format: phone
-            end:
-              type: string
-              format: date-time
-            groupCap:
-              type: boolean
-            groupLimit:
-              type: integer
-            shiftTitle:
-              type: string
-            start:
-              type: string
-              format: date-time
-            timezone:
-              $ref: '#/components/schemas/TimeZone'
-            totalVolunteersNeeded:
-              type: integer
-            volunteerCap:
-              type: boolean
-    GraphQLCreateOngoingEventVariables:
-      type: object
-      properties:
-        id:
-          description: ID for the overall project
-          type: string
-          format: uuid
-        projectEvent:
-          type: object
-          properties:
-            contactEmail:
-              type: string
-              format: email
-              maxLength: 200
-            contactName:
-              type: string
-              maxLength: 200
-            contactPhone:
-              type: string
-              format: phone
-              maxLength: 139
-            schedule:
-              type: string
-              maxLength: 100 # will be corrected to 300
-            shiftTitle:
-              type: string
-              maxLength: 100 # will be corrected to 300
-
-    GraphQLCreateProjectRequest:
-      type: object
-      properties:
-        query: { type: string }
-        variables: { $ref: '#/components/schemas/GraphQLCreateProjectVariables' }
-    GraphQLCreateProjectVariables:
-      type: object
-      properties:
-        title:
-          type: string
-        eventType:
-          $ref: "EventType"
-        locationType:
-          $ref: "ProjectLocationType"
-        redirect:
-          type: string
-    GraphQLPublishProjectRequest:
-      type: object
-      properties:
-        query: { type: string }
-        variables: { $ref: '#/components/schemas/GraphQLPublishProjectVariables' }
-    GraphQLPublishProjectVariables:
-      type: object
-      properties:
-        projectId:
-          type: string
-          format: uuid
-    GraphQLSearchOrganizationRequest:
-      type: object
-      properties:
-        query: { type: string }
-        variables: { $ref: '#/components/schemas/GraphQLSearchOrganizationVariables' }
-    GraphQLSearchOrganizationVariables:
-      type: object
-      properties:
-        searchTerm:
-          minLength: 3
-          maxLength: 100
-          description: must not be null, and must be at least three characters long to avoid an exception
-          type: string
-        includeAll:
-          description: must not be null
-          type: boolean
-    GraphQLSetProjectLocationRequest:
-      type: object
-      properties:
-        query: { type: string }
-        variables: { $ref: '#/components/schemas/GraphQLSetProjectLocationVariables' }
-    GraphQLSetProjectLocationVariables:
-      type: object
-      properties:
-        projectId:
-          type: string
-          format: uuid
-        location:
-          type: string
-        locationData:
-          type: object
-          properties:
-            country:
-              type: string
-            countryCode:
-              type: string
-            state:
-              type: string
-            city:
-              type: string
-            county:
-              type: string
-            postal:
-              type: string
-            neighborhood:
-              type: string
-            latitude:
-              type: number
-            longitude:
-              type: number
-            address:
-              type: string
-            areaId:
-              type: string
-            ccId:
-              type: string
-            missionId:
-              type: string
-            stakeId:
-              type: string
-            locationDetails:
-              type: string
-            locationName:
-              type: string
-    GraphQLUpdateProjectAttachmentRequest:
-      type: object
-      properties:
-        query: { type: string }
-        variables: { $ref: '#/components/schemas/GraphQLUpdateProjectAttachmentVariables' }
-    GraphQLUpdateProjectAttachmentVariables:
-      type: object
-      properties:
-        attachmentId:
-          type: string
-          format: uuid
-        title:
-          type: string
-        description:
-          type: string
-    GraphQLUpdateProjectListingRequest:
-      type: object
-      properties:
-        query: { type: string }
-        variables: { $ref: '#/components/schemas/GraphQLUpdateProjectListingVariables' }
-    GraphQLUpdateProjectListingVariables:
-      type: object
-      properties:
-        projectId:
-          type: string
-          format: uuid
-        unlisted:
-          type: boolean
-    GraphQLUpdateProjectRequest:
-      type: object
-      properties:
-        query: { type: string }
-        variables: { $ref: '#/components/schemas/GraphQLUpdateProjectVariables' }
-    GraphQLUpdateProjectVariables:
-      type: object
-      properties:
-        projectId:
-          type: string
-          format: uuid
-        logo:
-          type: string
-    CountryInfo:
-      type: object
-      properties:
-        twoCharCode:
-          type: string
-          description: "ISO 3166-1 standard two-letter country code"
-          nullable: true
-        threeCharCode:
-          type: string
-          description: "ISO 3166-1 standard three-letter country code"
-          nullable: true
-        countryPhone:
-          type: string
-          description: "international phone prefix"
-          nullable: true
-      additionalProperties: false
-    CountryContext:
-      type: object
-      properties:
-        countryInfo:
-          $ref: "#/components/schemas/CountryInfo"
-        country:
-          type: string
-          nullable: true
-        state:
-          type: string
-          nullable: true
-        county:
-          type: string
-          nullable: true
-    LocaleNames:
-      type: object
-      properties:
-        bcp47:
-          description: locale abbreviation per the <a href='https://developer.mozilla.org/en-US/docs/Glossary/BCP_47_language_tag' BCP 47 standard</a>
-          type: string
-          nullable: true
-        name:
-          description: locale name
-          type: string
-          nullable: true
-        lang3char:
-          description: abbreviation of the language. Currently does not seem to follow any standardized format
-          type: string
+          items: { type: string }
           nullable: true

@@ -1,5 +1,5 @@
 name: GraalVM Native Image Test run and build tests
-on: [pull_request, workflow_dispatch]
+on: [workflow_dispatch]
 jobs:
   build:
     name: test and compile on self-hosted
