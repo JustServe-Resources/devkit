@@ -3,25 +3,20 @@ package org.justserve
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.test.extensions.spock.annotation.MicronautTest
 import jakarta.inject.Inject
-import net.datafaker.Faker
 import org.justserve.client.GraphQLClient
 import org.justserve.model.*
 import org.justserve.model.graph.*
 import spock.lang.Shared
-import spock.lang.Specification
 import spock.lang.Unroll
 
 import java.util.concurrent.TimeUnit
 
 @MicronautTest
-class GraphQLClientSpec extends Specification {
+class GraphQLClientSpec extends JustServeSpec {
 
     @Shared
     @Inject
     GraphQLClient client
-
-    @Shared
-    Faker faker = new Faker()
 
     Map<EventType, UUID> projectIds = [:]
 
