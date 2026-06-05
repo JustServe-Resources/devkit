@@ -54,6 +54,30 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/LocaleNames"
+  /api/v1/locations/countrycodes:
+    get:
+      description: Get basic country identifiers
+      operationId: getBasicCountryIdentifiers
+      tags: [ Location ]
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CountryBasicIdentifiers"
+            applications/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CountryBasicIdentifiers"
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CountryBasicIdentifiers"
   /api/v1/locations/{language}:
     get:
       tags: [ Location ]
