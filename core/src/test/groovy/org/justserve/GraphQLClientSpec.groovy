@@ -193,6 +193,56 @@ class GraphQLClientSpec extends JustServeSpec {
         eventType << [EventType.DTL, EventType.Ongoing, EventType.MultipleDTL]
     }
 
+    @SuppressWarnings("GroovyAssignabilityCheck")
+    @Unroll("can set project sponsor for project \"#projectCard.title\" with no errors or other data changed")
+    def "can set project sponsor for project with no errors or other data changed"(ProjectCard projectCard) {
+        given:
+        def locale = "en-US"
+        def sponsorUUID = readOnlyUser.uuid
+        def sponsorType = "USER"
+        def project = projectClient.getProject(
+                projectCard.getId(),
+                locale,
+                new GetProjectRequest(null, null, null, null // for some reason a valid GetProjectRequest object is needed, despite being nullable
+        )).block()
+
+        when:
+        def response = client.combinedMutationUpdateProjectAddProjectTag(new GraphQLCombinedMutationUpdateProjectAddProjectTagVariables(
+                UUID.fromString(project.getId()),
+                new GraphQLCombinedMutationUpdateProjectAddProjectTagVariablesModify(
+                        project.getIndoors(),
+                        project.getLongDescription(),
+                        project.getShortDescription(),
+                        sponsorUUID,
+                        project.getSuitableAllAges(),
+                        project.getGroupProject(),
+                        project.getItemDonations(),
+                        project.getWheelchairAccessible(),
+                        sponsorType
+                ))).block()
+
+        def responseData = response.data.getUpdateProject()
+
+        then:
+        // Ensure no errors
+        noExceptionThrown()
+        !response.hasErrors()
+
+        // Ensure no data has changed
+        project.getId() == responseData.getId().toString()
+        project.getIndoors() == responseData.getIndoors()
+        project.getLongDescription() == responseData.getLongDescription()
+        project.getShortDescription() == responseData.getShortDescription()
+        project.getSponsor().getUserId() != responseData.getSponsorUserId().toString()
+        // response does not track suitableAllAges
+        project.getGroupProject() == responseData.getGroupProjects()
+        project.getItemDonations() == responseData.getItemDonations()
+        project.getWheelchairAccessible() == responseData.getWheelchairAccessible()
+
+        where:
+        projectCard << getProjects(" ", 1, 10, " ", "en-US")
+    }
+
     @Unroll("cannot manually create event for #eventType.name() project")
     def "cannot manually create event for invalid project types"() {
         given:
