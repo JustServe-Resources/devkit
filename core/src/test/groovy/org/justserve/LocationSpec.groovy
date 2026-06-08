@@ -53,7 +53,7 @@ class LocationSpec extends JustServeSpec {
 
     @SuppressWarnings("GroovyAssignabilityCheck")
     @Unroll("Can query LocationClient.getSupportedCountryIdentifiers(#lang) with no error as #userType")
-    def "can query all country identifiers in a given language"(LocationClient client, String userType, String lang){
+    def "can query all country identifiers for supported countries in a given language"(LocationClient client, String userType, String lang){
         when:
         client.getSupportedCountryIdentifiers(lang).block()
 
