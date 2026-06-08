@@ -54,6 +54,42 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/LocaleNames"
+  /api/v1/locations/chidren/{parentId}/{locale}:
+    get:
+      description: Get the children of a parent location, in a certain locale
+      operationId: getCivicChild
+      tags: [ Location ]
+      parameters:
+        - name: parentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: locale
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CivicChildResult"
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CivicChildResult"
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CivicChildResult"
   /api/v1/locations/{language}:
     get:
       tags: [ Location ]
@@ -175,42 +211,6 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/CountryIdentifiers"
-  /api/v1/locations/{parentId}/{locale}:
-    get:
-      description: Get the children of a parent location, in a certain locale
-      operationId: getCivicChild
-      tags: [ Location ]
-      parameters:
-        - name: parentId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-        - name: locale
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            text/plain:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/CivicChildResult"
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/CivicChildResult"
-            text/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/CivicChildResult"
   /api/v1/organizations:
     post:
       tags: [ Organization ]
