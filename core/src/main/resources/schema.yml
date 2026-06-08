@@ -147,8 +147,8 @@ paths:
                   type: string
   /api/v1/locations/{language}/countries/postal:
     get:
-      description: Get identifiers for all countries
-      operationId: getAllCountryIdentifiers
+      description: Get identifiers for all countries supported by JustServe. Includes an additional "Other" country.
+      operationId: getSupportedCountryIdentifiers
       tags: [ Location ]
       parameters:
         - name: language
