@@ -203,8 +203,9 @@ class GraphQLClientSpec extends JustServeSpec {
         def project = projectClient.getProject(
                 projectCard.getId(),
                 locale,
-                new GetProjectRequest(null, null, null, null // for some reason a valid GetProjectRequest object is needed, despite being nullable
-        )).block()
+                // for some reason a valid GetProjectRequest object is needed, despite being nullable
+                new GetProjectRequest(null, null, null, null)
+        ).block()
 
         when:
         def response = client.combinedMutationUpdateProjectAddProjectTag(new GraphQLCombinedMutationUpdateProjectAddProjectTagVariables(
