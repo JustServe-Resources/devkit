@@ -3,25 +3,20 @@ package org.justserve
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.test.extensions.spock.annotation.MicronautTest
 import jakarta.inject.Inject
-import net.datafaker.Faker
 import org.justserve.client.GraphQLClient
 import org.justserve.model.*
 import org.justserve.model.graph.*
 import spock.lang.Shared
-import spock.lang.Specification
 import spock.lang.Unroll
 
 import java.util.concurrent.TimeUnit
 
 @MicronautTest
-class GraphQLClientSpec extends Specification {
+class GraphQLClientSpec extends JustServeSpec {
 
     @Shared
     @Inject
     GraphQLClient client
-
-    @Shared
-    Faker faker = new Faker()
 
     Map<EventType, UUID> projectIds = [:]
 
@@ -196,6 +191,33 @@ class GraphQLClientSpec extends Specification {
 
         where:
         eventType << [EventType.DTL, EventType.Ongoing, EventType.MultipleDTL]
+    }
+
+    @SuppressWarnings("GroovyAssignabilityCheck")
+    @Unroll("can set project sponsor for #eventType.name() event with status #projectStatus.name()")
+    def "can set project sponsor for #eventType event with status #projectStatus"(EventType eventType, ProjectStatus projectStatus) {
+        given:
+        def project = client.createProject(new GraphQLCreateProjectVariables()
+                .setTitle("Test Project - ${projectStatus.name()} ${eventType.name()}")
+                .setEventType(eventType)
+                .setLocationType(ProjectLocationType.SINGLE_LOCATION)
+        ).block()
+                .getData().getCreateProject().setStatusId((int) projectStatus.toString())
+
+        def vars = new GraphQLCombinedMutationUpdateProjectAddProjectTagVariables()
+                .setProjectId(project.getId())
+                .setModify(new GraphQLCombinedMutationUpdateProjectAddProjectTagVariablesModify()
+                        .setSponsorUserId(readOnlyUser.uuid)
+                )
+
+        when:
+        client.combinedMutationUpdateProjectAddProjectTag(vars).block()
+
+        then:
+        noExceptionThrown()
+
+        where:
+        [eventType, projectStatus] << [[EventType.DTL, EventType.Ongoing, EventType.MultipleDTL], [ProjectStatus.DRAFT, ProjectStatus.PUBLISHED]].combinations()
     }
 
     @Unroll("cannot manually create event for #eventType.name() project")
