@@ -194,6 +194,33 @@ class GraphQLClientSpec extends JustServeSpec {
     }
 
     @SuppressWarnings("GroovyAssignabilityCheck")
+    @Unroll("can set project sponsor for #eventType.name() event with status #projectStatus.name()")
+    def "can set project sponsor for #eventType event with status #projectStatus"(EventType eventType, ProjectStatus projectStatus) {
+        given:
+        def project = client.createProject(new GraphQLCreateProjectVariables()
+                .setTitle("Test Project - ${projectStatus.name()} ${eventType.name()}")
+                .setEventType(eventType)
+                .setLocationType(ProjectLocationType.SINGLE_LOCATION)
+        ).block()
+                .getData().getCreateProject().setStatusId((int) projectStatus.toString())
+
+        def vars = new GraphQLCombinedMutationUpdateProjectAddProjectTagVariables()
+                .setProjectId(project.getId())
+                .setModify(new GraphQLCombinedMutationUpdateProjectAddProjectTagVariablesModify()
+                        .setSponsorUserId(readOnlyUser.uuid)
+                )
+
+        when:
+        client.combinedMutationUpdateProjectAddProjectTag(vars).block()
+
+        then:
+        noExceptionThrown()
+
+        where:
+        [eventType, projectStatus] << [[EventType.DTL, EventType.Ongoing, EventType.MultipleDTL], [ProjectStatus.DRAFT, ProjectStatus.PUBLISHED]].combinations()
+    }
+
+    @SuppressWarnings("GroovyAssignabilityCheck")
     @Unroll("can set project sponsor for project \"#projectCard.title\" with no errors or other data changed")
     def "can set project sponsor for project with no errors or other data changed"(ProjectCard projectCard) {
         given:
