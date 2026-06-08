@@ -65,6 +65,32 @@ class LocationSpec extends JustServeSpec {
     }
 
     @SuppressWarnings("GroovyAssignabilityCheck")
+    @Unroll("Can query LocationClient.getAllCountryIdentifiers(#lang, #supportedOnly, #excludeSupported) with no error as #userType")
+    def "can query all country identifiers with no error"(LocationClient client, String userType, String lang){
+        when:
+        client.getAllCountryIdentifiers(lang, supportedOnly, excludeSupported).block()
+
+        then:
+        noExceptionThrown()
+
+        where:
+        [[client, userType], lang, supportedOnly, excludeSupported] << [[[noAuthLocationClient, "no auth"], [locationClient, "standard"]], threeCharLocales, [true, false], [true, false]].combinations()
+    }
+
+    @SuppressWarnings("GroovyAssignabilityCheck")
+    @Unroll("Can query LocationClient.getAllCountryIdentifiersWithPathVar(#lang, #supportedOnly, #excludeSupported) with no error as #userType")
+    def "can query all country identifiers with no error"(LocationClient client, String userType, String lang){
+        when:
+        client.getAllCountryIdentifiersWithPathVar(lang, supportedOnly, excludeSupported).block()
+
+        then:
+        noExceptionThrown()
+
+        where:
+        [[client, userType], lang, supportedOnly, excludeSupported] << [[[noAuthLocationClient, "no auth"], [locationClient, "standard"]], threeCharLocales, [true, false], [true, false]].combinations()
+    }
+
+    @SuppressWarnings("GroovyAssignabilityCheck")
     @Unroll("Can query LocationClient.getLocationByAddress(#lang, address) for a known working location with no error as #userType")
     def "can query location by address for a given language"(LocationClient client, String userType, String lang){
         when:
