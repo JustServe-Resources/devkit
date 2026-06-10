@@ -57,7 +57,7 @@ paths:
   /api/v1/locations/chidren/{parentId}/{locale}:
     get:
       description: Get the children of a parent location, in a certain locale
-      operationId: getCivicChild
+      operationId: getCivicChildren
       tags: [ Location ]
       parameters:
         - name: parentId
