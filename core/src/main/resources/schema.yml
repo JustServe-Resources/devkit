@@ -185,7 +185,7 @@ paths:
   /api/v1/locations/{language}/countries/all/{excludeSupportedCountries}:
     get:
       description: Get identifiers for all countries. This is basically the same thing as getAllCountryIdentifiers, but the excludeSupportedCountries parameter is in the path instead.
-      operationId: getAllCountryIdentifiersWithPathVar
+      operationId: getUnsupportedCountryIdentifiers
       tags: [ Location ]
       parameters:
         - name: language

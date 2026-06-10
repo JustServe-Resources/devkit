@@ -78,7 +78,7 @@ class LocationSpec extends JustServeSpec {
     }
 
     @SuppressWarnings("GroovyAssignabilityCheck")
-    @Unroll("Can query LocationClient.getAllCountryIdentifiersWithPathVar(#lang, #supportedOnly, #excludeSupported) with no error as #userType")
+    @Unroll("Can query LocationClient.getUnsupportedCountryIdentifiers(#lang, #supportedOnly, #excludeSupported) with no error as #userType")
     def "can query all country identifiers with no error"(LocationClient client, String userType, String lang){
         when:
         client.getAllCountryIdentifiersWithPathVar(lang, supportedOnly, excludeSupported).block()
